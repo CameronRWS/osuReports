@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body>
+    <header>
+        <div class="navbar navbar-dark bg-dark shadow-sm">
+            <div class="container d-flex justify-content-between">
+                <a href="/" class="navbar-brand d-flex align-items-center">
+                    <strong>Signed in as: @<%= user %> %><a href="/" class="btn btn-secondary my-2">Logout</a></li>
+                    </strong>
+                </a>
+            </div>
+        </div>
+    </header>
+</body>
+
+<style>
+    table {
+        width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+        border: 1px solid black;
+    }
+
+    th {
+        border: 3px solid black;
+        text-align: center;
+    }
+
+    td {
+        border: 1px solid black;
+        text-align: center;
+    }
+
+    tr {
+        border: 1px solid black;
+        text-align: center;
+    }
+</style>
+<main role="main">
+    <section class="jumbotron text-center">
+        <div>
+            <h1 class="jumbotron-heading"> Your osu! Reports: </h1>
+        </div>
+
+        <br />
+
+        <table style="width: 1">
+            <tr>
+                <th>Date</th>
+                <th>Duration</th>
+                <th>△Rank</th>
+                <th>△PP</th>
+                <th>△Accuracy</th>
+                <th>Link to report</th>
+            </tr>
+
+            <% for (var i = 0; i < sessions.length; i++) { %>
+
+
+            <tr>
+                <td><%= sessions[i].date %></td>
+                <td><%= sessions[i].sessionDuration %></td>
+                <td><%= sessions[i].difGlobalRank %></td>
+                <td><%= sessions[i].difPP %></td>
+                <td><%= sessions[i].difAcc %></td>
+                <td> <a
+                        href="https://twitter.com/osureports/status/<%= sessions[i].tweetID %>">https://twitter.com/osureports/status/<%= sessions[i].tweetID %></a>
+                </td>
+            </tr>
+            <% } %>
+        </table>
+
+        <br />
+
+        <a href="/return" class="btn btn-primary my-2">Back to dashboard</a>
+    </section>
+</main>
+
+<center>
+    <a href="/privacy"><strong>Privacy Policy</a></strong>
+</center>
+
+</html>

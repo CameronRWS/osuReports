@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="/static/styles/main.css" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <div class="navbar navbar-dark bg-dark shadow-sm">
+            <div class="container d-flex justify-content-between">
+                <a href="/" class="navbar-brand d-flex align-items-center">
+                    <strong>Signed in as: @<%= user %> %><a href="/" class="btn btn-secondary my-2">Logout</a></li>
+                    </strong>
+                </a>
+            </div>
+        </div>
+    </header>
+</body>
+<main role="main">
+    <section class="jumbotron text-center">
+        <div>
+            <h1 class="jumbotron-heading"><%= statusString %></h1>
+        </div>
+
+        <% if(cap != "") { %>
+        <%= cap %>
+        <% } %>
+        <br />
+        <div>
+            <form action="/action_enable" method="POST">
+                <input username="osu! username" name="username" placeholder=" osu! username">
+                <input type="hidden" twitterUsername="@<%= user %>" name="twitterUsername" value="@<%= user %>" />
+                <button class="btn btn-success my-2">Enable osu! Reports</button>
+            </form>
+        </div>
+        <!-- <a href="/whitelist" class="btn btn-link"><strong>See list of current users!</a></strong> -->
+    </section>
+</main>
+
+<center>
+    <a href="/privacy"><strong>Privacy Policy</a></strong>
+</center>
+
+</html>

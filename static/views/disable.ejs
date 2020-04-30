@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <style>
+        canvas {
+            padding-left: 0;
+            padding-right: 0;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+            /* width: 800px; */
+        }
+    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="/static/styles/main.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
+</head>
+
+<body>
+    <header>
+        <div class="navbar navbar-dark bg-dark shadow-sm">
+            <div class="container d-flex justify-content-between">
+                <a href="/" class="navbar-brand d-flex align-items-center">
+                    <strong>Signed in as: @<%= user %> %><a href="/" class="btn btn-secondary my-2">Logout</a></li>
+                    </strong>
+                </a>
+            </div>
+        </div>
+    </header>
+</body>
+
+<main role="main">
+    <section class="jumbotron text-center">
+        <div>
+            <h1 class="jumbotron-heading"><%= statusString %></h1>
+        </div>
+        <% if(cap != "") { %>
+        <%= cap %>
+        <br />
+        <br />
+        <% } %>
+        <strong>
+            <% if(numberOfSessions != "") { %>
+            You have <%= numberOfSessions %> recorded sessions.
+            <br />
+            <br />
+            <% } %>
+        </strong>
+
+
+        <% if(user == "penz_") { %>
+        <a href="/whitelist" class="btn btn-link my-2"><strong>See list of current users!</a></strong>
+        <br>
+        <a href="/sessionslist" class="btn btn-link my-2"><strong>See list of sessions!</a></strong>
+        <% } %>
+
+        <div>
+            <form action="/sessions" method="GET">
+                <input type="hidden" twitterUsername="@<%= user %>" name="twitterUsername" value="@<%= user %>" />
+                <button class="btn btn-success my-2">View your tweeted osu! Reports </button>
+            </form>
+            <form action="/stats" method="GET">
+                <input type="hidden" twitterUsername="@<%= user %>" name="twitterUsername" value="@<%= user %>" />
+                <button class="btn btn-primary my-2">View your osu! Reports Stats</button>
+            </form>
+            <form action="/action_disable" method="POST">
+                <input type="hidden" twitterUsername="@<%= user %>" name="twitterUsername" value="@<%= user %>" />
+                <button class="btn btn-danger my-2">Disable osu! Reports</button>
+            </form>
+
+        </div>
+
+    </section>
+</main>
+
+<center>
+    <a href="/privacy"><strong>Privacy Policy</a></strong>
+</center>
+
+</html>

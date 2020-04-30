@@ -1,0 +1,4 @@
+node_modules
+logs.txt
+*.db
+src/consumerKeys.js
