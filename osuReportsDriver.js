@@ -11,9 +11,9 @@ setSessionsRecorded();
 
 startServer();
 
-//initialize();
+initialize();
 
-test();
+//test();
 
 function test() {
   globalInstances.playerObjects.push(new playerObject("PenZa", "@penz_"));
@@ -36,18 +36,20 @@ function initialize() {
       globalInstances.logMessage(
         "From initialize(): Starting to loop through players..."
       );
+      globalInstances.playerObjects = [new playerObject("PenZa", "@penz_")];
       loopThroughPlayers();
     }
   );
 }
 
 var iPlayers = 0;
+var secondsPerIteration = 1000;
 function loopThroughPlayers() {
-  loopTime = 30000 / globalInstances.playerObjects.length;
+  loopTime = secondsPerIteration / globalInstances.playerObjects.length;
   globalInstances.playerObjects[iPlayers].updateSessionObjectv3();
   if (iPlayers == globalInstances.playerObjects.length - 1) {
     iPlayers = 0;
-    getSessionInfoForConsole();
+    //getSessionInfoForConsole();
   } else {
     iPlayers = iPlayers + 1;
   }

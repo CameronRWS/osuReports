@@ -84,12 +84,14 @@ class sessionObject {
   }
 
   addNewPlayAPI(scoreOfRecentPlay) {
+    console.log("adding new play via API");
     this.playObjects.push(
       new playObjectv2("", "", "", "", "", scoreOfRecentPlay)
     );
   }
 
   addNewPlayWEB(scoreOfRecentPlay) {
+    console.log("adding new play via WEB");
     fetchBeatmapJson(
       scoreOfRecentPlay.beatmap.beatmapset_idscoreOfRecentPlay.beatmap.id
     )
@@ -176,8 +178,7 @@ class sessionObject {
       var isTweetableResponse =
         this.player.osuUsername +
         " - This session has no plays with a background or only has one play";
-      globalInstances.logMessage(error);
-      isTweetableResponse;
+      globalInstances.logMessage(isTweetableResponse);
       return;
     }
     osuApi
