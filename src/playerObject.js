@@ -13,20 +13,16 @@ function fetchScoresFromProfile(profileId) {
   });
 }
 
-// Times returned from the OSU api are parsed according to the local timezone.
-// This causes the time to appear further ahead than it actually is (assuming
-// you're in the western hemsiphere). To fix this, we subtract our current
-// timezone offset from the parsed date to return it to proper UTC.
-function fixOsuDate(osuDate) {
-  return new Date(
-    osuDate.getTime() + (osuDate.getTimezoneOffset() + 180) * 60000
-  );
-}
-
 // Return the elapsed time between now and the last play, in minutes
 function calculateElapsedTime(lastPlay) {
   let now = new Date();
   return (now.getTime() - lastPlay.getTime()) / 60000;
+}
+
+class NoNewScoresError extends Error {
+  constructor(msg) {
+    super(msg || "no new scores");
+  }
 }
 
 class playerObject {
@@ -39,13 +35,11 @@ class playerObject {
   updateSessionObjectv3() {
     osuApi
       .getUserRecent({ u: this.osuUsername })
+      .catch((error) => {
+        /* do nothing because we have no new scores */
+        throw new NoNewScoresError();
+      })
       .then((scores) => {
-        if (scores.length === 0) {
-          globalInstances.logMessage(
-            "updateSessionObjectv3(): no scores found in response"
-          );
-          return;
-        }
         return osuApi
           .getBeatmaps({ b: scores[0].beatmapId })
           .then((beatmaps) => {
@@ -59,34 +53,34 @@ class playerObject {
           });
       })
       .catch((error) => {
-        // globalInstances.logMessage(
-        //   "updateSessionObjectv3(): No new scores to look at"
-        // );
+        if (error instanceof NoNewScoresError) return;
+        globalInstances.logMessage(
+          "updateSessionObjectv3(): Something went wrong: ",
+          error
+        );
       });
   }
 
   handleScore(score) {
-    var mostRecentPlayTime = fixOsuDate(score.date);
-    // console.log(mostRecentPlayTime);
+    var mostRecentPlayTime = score.date;
     var minutesElapsed = calculateElapsedTime(mostRecentPlayTime);
-    console.log("minutes: " + minutesElapsed);
-    if (
-      minutesElapsed > globalInstances.sessionTimeout &&
-      this.sessionObject != undefined
-    ) {
-      console.log("here1");
-      return this.handleSessionTimeout();
+    console.log(
+      "minutesElapsed for " + this.osuUsername + ": " + minutesElapsed
+    );
+    if (minutesElapsed > globalInstances.sessionTimeout) {
+      if (this.sessionObject != undefined) {
+        console.log("Ending session for: " + this.osuUsername);
+        return this.handleSessionTimeout();
+      }
+      return;
     }
-    if (
-      minutesElapsed < globalInstances.sessionTimeout &&
-      this.sessionObject == undefined
-    ) {
-      console.log("here2");
+    if (this.sessionObject == undefined) {
+      console.log("Creating new session for: " + this.osuUsername);
       this.sessionObject = new sessionObject(this, false);
       return this.handleScoreWithSession(score);
     }
     if (this.isNewPlay(score)) {
-      console.log("here3");
+      console.log("Adding new play for: " + this.osuUsername);
       return this.handleScoreWithSession(score);
     }
     // we have no updates, so just exit here
@@ -127,13 +121,14 @@ class playerObject {
   }
 
   isNewPlay(score) {
-    let attemptedNewPlayTime = fixOsuDate(score.date).getTime();
+    // this isn't supposed to happen
+    if (!this.sessionObject) return false;
 
+    let attemptedNewPlayTime = score.date.getTime();
     let lastPlay = this.sessionObject.playObjects[
       this.sessionObject.playObjects.length - 1
     ];
-    let lastRecordedPlayTime =
-      fixOsuDate(lastPlay.date).getTime() - 480 * 60000;
+    let lastRecordedPlayTime = lastPlay.date.getTime();
     return attemptedNewPlayTime != lastRecordedPlayTime;
   }
 

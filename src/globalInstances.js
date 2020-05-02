@@ -6,7 +6,7 @@ var fs = require("fs");
 const globalInstances = {
   playerObjects: [],
   numberOfSessionsRecorded: 0,
-  sessionTimeout: 26,
+  sessionTimeout: 152,
   minimalSessionLengthSeconds: 300,
   whitelistedUsernames: whitelistedUsernamesString.split(","),
   whitelistedTwitterUsernames: whitelistedTwitterUsernamesString.split(","),
@@ -31,7 +31,11 @@ const globalInstances = {
     }
     return time;
   },
-  logMessage: function (message) {
+  logMessage: function (message, error) {
+    message = getCaller() + ": " + message;
+    if (error) {
+      message += error.stack;
+    }
     message += " <via logMessage()>";
     fs.appendFile("./logs.txt", message, (err) => {
       if (err) throw err;
@@ -40,5 +44,26 @@ const globalInstances = {
   },
   isSessionEnding: false,
 };
+
+function getCaller() {
+  const originalStackTrace = Error.prepareStackTrace;
+  try {
+    const err = new Error();
+    Error.prepareStackTrace = function (err, stack) {
+      return stack;
+    };
+
+    // skip this function and the parent, since we want the caller of
+    // the function who calls this function
+    let callers = err.stack.slice(2);
+    let functionName = callers[0] && callers[0].getFunctionName();
+    return functionName || "<unknown caller>";
+  } catch (e) {
+    Error.prepareStackTrace = originalStackTrace;
+    console.error(e);
+  } finally {
+    Error.prepareStackTrace = originalStackTrace;
+  }
+}
 
 module.exports = globalInstances;

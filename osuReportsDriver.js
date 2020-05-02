@@ -11,9 +11,9 @@ setSessionsRecorded();
 
 startServer();
 
-initialize();
+//initialize();
 
-//test();
+test();
 
 function test() {
   globalInstances.playerObjects.push(new playerObject("PenZa", "@penz_"));
@@ -21,7 +21,7 @@ function test() {
   setTimeout(function () {
     globalInstances.logMessage("From test(): Ending session...");
     globalInstances.playerObjects[0].sessionObject.endSession();
-  }, 30000);
+  }, 10000);
 }
 
 function initialize() {
@@ -43,7 +43,7 @@ function initialize() {
 }
 
 var iPlayers = 0;
-var secondsPerIteration = 1000;
+var secondsPerIteration = 5000;
 function loopThroughPlayers() {
   loopTime = secondsPerIteration / globalInstances.playerObjects.length;
   globalInstances.playerObjects[iPlayers].updateSessionObjectv3();

@@ -10,8 +10,10 @@ var fs = require("fs");
 var Twit = require("twit");
 var sqlite3 = require("sqlite3");
 var keys = require("./consumerKeys");
+const util = require("util");
 
-var db = new sqlite3.Database("osuReports_v2.db");
+const db = require("./db");
+const resourceGetter = require("./resourceGetter");
 
 var T = new Twit({
   consumer_key: keys.consumer_key,
@@ -20,9 +22,8 @@ var T = new Twit({
   access_token_secret: keys.access_token_secret,
 });
 
-function fetchBeatmapJson(beatmap_set, beatmap_id) {
-  let bpmurl =
-    "htts://osu.ppy.sh/beatmapsets/" + beatmap_set + "#osu/" + beatmap_id;
+function fetchBeatmapJson(beatmap_set) {
+  let bpmurl = "htts://osu.ppy.sh/beatmapsets/" + beatmap_set;
   return axios.get(bpmurl).then((response) => {
     let $ = cheerio.load(response.data);
     let html = $("#json-beatmapset").html();
@@ -38,6 +39,56 @@ function fetchAndParseBeatmap(beatmap_id) {
     parser.feed(response.data);
     return parser.map;
   });
+}
+
+function formatDifference(number, nDec, suffix) {
+  let formatted;
+
+  if (number === NaN) {
+    return "";
+  }
+
+  if (nDec !== undefined) {
+    number = number.toFixed(nDec);
+    formatted = number.toString();
+  } else {
+    formatted = number.toLocaleString("en");
+  }
+
+  // we don't want it to be undefined
+  if (!suffix) suffix = "";
+
+  if (number > 0) {
+    return `(+${formatted}${suffix})`;
+  }
+  if (number < 0) {
+    return `(${formatted}${suffix})`;
+  }
+  return "";
+}
+
+function sanitizeAndParse(numberString) {
+  /*
+    /
+      [
+        ^  - match none of the characters in this bracket
+        \d - match a decimal digit (could be written "0-9")
+        \- - match a literal "-"
+        +  - match a literal "+"
+      ]
+    /g - "g" flag means match as many times as it occurs
+  */
+  return parseFloat(("" + numberString).replace(/[^\d.\-+]/g, ""));
+}
+
+function secondsToDHMS(seconds) {
+  let days = Math.floor(seconds / (3600 * 24));
+  seconds = seconds - days * 3600 * 24;
+  let hours = Math.floor(seconds / 3600);
+  seconds = seconds - hours * 3600;
+  let minutes = Math.floor(seconds / 60);
+  seconds = Math.floor(seconds - minutes * 60);
+  return [days, hours, minutes, seconds];
 }
 
 class sessionObject {
@@ -92,9 +143,7 @@ class sessionObject {
 
   addNewPlayWEB(scoreOfRecentPlay) {
     console.log("adding new play via WEB");
-    fetchBeatmapJson(
-      scoreOfRecentPlay.beatmap.beatmapset_idscoreOfRecentPlay.beatmap.id
-    )
+    fetchBeatmapJson(scoreOfRecentPlay.beatmap.beatmapset_id)
       .then((data) => {
         var bpm = data.bpm;
         var mods = "";
@@ -141,7 +190,7 @@ class sessionObject {
         });
       })
       .catch((error) => {
-        globalInstances.logMessage(error);
+        globalInstances.logMessage(error + " 123");
       });
   }
 
@@ -171,7 +220,8 @@ class sessionObject {
         }
       }
     }
-    if (isTweetable == true && this.playObjects.length == 1) {
+    //change 0 to 1
+    if (isTweetable == true && this.playObjects.length == 0) {
       isTweetable = false;
     }
     if (isTweetable == false) {
@@ -186,52 +236,41 @@ class sessionObject {
       .then((user) => {
         this.userObjectEndOfSession = user;
         var currentTime = new Date();
-        currentTime.setHours(currentTime.getHours() - 6);
-        var date =
-          currentTime.getMonth() +
-          1 +
-          "/" +
-          currentTime.getDate() +
-          "/" +
-          currentTime.getFullYear();
+        currentTime.setHours(currentTime.getHours() - 6); //setting to central time
+        var date = currentTime
+          .toLocaleString("en-US", { timezone: "America/Chicago" })
+          .split(",")[0];
 
-        var sessionDurationSeconds = 0;
+        var sessionTotalSeconds = 0;
         if (this.isDebug) {
-          sessionDurationSeconds = 1000;
+          sessionTotalSeconds = 1000;
         } else {
-          sessionDurationSeconds =
+          sessionTotalSeconds =
             (this.playObjects[this.playObjects.length - 1].date.getTime() -
               this.playObjects[0].date.getTime()) /
             1000;
         }
 
         if (
-          sessionDurationSeconds <
-            globalInstances.minimalSessionLengthSeconds &&
-          sessionDurationSeconds >= 0 &&
+          sessionTotalSeconds < globalInstances.minimalSessionLengthSeconds &&
+          sessionTotalSeconds >= 0 &&
           this.isDebug == false
         ) {
           var sessionDurationResponse =
             this.player.osuUsername +
             " - This session is not long enough: " +
-            sessionDurationSeconds +
+            sessionTotalSeconds +
             "\n";
           globalInstances.logMessage(sessionDurationResponse);
           return;
         }
 
-        var sessionDurationDays = Math.floor(
-          sessionDurationSeconds / (3600 * 24)
-        );
-        sessionDurationSeconds =
-          sessionDurationSeconds - sessionDurationDays * 3600 * 24;
-        var sessionDurationHours = Math.floor(sessionDurationSeconds / 3600);
-        sessionDurationSeconds =
-          sessionDurationSeconds - sessionDurationHours * 3600;
-        var sessionDurationMinutes = Math.floor(sessionDurationSeconds / 60);
-        sessionDurationSeconds = Math.floor(
-          sessionDurationSeconds - sessionDurationMinutes * 60
-        );
+        const [
+          sessionDurationDays,
+          sessionDurationHours,
+          sessionDurationMinutes,
+          sessionDurationSeconds,
+        ] = secondsToDHMS(sessionTotalSeconds);
 
         var sessionDuration = globalInstances.convertTimeToHMS(
           sessionDurationHours,
@@ -240,121 +279,39 @@ class sessionObject {
         );
 
         var difGlobalRank =
-          parseFloat(this.userObjectEndOfSession.pp.rank) -
-          parseFloat(this.userObjectStartOfSession.pp.rank);
-        if (difGlobalRank < 0 && difGlobalRank != "NaN") {
-          var tempDifGlobalRank = difGlobalRank;
-          tempDifGlobalRank = tempDifGlobalRank.toString();
-          tempDifGlobalRank = tempDifGlobalRank.substring(
-            1,
-            tempDifGlobalRank.length
-          );
-          tempDifGlobalRank = parseFloat(tempDifGlobalRank).toLocaleString(
-            "en"
-          );
-          tempDifGlobalRank = tempDifGlobalRank.toString();
-          difGlobalRank = "(+" + tempDifGlobalRank + ")";
-        } else if (difGlobalRank > 0 && difGlobalRank != "NaN") {
-          var tempDifGlobalRank = difGlobalRank;
-          tempDifGlobalRank = tempDifGlobalRank.toString();
-          tempDifGlobalRank = parseFloat(tempDifGlobalRank).toLocaleString(
-            "en"
-          );
-          tempDifGlobalRank = tempDifGlobalRank.toString();
-          difGlobalRank = "(-" + tempDifGlobalRank + ")";
-        } else {
-          difGlobalRank = "";
-        }
+          sanitizeAndParse(this.userObjectEndOfSession.pp.rank) -
+          sanitizeAndParse(this.userObjectStartOfSession.pp.rank);
+        difGlobalRank = formatDifference(difGlobalRank * -1);
 
         var difCountryRank =
-          parseFloat(this.userObjectEndOfSession.pp.countryRank) -
-          parseFloat(this.userObjectStartOfSession.pp.countryRank);
-        if (difCountryRank < 0 && difGlobalRank != "NaN") {
-          var tempDifCountryRank = difCountryRank;
-          tempDifCountryRank = tempDifCountryRank.toString();
-          tempDifCountryRank = tempDifCountryRank.substring(
-            1,
-            tempDifCountryRank.length
-          );
-          tempDifCountryRank = parseFloat(tempDifCountryRank).toLocaleString(
-            "en"
-          );
-          tempDifCountryRank = tempDifCountryRank.toString();
-          difCountryRank = "(+" + tempDifCountryRank + ")";
-        } else if (difCountryRank > 0 && difGlobalRank != "NaN") {
-          var tempDifCountryRank = difCountryRank;
-          tempDifCountryRank = tempDifCountryRank.toString();
-          tempDifCountryRank = parseFloat(tempDifCountryRank).toLocaleString(
-            "en"
-          );
-          tempDifCountryRank = tempDifCountryRank.toString();
-          difCountryRank = "(-" + tempDifCountryRank + ")";
-        } else {
-          difCountryRank = "";
-        }
+          sanitizeAndParse(this.userObjectEndOfSession.pp.countryRank) -
+          sanitizeAndParse(this.userObjectStartOfSession.pp.countryRank);
+        difCountryRank = formatDifference(difCountryRank * -1);
 
         var difLevel =
-          parseFloat(this.userObjectEndOfSession.level) -
-          parseFloat(this.userObjectStartOfSession.level);
-
-        if (difLevel > 0) {
-          difLevel = "(+" + (difLevel * 100).toFixed(0) + "%)";
-        } else if (difLevel < 0) {
-          difLevel = "(" + (difLevel * 100).toFixed(0) + "%)";
-        } else {
-          difLevel = "";
-        }
-
-        if (difLevel == "(+0%)") {
-          difLevel = "";
-        }
+          sanitizeAndParse(this.userObjectEndOfSession.level) -
+          sanitizeAndParse(this.userObjectStartOfSession.level);
+        difLevel = formatDifference(difLevel * 100, 0, "%");
 
         var difRankedScore =
-          parseFloat(this.userObjectEndOfSession.scores.ranked) -
-          parseFloat(this.userObjectStartOfSession.scores.ranked);
-        if (difRankedScore > 0) {
-          difRankedScore =
-            "(+" + parseFloat(difRankedScore).toLocaleString("en") + ")";
-        } else if (difRankedScore < 0) {
-          difRankedScore =
-            "(" + parseFloat(difRankedScore).toLocaleString("en") + ")";
-        } else {
-          difRankedScore = "";
-        }
-        var difAcc =
-          parseFloat(this.userObjectEndOfSession.accuracy) -
-          parseFloat(this.userObjectStartOfSession.accuracy);
-        if (difAcc > 0 && parseFloat(difAcc).toFixed(2) != 0.0) {
-          difAcc = "(+" + parseFloat(difAcc).toFixed(2) + "%)";
-        } else if (difAcc < 0 && parseFloat(difAcc).toFixed(2) != 0.0) {
-          difAcc = "(" + parseFloat(difAcc).toFixed(2) + "%)";
-        } else {
-          difAcc = "";
-        }
-        var difPP =
-          parseFloat(this.userObjectEndOfSession.pp.raw) -
-          parseFloat(this.userObjectStartOfSession.pp.raw);
+          sanitizeAndParse(this.userObjectEndOfSession.scores.ranked) -
+          sanitizeAndParse(this.userObjectStartOfSession.scores.ranked);
+        difRankedScore = formatDifference(difRankedScore);
 
-        if (difPP > 0) {
-          difPP = "(+" + difPP.toFixed(2) + ")";
-        } else if (difPP < 0) {
-          difPP = "(" + difPP.toFixed(2) + ")";
-        } else {
-          difPP = "";
-        }
+        var difAcc =
+          sanitizeAndParse(this.userObjectEndOfSession.accuracy) -
+          sanitizeAndParse(this.userObjectStartOfSession.accuracy);
+        difAcc = formatDifference(difAcc, 2, "%");
+
+        var difPP =
+          sanitizeAndParse(this.userObjectEndOfSession.pp.raw) -
+          sanitizeAndParse(this.userObjectStartOfSession.pp.raw);
+        difPP = formatDifference(difPP, 2);
 
         var difPlayCount =
-          parseFloat(this.userObjectEndOfSession.counts.plays) -
-          parseFloat(this.userObjectStartOfSession.counts.plays);
-        if (difPlayCount > 0) {
-          difPlayCount =
-            "(+" + parseFloat(difPlayCount).toLocaleString("en") + ")";
-        } else if (difPlayCount < 0) {
-          difPlayCount =
-            "(" + parseFloat(difPlayCount).toLocaleString("en") + ")";
-        } else {
-          difPlayCount = "";
-        }
+          sanitizeAndParse(this.userObjectEndOfSession.counts.plays) -
+          sanitizeAndParse(this.userObjectStartOfSession.counts.plays);
+        difPlayCount = formatDifference(difPlayCount);
 
         var images = [
           "./static/images/rawReports/report1.png",
@@ -418,7 +375,7 @@ class sessionObject {
         var tempThis = this;
 
         Promise.all(axiosMaps)
-          .then(function (res) {
+          .then(async function (res) {
             for (var i = 0; i < res.length; i++) {
               if (res[i] == 0) {
                 tempThis.playObjects[i].background =
@@ -433,155 +390,94 @@ class sessionObject {
             globalInstances.numberOfSessionsRecorded =
               globalInstances.numberOfSessionsRecorded + 1;
 
-            var sqlSessionData =
-              "INSERT INTO sessionsTable VALUES ('" +
-              tempThis.sessionID +
-              "', 'NULL', '" +
-              date +
-              "', '" +
-              tempthis.player.osuUsername +
-              "', '" +
-              sessionDuration +
-              "', '" +
-              tempThis.userObjectEndOfSession.pp.rank +
-              "', '" +
-              difGlobalRank +
-              "'," +
-              "'" +
-              tempThis.userObjectEndOfSession.pp.countryRank +
-              "', '" +
-              difCountryRank +
-              "', '" +
-              tempThis.userObjectEndOfSession.level +
-              "', '" +
-              difLevel +
-              "', " +
-              "'" +
-              parseFloat(tempThis.userObjectEndOfSession.accuracy).toFixed(2) +
-              "', '" +
-              difAcc +
-              "', '" +
-              parseFloat(tempThis.userObjectEndOfSession.pp.raw) +
-              "', '" +
-              difPP +
-              "', '" +
-              parseFloat(tempThis.userObjectEndOfSession.counts.plays) +
-              "', '" +
-              difPlayCount +
-              "'," +
-              "'" +
-              tempThis.userObjectEndOfSession.counts.SSH +
-              "', '" +
-              tempThis.userObjectEndOfSession.counts.SS +
-              "', '" +
-              tempThis.userObjectEndOfSession.counts.SH +
-              "', '" +
-              tempThis.userObjectEndOfSession.counts.S +
-              "', '" +
-              tempThis.userObjectEndOfSession.counts.A +
-              "')";
+            let sqlSessionValues = {
+              $sessionId: tempThis.sessionID,
+              $date: date,
+              $osuUsername: tempThis.player.osuUsername,
+              $sessionDuration: sessionDuration,
+              $rank: tempThis.userObjectEndOfSession.pp.rank,
+              $difGlobalRank: difGlobalRank,
+              $countryRank: tempThis.userObjectEndOfSession.pp.countryRank,
+              $difCountryRank: difCountryRank,
+              $level: tempThis.userObjectEndOfSession.level,
+              $difLevel: difLevel,
+              $accuracy: parseFloat(
+                tempThis.userObjectEndOfSession.accuracy
+              ).toFixed(2),
+              $difAccuracy: difAcc,
+              $pp: parseFloat(tempThis.userObjectEndOfSession.pp.raw),
+              $difPP: difPP,
+              $plays: parseFloat(tempThis.userObjectEndOfSession.counts.plays),
+              $difPlays: difPlayCount,
+              $ssh: tempThis.userObjectEndOfSession.counts.SSH,
+              $ss: tempThis.userObjectEndOfSession.counts.SS,
+              $sh: tempThis.userObjectEndOfSession.counts.SH,
+              $s: tempThis.userObjectEndOfSession.counts.S,
+              $a: tempThis.userObjectEndOfSession.counts.A,
+            };
 
             globalInstances.logMessage(
-              tempthis.player.osuUsername + " - " + sqlSessionData + "\n"
+              "Calling DB session query for: " +
+                tempThis.player.osuUsername +
+                " - " +
+                util.inspect(sqlSessionValues) +
+                "\n"
             );
 
-            db.serialize(() => {
-              db.run(sqlSessionData);
-            });
+            await db.insertSession(sqlSessionValues);
 
             for (var i = 0; i < tempThis.playObjects.length; i++) {
               var sqlTitle = tempThis.playObjects[i].title;
               var sqlVersion = tempThis.playObjects[i].version;
               var sqlArtist = tempThis.playObjects[i].artist;
 
-              if (sqlTitle.includes("'")) {
-                sqlTitle = sqlTitle.replace(/'/g, "''");
-              }
-              if (sqlVersion.includes("'")) {
-                sqlVersion = sqlVersion.replace(/'/g, "''");
-              }
-              if (sqlArtist.includes("'")) {
-                sqlArtist = sqlArtist.replace(/'/g, "''");
-              }
-
-              if (sqlTitle.includes('"')) {
-                sqlTitle = sqlTitle.replace(/"/g, '""');
-              }
-              if (sqlVersion.includes('"')) {
-                sqlVersion = sqlVersion.replace(/"/g, '""');
-              }
-              if (sqlArtist.includes('"')) {
-                sqlArtist = sqlArtist.replace(/"/g, '""');
-              }
-
               var songDurationTotalSeconds = parseInt(
                 tempThis.playObjects[i].duration
               );
-              var songDurationSeconds = songDurationTotalSeconds % 60;
-              var songDurationMinutes =
-                Math.floor(songDurationTotalSeconds / 60) % 60;
-              var songDurationHours = Math.floor(
-                songDurationTotalSeconds / 3600
-              );
+              const [
+                _,
+                songDurationHours,
+                songDurationMinutes,
+                songDurationSeconds,
+              ] = secondsToDHMS(songDurationTotalSeconds);
               var songDuration = globalInstances.convertTimeToHMS(
                 songDurationHours,
                 songDurationMinutes,
                 songDurationSeconds
               );
 
-              var sqlMods = "";
-              for (var j = 0; j < tempThis.playObjects[i].mods.length; j++) {
-                sqlMods += tempThis.playObjects[i].mods[j] + ", ";
-              }
-              sqlMods = sqlMods.substring(0, sqlMods.length - 2);
-
-              var sqlPlayData =
-                "INSERT INTO playsTable VALUES ('" +
-                tempThis.sessionID +
-                "', '" +
-                tempThis.playObjects[i].background +
-                "', '" +
-                sqlTitle +
-                "', '" +
-                sqlVersion +
-                "', '" +
-                sqlArtist +
-                "', '" +
-                tempThis.playObjects[i].combo +
-                " / " +
-                tempThis.playObjects[i].maxCombo +
-                "', '" +
-                tempThis.playObjects[i].bpm +
-                "'," +
-                "'" +
-                songDuration +
-                "', '" +
-                tempThis.playObjects[i].stars +
-                "', '" +
-                tempThis.playObjects[i].accuracy +
-                "', '" +
-                tempThis.playObjects[i].rank +
-                "', '" +
-                sqlMods +
-                "', '" +
-                tempThis.playObjects[i].countsObject.count_300 +
-                "', '" +
-                tempThis.playObjects[i].countsObject.count_100 +
-                "', '" +
-                tempThis.playObjects[i].countsObject.count_50 +
-                "', '" +
-                tempThis.playObjects[i].countsObject.count_miss +
-                "', '" +
-                tempThis.playObjects[i].pp +
-                "')";
+              let sqlPlayValues = {
+                $sessionId: tempThis.sessionID,
+                $bg: tempThis.playObjects[i].background,
+                $title: sqlTitle,
+                $version: sqlVersion,
+                $artist: sqlArtist,
+                $combo:
+                  tempThis.playObjects[i].combo +
+                  " / " +
+                  tempThis.playObjects[i].maxCombo,
+                $bpm: tempThis.playObjects[i].bpm,
+                $playDuration: songDuration,
+                $difficulty: tempThis.playObjects[i].stars,
+                $playAccuracy: tempThis.playObjects[i].accuracy,
+                $rank: tempThis.playObjects[i].rank,
+                $mods: tempThis.playObjects[i].mods.join(", "),
+                $counts300: tempThis.playObjects[i].countsObject.count_300,
+                $counts100: tempThis.playObjects[i].countsObject.count_100,
+                $counts50: tempThis.playObjects[i].countsObject.count_50,
+                $countsMiss: tempThis.playObjects[i].countsObject.count_miss,
+                $playPP: tempThis.playObjects[i].pp,
+              };
 
               globalInstances.logMessage(
-                tempthis.player.osuUsername + " - " + sqlPlayData
+                "Calling DB play query for: " +
+                  tempThis.player.osuUsername +
+                  " - " +
+                  util.inspect(sqlPlayValues) +
+                  "\n"
               );
 
-              db.serialize(() => {
-                db.run(sqlPlayData);
-              });
+              await db.insertPlay(sqlPlayValues);
             }
             //db stuff end
 
@@ -599,7 +495,7 @@ class sessionObject {
               .then(function (data) {
                 return Promise.all(jimps);
               })
-              .then(function (data) {
+              .then(async function (data) {
                 data[4].resize(256, 256);
                 data[7].resize(120, 63.6); //SSPlus
                 data[8].resize(120, 63.6); //SS
@@ -614,44 +510,60 @@ class sessionObject {
                 data[21].resize(20, 20); //star
                 data[22].resize(15, 15); //star
                 data[14].resize(100, 100);
-                data[0].composite(data[14], 840, 10);
+                // data[0].composite(data[14], 840, 10);
 
                 var rankXOffset = 55;
                 var rankYOffset = 40;
 
-                data[0].composite(
-                  data[7],
+                let report = await resourceGetter.getNewReportTemplate();
+
+                report.composite(
+                  await resourceGetter.getResource("rankSsPlus"),
                   220 + rankXOffset,
                   305 + rankYOffset
                 );
-                data[0].composite(
-                  data[8],
+                report.composite(
+                  await resourceGetter.getResource("rankSs"),
                   340 + rankXOffset,
                   305 + rankYOffset
                 );
-                data[0].composite(
-                  data[9],
+                report.composite(
+                  await resourceGetter.getResource("rankSPlus"),
                   460 + rankXOffset,
                   305 + rankYOffset
                 );
-                data[0].composite(
-                  data[10],
+                report.composite(
+                  await resourceGetter.getResource("rankS"),
                   580 + rankXOffset,
                   305 + rankYOffset
                 );
-                data[0].composite(
-                  data[11],
+                report.composite(
+                  await resourceGetter.getResource("rankA"),
                   700 + rankXOffset,
                   305 + rankYOffset
                 );
 
-                data[4].mask(data[6], 0, 0);
+                const avatar = await resourceGetter.getPlayerAvatar(
+                  this_.userObjectStartOfSession.id
+                );
+                const circleMask = await resourceGetter.getResource(
+                  "circleMask"
+                );
+                avatar.mask(circleMask, 0);
+                report.composite(avatar, 25, 25);
 
-                data[0].composite(data[4], 25, 25);
+                const flag = await resourceGetter.getPlayerCountryFlag(
+                  this_.userObjectStartOfSession.country
+                );
+                report.composite(flag, 83, 308); // flag
 
-                data[0].composite(data[4], 25, 25);
-
-                data[0].composite(data[5], 83, 308); // flag
+                data = [
+                  report,
+                  report.clone(),
+                  report.clone(),
+                  report.clone(),
+                  ...data.slice(4),
+                ];
 
                 var xCoord = 53;
                 var yCoord = -10;
@@ -767,10 +679,14 @@ class sessionObject {
 
                   data[0].print(
                     ubuntuB_black_32,
-                    -jimp.measureText(ubuntuB_black_32, this_.osuUsername) / 2 +
+                    -jimp.measureText(
+                      ubuntuB_black_32,
+                      this_.player.osuUsername
+                    ) /
+                      2 +
                       440,
                     28 + yCoord,
-                    "osu! Report for: " + this_.osuUsername
+                    "osu! Report for: " + this_.player.osuUsername
                   );
 
                   data[0].print(
@@ -1708,7 +1624,9 @@ class sessionObject {
                                   );
                                   T.post(
                                     "media/upload",
-                                    { media_data: b64content },
+                                    {
+                                      media_data: b64content,
+                                    },
                                     function (err, data) {
                                       id.push(data.media_id_string);
                                       if (doesFourthImageExist) {
@@ -1718,12 +1636,14 @@ class sessionObject {
                                         );
                                         T.post(
                                           "media/upload",
-                                          { media_data: b64content },
+                                          {
+                                            media_data: b64content,
+                                          },
                                           function (err, data) {
                                             id.push(data.media_id_string);
                                             this_.tweetReport(
-                                              this_.twitterUsername,
-                                              this_.osuUsername,
+                                              this_.player.twitterUsername,
+                                              this_.player.osuUsername,
                                               id,
                                               this_.sessionID
                                             );
@@ -1731,8 +1651,8 @@ class sessionObject {
                                         );
                                       } else {
                                         this_.tweetReport(
-                                          this_.twitterUsername,
-                                          this_.osuUsername,
+                                          this_.player.twitterUsername,
+                                          this_.player.osuUsername,
                                           id,
                                           this_.sessionID
                                         );
@@ -1741,8 +1661,8 @@ class sessionObject {
                                   );
                                 } else {
                                   this_.tweetReport(
-                                    this_.twitterUsername,
-                                    this_.osuUsername,
+                                    this_.player.twitterUsername,
+                                    this_.player.osuUsername,
                                     id,
                                     this_.sessionID
                                   );
@@ -1751,8 +1671,8 @@ class sessionObject {
                             );
                           } else {
                             this_.tweetReport(
-                              this_.twitterUsername,
-                              this_.osuUsername,
+                              this_.player.twitterUsername,
+                              this_.player.osuUsername,
                               id,
                               this_.sessionID
                             );
@@ -1767,11 +1687,11 @@ class sessionObject {
               });
           })
           .catch((err) => {
-            globalInstances.logMessage("-1" + err);
+            globalInstances.logMessage("-1", err);
           });
       })
       .catch((err) => {
-        globalInstances.logMessage("-2" + err);
+        globalInstances.logMessage("-2", err);
       });
   }
 
