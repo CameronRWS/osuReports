@@ -59,11 +59,11 @@ const promisify = require("util").promisify;
 const INITIAL_RESOURCES = {
   report: "./static/images/rawReports/report1.png",
   circleMask: "./static/masks/circleMask.png",
-  rankSsPlus: [
+  rankSSPlus: [
     "./static/images/ranks/SSPlus.png",
     (im) => im.resize(120, 63.6),
   ],
-  rankSs: ["./static/images/ranks/SS.png", (im) => im.resize(120, 63.6)],
+  rankSS: ["./static/images/ranks/SS.png", (im) => im.resize(120, 63.6)],
   rankSPlus: ["./static/images/ranks/SPlus.png", (im) => im.resize(120, 63.6)],
   rankS: ["./static/images/ranks/S.png", (im) => im.resize(120, 63.6)],
   rankA: ["./static/images/ranks/A.png", (im) => im.resize(109.2, 63.6)],

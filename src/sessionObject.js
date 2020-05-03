@@ -518,12 +518,12 @@ class sessionObject {
                 let report = await resourceGetter.getNewReportTemplate();
 
                 report.composite(
-                  await resourceGetter.getResource("rankSsPlus"),
+                  await resourceGetter.getResource("rankSSPlus"),
                   220 + rankXOffset,
                   305 + rankYOffset
                 );
                 report.composite(
-                  await resourceGetter.getResource("rankSs"),
+                  await resourceGetter.getResource("rankSS"),
                   340 + rankXOffset,
                   305 + rankYOffset
                 );
@@ -617,7 +617,7 @@ class sessionObject {
                   jimp.loadFont("./static/fonts/ubuntuB_lightred_32.fnt")
                 );
 
-                Promise.all(fontsPromises).then(function (res) {
+                Promise.all(fontsPromises).then(async function (res) {
                   var ubuntuB_blue_32 = res[0];
                   var ubuntuB_black_32 = res[1];
                   var ubuntuB_red_32 = res[2];
@@ -965,11 +965,12 @@ class sessionObject {
                   //level bar
                   var levelBarXCoord = 0;
                   var levelBarYCoord = 5;
-                  data[15].resize(
+                  let levelBar = await resourceGetter.getResource("levelBar");
+                  levelBar.resize(
                     430 * (this_.userObjectEndOfSession.level % 1).toFixed(2),
                     6
                   );
-                  data[0].composite(data[15], 303, 309);
+                  data[0].composite(levelBar, 303, 309);
 
                   //percent
                   data[0].print(
@@ -999,7 +1000,7 @@ class sessionObject {
 
                   //hex
                   data[0].composite(
-                    data[16],
+                    await resourceGetter.getResource("hex"),
                     734 +
                       levelBarXCoord +
                       jimp.measureText(
@@ -1044,7 +1045,6 @@ class sessionObject {
                   for (var i = 0; i < this_.playObjects.length; i++) {
                     var yMultiOffset;
                     var imageToEdit;
-                    //console.log("current: " + i);
 
                     if (i < 10) {
                       if (!doesFirstImageExist) {
@@ -1080,7 +1080,11 @@ class sessionObject {
                     }
                     //console.log(data.length);
                     //console.log(indexOfPlayImages + i);
-                    data[indexOfPlayImages + i].mask(data[17], 0, 0);
+                    data[indexOfPlayImages + i].mask(
+                      await resourceGetter.getResource("playImageMask"),
+                      0,
+                      0
+                    );
                     imageToEdit.composite(
                       data[indexOfPlayImages + i].brightness(-0.5),
                       25,
@@ -1154,49 +1158,49 @@ class sessionObject {
 
                     if (this_.playObjects[i].rank == "XH") {
                       imageToEdit.composite(
-                        data[7],
+                        await resourceGetter.getResource("rankSSPlus"),
                         playRankX,
                         505 + i * 275 + yMultiOffset + playRankY
                       );
                     } else if (this_.playObjects[i].rank == "X") {
                       imageToEdit.composite(
-                        data[8],
+                        await resourceGetter.getResource("rankSS"),
                         playRankX,
                         505 + i * 275 + yMultiOffset + playRankY
                       );
                     } else if (this_.playObjects[i].rank == "SH") {
                       imageToEdit.composite(
-                        data[9],
+                        await resourceGetter.getResource("rankSPlus"),
                         playRankX,
                         505 + i * 275 + yMultiOffset + playRankY
                       );
                     } else if (this_.playObjects[i].rank == "S") {
                       imageToEdit.composite(
-                        data[10],
+                        await resourceGetter.getResource("rankS"),
                         playRankX,
                         505 + i * 275 + yMultiOffset + playRankY
                       );
                     } else if (this_.playObjects[i].rank == "A") {
                       imageToEdit.composite(
-                        data[11],
+                        await resourceGetter.getResource("rankA"),
                         playRankX + 10,
                         505 + i * 275 + yMultiOffset + playRankY
                       );
                     } else if (this_.playObjects[i].rank == "B") {
                       imageToEdit.composite(
-                        data[12],
+                        await resourceGetter.getResource("rankB"),
                         playRankX + 20,
                         505 + i * 275 + yMultiOffset + playRankY
                       );
                     } else if (this_.playObjects[i].rank == "C") {
                       imageToEdit.composite(
-                        data[13],
+                        await resourceGetter.getResource("rankC"),
                         playRankX + 20,
                         505 + i * 275 + yMultiOffset + playRankY
                       );
                     } else if (this_.playObjects[i].rank == "D") {
                       imageToEdit.composite(
-                        data[30],
+                        await resourceGetter.getResource("rankD"),
                         playRankX + 20,
                         505 + i * 275 + yMultiOffset + playRankY
                       );
@@ -1234,7 +1238,7 @@ class sessionObject {
                     for (var j = 1; j <= countOfStars; j++) {
                       posOfPartialStar = playStarX + (j - 1) * 40;
                       imageToEdit.composite(
-                        data[19],
+                        await resourceGetter.getResource("onlineStar", 0),
                         playStarX + (j - 1) * 40,
                         505 + i * 275 + yMultiOffset + playStarY
                       );
@@ -1243,19 +1247,19 @@ class sessionObject {
                       posOfPartialStar = posOfPartialStar - 40;
                     } else if (partialStar < 0.3) {
                       imageToEdit.composite(
-                        data[22],
+                        await resourceGetter.getResource("onlineStar", 3),
                         playStarX + posOfPartialStar - 144,
                         505 + i * 275 + yMultiOffset + playStarY + 10
                       );
                     } else if (partialStar < 0.6) {
                       imageToEdit.composite(
-                        data[21],
+                        await resourceGetter.getResource("onlineStar", 2),
                         playStarX + posOfPartialStar - 146,
                         505 + i * 275 + yMultiOffset + playStarY + 7
                       );
                     } else if (partialStar < 1) {
                       imageToEdit.composite(
-                        data[20],
+                        await resourceGetter.getResource("onlineStar", 1),
                         playStarX + posOfPartialStar - 152,
                         505 + i * 275 + yMultiOffset + playStarY + 4
                       );
@@ -1278,12 +1282,12 @@ class sessionObject {
                     var songDurationTotalSeconds = parseInt(
                       this_.playObjects[i].duration
                     );
-                    var songDurationSeconds = songDurationTotalSeconds % 60;
-                    var songDurationMinutes =
-                      Math.floor(songDurationTotalSeconds / 60) % 60;
-                    var songDurationHours = Math.floor(
-                      songDurationTotalSeconds / 3600
-                    );
+                    const [
+                      _,
+                      songDurationHours,
+                      songDurationMinutes,
+                      songDurationSeconds,
+                    ] = secondsToDHMS(songDurationTotalSeconds);
                     var songDuration = globalInstances.convertTimeToHMS(
                       songDurationHours,
                       songDurationMinutes,
@@ -1343,7 +1347,7 @@ class sessionObject {
                     var posOfMod = 870;
                     if (this_.playObjects[i].mods.includes("DT")) {
                       imageToEdit.composite(
-                        data[29],
+                        await resourceGetter.getResource("modDoubleTime"),
                         posOfMod,
                         505 + i * 275 + yMultiOffset + modY
                       );
@@ -1351,7 +1355,7 @@ class sessionObject {
                     }
                     if (this_.playObjects[i].mods.includes("NC")) {
                       imageToEdit.composite(
-                        data[26],
+                        await resourceGetter.getResource("modNightcore"),
                         posOfMod,
                         505 + i * 275 + yMultiOffset + modY
                       );
@@ -1359,7 +1363,7 @@ class sessionObject {
                     }
                     if (this_.playObjects[i].mods.includes("PF")) {
                       imageToEdit.composite(
-                        data[27],
+                        await resourceGetter.getResource("modPerfect"),
                         posOfMod,
                         505 + i * 275 + yMultiOffset + modY
                       );
@@ -1367,7 +1371,7 @@ class sessionObject {
                     }
                     if (this_.playObjects[i].mods.includes("HD")) {
                       imageToEdit.composite(
-                        data[25],
+                        await resourceGetter.getResource("modHidden"),
                         posOfMod,
                         505 + i * 275 + yMultiOffset + modY
                       );
@@ -1375,7 +1379,7 @@ class sessionObject {
                     }
                     if (this_.playObjects[i].mods.includes("SD")) {
                       imageToEdit.composite(
-                        data[28],
+                        await resourceGetter.getResource("modSuddenDeath"),
                         posOfMod,
                         505 + i * 275 + yMultiOffset + modY
                       );
@@ -1383,7 +1387,7 @@ class sessionObject {
                     }
                     if (this_.playObjects[i].mods.includes("FL")) {
                       imageToEdit.composite(
-                        data[23],
+                        await resourceGetter.getResource("modFlashlight"),
                         posOfMod,
                         505 + i * 275 + yMultiOffset + modY
                       );
@@ -1391,7 +1395,7 @@ class sessionObject {
                     }
                     if (this_.playObjects[i].mods.includes("HR")) {
                       imageToEdit.composite(
-                        data[24],
+                        await resourceGetter.getResource("modHardRock"),
                         posOfMod,
                         505 + i * 275 + yMultiOffset + modY
                       );
@@ -1399,7 +1403,7 @@ class sessionObject {
                     }
                     if (this_.playObjects[i].mods.includes("NF")) {
                       imageToEdit.composite(
-                        data[31],
+                        await resourceGetter.getResource("modNoFail"),
                         posOfMod,
                         505 + i * 275 + yMultiOffset + modY
                       );
@@ -1407,7 +1411,7 @@ class sessionObject {
                     }
                     if (this_.playObjects[i].mods.includes("EZ")) {
                       imageToEdit.composite(
-                        data[32],
+                        await resourceGetter.getResource("modEasy"),
                         posOfMod,
                         505 + i * 275 + yMultiOffset + modY
                       );

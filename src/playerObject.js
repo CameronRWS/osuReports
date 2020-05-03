@@ -142,7 +142,9 @@ class playerObject {
       scoreOfRecentPlay = data.scoresBest;
       this.sessionObject = new sessionObject(this, true);
       // add more if necessary
-      this.sessionObject.addNewPlayWEB(scoreOfRecentPlay[0]);
+      for (let i = 0; i < 5; i++) {
+        this.sessionObject.addNewPlayWEB(scoreOfRecentPlay[i]);
+      }
     });
   }
 }
