@@ -1,6 +1,8 @@
 const jimp = require("jimp");
 const axios = require("axios");
 const promisify = require("util").promisify;
+const { URL } = require("url");
+const util = require("util");
 
 /*var images = [
           "./static/images/rawReports/report1.png",
@@ -56,7 +58,55 @@ const promisify = require("util").promisify;
                 data[14].resize(100, 100);
                 data[0].composite(data[14], 840, 10); */
 
-const INITIAL_RESOURCES = {
+/*
+                fontsPromises.push(
+                  jimp.loadFont("./static/fonts/ubuntuB_blue_32.fnt")
+                );
+                fontsPromises.push(
+                  jimp.loadFont("./static/fonts/ubuntuB_black_32.fnt")
+                );
+                fontsPromises.push(
+                  jimp.loadFont("./static/fonts/ubuntuB_red_32.fnt")
+                );
+                fontsPromises.push(
+                  jimp.loadFont("./static/fonts/ubuntuB_green_32.fnt")
+                );
+                fontsPromises.push(
+                  jimp.loadFont("./static/fonts/ubuntuB_black_24.fnt")
+                );
+                fontsPromises.push(
+                  jimp.loadFont("./static/fonts/ubuntuB_green_24.fnt")
+                );
+                fontsPromises.push(
+                  jimp.loadFont("./static/fonts/ubuntuB_blue_24.fnt")
+                );
+                fontsPromises.push(
+                  jimp.loadFont("./static/fonts/ubuntuB_lightblue_32.fnt")
+                );
+                fontsPromises.push(
+                  jimp.loadFont("./static/fonts/ubuntuB_white_24.fnt")
+                );
+                fontsPromises.push(
+                  jimp.loadFont("./static/fonts/ubuntuB_white_32.fnt")
+                );
+                fontsPromises.push(
+                  jimp.loadFont("./static/fonts/ubuntuB_gold_52.fnt")
+                );
+                fontsPromises.push(
+                  jimp.loadFont("./static/fonts/ubuntuB_yellow_32.fnt")
+                );
+                fontsPromises.push(
+                  jimp.loadFont("./static/fonts/ubuntuB_lightgreen_32.fnt")
+                );
+                fontsPromises.push(
+                  jimp.loadFont("./static/fonts/ubuntuB_lightred_32.fnt")
+                );
+*/
+
+const DEFAULT_BACKGROUND =
+  "https://assets.ppy.sh/beatmaps/1084284/covers/cover.jpg?1581740491";
+
+const INITIAL_IMAGES = {
   report: "./static/images/rawReports/report1.png",
   circleMask: "./static/masks/circleMask.png",
   rankSSPlus: [
@@ -96,28 +146,55 @@ const INITIAL_RESOURCES = {
   modEasy: "./static/images/mods/mod_easy.png",
 };
 
+const INITIAL_FONTS = {
+  ubuntuBBlue32: "./static/fonts/ubuntuB_blue_32.fnt",
+  ubuntuBBlack32: "./static/fonts/ubuntuB_black_32.fnt",
+  ubuntuBRed32: "./static/fonts/ubuntuB_red_32.fnt",
+  ubuntuBGreen32: "./static/fonts/ubuntuB_green_32.fnt",
+  ubuntuBBlack24: "./static/fonts/ubuntuB_black_24.fnt",
+  ubuntuBGreen24: "./static/fonts/ubuntuB_green_24.fnt",
+  ubuntuBBlue24: "./static/fonts/ubuntuB_blue_24.fnt",
+  ubuntuBLightBlue32: "./static/fonts/ubuntuB_lightblue_32.fnt",
+  ubuntuBWhite24: "./static/fonts/ubuntuB_white_24.fnt",
+  ubuntuBWhite32: "./static/fonts/ubuntuB_white_32.fnt",
+  ubuntuBGold52: "./static/fonts/ubuntuB_gold_52.fnt",
+  ubuntuBYellow32: "./static/fonts/ubuntuB_yellow_32.fnt",
+  ubuntuBLightGreen32: "./static/fonts/ubuntuB_lightgreen_32.fnt",
+  ubuntuBLightRed32: "./static/fonts/ubuntuB_lightred_32.fnt",
+};
+
 class ResourceGetter {
   constructor() {
-    this.cache = {};
-    for (const key in INITIAL_RESOURCES) {
-      let resource = INITIAL_RESOURCES[key];
+    this.cache = {
+      images: {},
+      fonts: {},
+    };
+    for (const key in INITIAL_IMAGES) {
+      let resource = INITIAL_IMAGES[key];
       let image = jimp.read(resource instanceof Array ? resource[0] : resource);
 
       if (resource instanceof Array) {
         let mutations = resource.slice(1);
         if (mutations.length === 1) {
-          this.cache[key] = image.then(mutations[0]);
+          this.cache.images[key] = image.then(mutations[0]);
         } else {
-          this.cache[key] = mutations.map((mut) =>
+          this.cache.images[key] = mutations.map((mut) =>
             image.then((image) =>
               promisify(image.clone.bind(image))().then(mut)
             )
           );
         }
       } else {
-        this.cache[key] = image;
+        this.cache.images[key] = image;
       }
     }
+    for (const key in INITIAL_FONTS) {
+      let url = INITIAL_FONTS[key];
+      let font = jimp.loadFont(url);
+      this.cache.fonts[key] = font;
+    }
+
+    this.lru = new LRUCache(50);
   }
 
   async getPlayerAvatar(userId) {
@@ -128,43 +205,116 @@ class ResourceGetter {
   async getPlayerCountryFlag(countryFlag) {
     const key = `countryFlag_${countryFlag}`;
     const url = "./static/images/flags/" + countryFlag + ".png";
-    return this.getAndCache(key, url);
+    return this.getAndCacheImage(key, url);
   }
 
-  async getAndCache(key, url) {
-    if (key in this.cache) {
-      let image = await this.cache[key];
+  async getAndCacheImage(key, url) {
+    if (key in this.cache.images) {
+      let image = await this.cache.images[key];
       return image;
     }
     let p = jimp.read(url);
-    this.cache[key] = p;
+    this.cache.images[key] = p;
     return p;
   }
 
-  async getResource(key, n) {
-    let resource = this.cache[key];
+  async getImage(key, variant) {
+    let resource = this.cache.images[key];
     if (resource instanceof Array) {
-      return resource[n || 0];
+      return resource[variant || 0];
     }
     return resource;
   }
 
+  async getFont(key) {
+    if (key in this.cache.fonts) {
+      return this.cache.fonts[key];
+    }
+    throw new Error(`Requested font ${key} does not exist`);
+  }
+
   async getNewReportTemplate() {
     const key = "_reportTemplate";
-    if (key in this.cache) {
-      return this.cache[key].clone();
+    if (key in this.cache.images) {
+      return this.cache.images[key].clone();
     }
 
-    const template = await this.cache["report"];
-    const logo = await this.cache["osuReportsLogo"];
+    const template = (await this.cache.images["report"]).clone();
+    const logo = await this.cache.images["osuReportsLogo"];
 
     const overlayed = promisify(template.composite.bind(template))(
       logo,
       840,
       10
     );
-    this.cache[key] = overlayed;
+    this.cache.images[key] = overlayed;
     return overlayed.then((im) => promisify(im.clone.bind(im))());
+  }
+
+  async getBackground(url) {
+    const parsed = new URL(url);
+    const getter = (url) =>
+      axios.get(url, { responseType: "arraybuffer" }).then((data) => {
+        return jimp.read(data.data);
+      });
+    let isDefault = false;
+
+    if (parsed.search === "0") {
+      // this background does not exist, return default
+      url = DEFAULT_BACKGROUND;
+      isDefault = true;
+    }
+
+    return this.lru
+      .get(url, () => getter(url))
+      .then((background) => ({
+        background: background.clone(),
+        isDefault,
+      }))
+      .catch((err) => {
+        if ("response" in err && err.response.status === 404) {
+          return this.lru
+            .get(DEFAULT_BACKGROUND, () => getter(DEFAULT_BACKGROUND))
+            .then((background) => ({
+              background: background.clone(),
+              isDefault: true,
+            }));
+        }
+        throw err;
+      });
+  }
+}
+
+class LRUCache {
+  constructor(maxSize) {
+    this.maxSize = maxSize;
+
+    // this will contain the key: value lookups
+    this.cache = {};
+
+    // this will contain the order in which the keys were last accessed
+    this.accessed = [];
+  }
+
+  async get(key, getter) {
+    if (key in this.cache) {
+      const idx = this.accessed.indexOf(key);
+      if (idx === -1) {
+        throw new Error("key was in cached, but not accessed list");
+      }
+      this.accessed.splice(idx, 1);
+      this.accessed.unshift(key);
+      return this.cache[key];
+    }
+
+    const toBeCached = await getter();
+    if (this.accessed.length === this.maxSize) {
+      const toBeDeleted = this.accessed.pop();
+      delete this.cache[toBeDeleted];
+    }
+    this.cache[key] = toBeCached;
+    this.accessed.unshift(key);
+    return toBeCached;
   }
 }
 

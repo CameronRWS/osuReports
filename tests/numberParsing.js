@@ -1,28 +1,4 @@
-function formatDifference(number, nDec, suffix) {
-  let formatted;
-
-  if (number === NaN) {
-    return "";
-  }
-
-  if (nDec !== undefined) {
-    number = number.toFixed(nDec);
-    formatted = number.toString();
-  } else {
-    formatted = number.toLocaleString("en");
-  }
-
-  // we don't want it to be undefined
-  if (!suffix) suffix = "";
-
-  if (number > 0) {
-    return `(+${formatted}${suffix})`;
-  }
-  if (number < 0) {
-    return `(${formatted}${suffix})`;
-  }
-  return "";
-}
+const { formatDifference } = require("../src/utils");
 
 function origDifGlobalRank(difGlobalRank) {
   difGlobalRank *= -1;

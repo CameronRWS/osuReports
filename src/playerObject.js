@@ -132,18 +132,21 @@ class playerObject {
     return attemptedNewPlayTime != lastRecordedPlayTime;
   }
 
-  createFakeSession() {
+  async createFakeSession() {
     const url = "https://osu.ppy.sh/users/" + this.osuUsername;
     var scoreOfRecentPlay;
-    axios.get(url).then((response) => {
+    const waitSeconds = (seconds) =>
+      new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+    return axios.get(url).then(async (response) => {
       var $ = cheerio.load(response.data);
       var html = $("#json-extras").html();
       var data = JSON.parse(html);
       scoreOfRecentPlay = data.scoresBest;
       this.sessionObject = new sessionObject(this, true);
       // add more if necessary
-      for (let i = 0; i < 5; i++) {
-        this.sessionObject.addNewPlayWEB(scoreOfRecentPlay[i]);
+      for (let i = 0; i < 1; i++) {
+        await this.sessionObject.addNewPlayWEB(scoreOfRecentPlay[i % 5]);
+        if (i % 5 === 0 && i) await waitSeconds(2);
       }
     });
   }

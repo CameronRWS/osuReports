@@ -15,7 +15,8 @@ class playObjectv2 {
       this.maxCombo = max_combo;
       this.combo = combo;
       this.rank = scoreOfRecentPlay.rank;
-      //this.background = "https://assets.ppy.sh/beatmaps/1351/covers/cover.jpg?1539845552"
+      // this.background =
+      //   "https://assets.ppy.sh/beatmaps/1351/covers/cover.jpg?1539845552";
       this.background = scoreOfRecentPlay.beatmapset.covers.cover;
       this.date = new Date(scoreOfRecentPlay.created_at);
       this.beatmapid = scoreOfRecentPlay.beatmap.id;

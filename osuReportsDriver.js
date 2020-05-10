@@ -15,13 +15,11 @@ startServer();
 
 test();
 
-function test() {
+async function test() {
   globalInstances.playerObjects.push(new playerObject("PenZa", "@penz_"));
-  globalInstances.playerObjects[0].createFakeSession();
-  setTimeout(function () {
-    globalInstances.logMessage("From test(): Ending session...");
-    globalInstances.playerObjects[0].sessionObject.endSession();
-  }, 10000);
+  await globalInstances.playerObjects[0].createFakeSession();
+  globalInstances.logMessage("From test(): Ending session...");
+  await globalInstances.playerObjects[0].sessionObject.endSession();
 }
 
 function initialize() {

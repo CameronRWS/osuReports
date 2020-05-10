@@ -35,6 +35,7 @@ class DB extends sqlite3.Database {
     super(file);
     this._add_session_stmt = null;
     this._add_play_stmt = null;
+    this._update_session_stmt = null;
   }
 
   async initialize() {
@@ -54,7 +55,25 @@ class DB extends sqlite3.Database {
           "$combo, $bpm, $playDuration, $difficulty, $playAccuracy, $rank, $mods, " +
           "$counts300, $counts100, $counts50, $countsMiss, $playPP)"
       ),
+      prepare(
+        this,
+        "_update_session_stmt",
+        "UPDATE sessionsTable SET tweetID = $tweetId WHERE sessionID = $sessionId"
+      ),
     ]);
+  }
+
+  async updateSession(tweetId, sessionId) {
+    return new Promise(async (resolve, reject) => {
+      await db.initialize();
+
+      this.serialize(() => {
+        this._update_session_stmt.run(
+          { $tweetId: tweetId, $sessionId: sessionId },
+          runCallback(resolve, reject)
+        );
+      });
+    });
   }
 
   async insertSession(sessionObj) {

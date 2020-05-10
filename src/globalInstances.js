@@ -10,7 +10,6 @@ const globalInstances = {
   minimalSessionLengthSeconds: 300,
   whitelistedUsernames: whitelistedUsernamesString.split(","),
   whitelistedTwitterUsernames: whitelistedTwitterUsernamesString.split(","),
-  reportNumber: 1,
   convertTimeToHMS: function (h, m, s) {
     var time = "";
     if (h != 0) {
