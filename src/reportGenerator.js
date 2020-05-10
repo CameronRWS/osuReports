@@ -1,11 +1,11 @@
-const _ = require("lodash");
-const axios = require("axios");
-const jimp = require("jimp");
+const _ = require('lodash');
+const axios = require('axios');
+const jimp = require('jimp');
 
-const globalInstances = require("./globalInstances");
-const resourceGetter = require("./resourceGetter");
+const globalInstances = require('./globalInstances');
+const resourceGetter = require('./resourceGetter');
 
-const { secondsToDHMS } = require("./utils");
+const { secondsToDHMS } = require('./utils');
 
 const RANK_X_OFFSET = 55;
 const RANK_Y_OFFSET = 40;
@@ -27,23 +27,23 @@ class Report {
   }
 
   get globalRank() {
-    return "#" + parseFloat(this.user.pp.rank).toLocaleString("en");
+    return '#' + parseFloat(this.user.pp.rank).toLocaleString('en');
   }
 
   get countryRank() {
-    return "#" + parseFloat(this.user.pp.countryRank).toLocaleString("en");
+    return '#' + parseFloat(this.user.pp.countryRank).toLocaleString('en');
   }
 
   get accuracy() {
-    return parseFloat(this.user.accuracy).toFixed(2) + "%";
+    return parseFloat(this.user.accuracy).toFixed(2) + '%';
   }
 
   get pp() {
-    return parseFloat(this.user.pp.raw).toLocaleString("en");
+    return parseFloat(this.user.pp.raw).toLocaleString('en');
   }
 
   get plays() {
-    return parseFloat(this.user.counts.plays).toLocaleString("en");
+    return parseFloat(this.user.counts.plays).toLocaleString('en');
   }
 
   async generateBase() {
@@ -64,22 +64,22 @@ class Report {
     await this._drawCommands(
       this._drawRank,
       [],
-      ["rankSSPlus", 220, 305],
-      ["rankSS", 340, 305],
-      ["rankSPlus", 460, 305],
-      ["rankS", 580, 305],
-      ["rankA", 700, 305]
+      ['rankSSPlus', 220, 305],
+      ['rankSS', 340, 305],
+      ['rankSPlus', 460, 305],
+      ['rankS', 580, 305],
+      ['rankA', 700, 305]
     );
 
     const { SSH, SS, SH, S, A } = this.user.counts;
     await this._drawCommands(
       this._printRanks,
-      ["ubuntuBBlack24"],
-      [280, 365, SSH],
-      [400, 365, SS],
-      [520, 365, SH],
-      [640, 365, S],
-      [760, 365, A]
+      ['ubuntuBBlack24'],
+      [280, 365 + RANK_Y_OFFSET, SSH],
+      [400, 365 + RANK_Y_OFFSET, SS],
+      [520, 365 + RANK_Y_OFFSET, SH],
+      [640, 365 + RANK_Y_OFFSET, S],
+      [760, 365 + RANK_Y_OFFSET, A]
     );
   }
 
@@ -93,7 +93,7 @@ class Report {
 
   async _drawAvatar() {
     const avatar = await resourceGetter.getPlayerAvatar(this.user.id);
-    const circleMask = await resourceGetter.getImage("circleMask");
+    const circleMask = await resourceGetter.getImage('circleMask');
     avatar.mask(circleMask, 0);
     this.image.composite(avatar, 25, 25);
   }
@@ -106,7 +106,7 @@ class Report {
   async _drawSessionInfo() {
     await this._drawCommands(
       this._print,
-      ["ubuntuBBlack32"],
+      ['ubuntuBBlack32'],
       [25, 450, `Session Duration: ${this.sessionDuration}`],
       [502, 450, `Date of Session: ${this.date}`]
     );
@@ -115,18 +115,18 @@ class Report {
   async _drawSessionFields() {
     await this._drawCommands(
       this._printOffset,
-      ["ubuntuBBlue32"],
-      [326, 100, "Global Rank:"],
-      [300, 140, "Country Rank:"],
-      [371, 180, "Accuracy:"],
-      [466, 220, "PP:"],
-      [341, 260, "Play Count:"]
+      ['ubuntuBBlue32'],
+      [326, 100, 'Global Rank:'],
+      [300, 140, 'Country Rank:'],
+      [371, 180, 'Accuracy:'],
+      [466, 220, 'PP:'],
+      [341, 260, 'Play Count:']
     );
 
     await this._drawCommands(
       this._printOffset,
       // with black font at x-offset 522
-      ["ubuntuBBlack32", 522],
+      ['ubuntuBBlack32', 522],
       [100, this.globalRank],
       [140, this.countryRank],
       [180, this.accuracy],
@@ -135,8 +135,8 @@ class Report {
     );
 
     await this._printCenteredX(
-      "ubuntuBBlack32",
-      387 + GENERAL_X_OFFSET,
+      'ubuntuBBlack32',
+      505 + GENERAL_X_OFFSET,
       28 + GENERAL_Y_OFFSET,
       `osu! Report for: ${this.player.osuUsername}`
     );
@@ -164,14 +164,14 @@ class Report {
 
   async _drawLevels() {
     //level bar
-    const levelBar = await resourceGetter.getImage("levelBar");
-    const green = await resourceGetter.getFont("ubuntuBGreen24");
-    const blue = await resourceGetter.getFont("ubuntuBBlue24");
-    const black = await resourceGetter.getFont("ubuntuBBlack24");
+    const levelBar = await resourceGetter.getImage('levelBar');
+    const green = await resourceGetter.getFont('ubuntuBGreen24');
+    const blue = await resourceGetter.getFont('ubuntuBBlue24');
+    const black = await resourceGetter.getFont('ubuntuBBlack24');
 
     const { difLevel } = this.delta;
     const levelProgress = (this.user.level % 1).toFixed(2);
-    const percentage = Math.trunc(levelProgress * 100).toString() + "%";
+    const percentage = Math.trunc(levelProgress * 100).toString() + '%';
     const level = Math.trunc(parseFloat(this.user.level)).toString();
 
     levelBar.resize(430 * levelProgress, 6);
@@ -185,8 +185,8 @@ class Report {
       spacing,
       new Text(black, percentage),
       new Text(green, difLevel),
-      new Image(await resourceGetter.getImage("hex")),
-      new Text(blue, level).center(-28.5 - spacing)
+      new Image(await resourceGetter.getImage('hex')),
+      new Text(blue, level).center(-35.5 - spacing)
     );
   }
 
@@ -211,8 +211,8 @@ class Report {
   }
 
   async _printDifferenceColor(x, y, offsetText, diff) {
-    const blackFont = await resourceGetter.getFont("ubuntuBBlack32");
-    const fontName = diff.includes("+") ? "ubuntuBGreen32" : "ubuntuBRed32";
+    const blackFont = await resourceGetter.getFont('ubuntuBBlack32');
+    const fontName = diff.includes('+') ? 'ubuntuBGreen32' : 'ubuntuBRed32';
     return this._printOffset(
       fontName,
       x + jimp.measureText(blackFont, offsetText),
@@ -248,11 +248,11 @@ class Report {
 
 class Drawable {
   get width() {
-    throw new Error("not implemented");
+    throw new Error('not implemented');
   }
 
   get height() {
-    throw new Error("not implemented");
+    throw new Error('not implemented');
   }
 
   center(offsetX = 0, offsetY = undefined) {
@@ -264,7 +264,7 @@ class Drawable {
   }
 
   draw(image, x, y) {
-    throw new Error("not implemented");
+    throw new Error('not implemented');
   }
 }
 
@@ -310,14 +310,17 @@ class Text extends Drawable {
   }
 
   get height() {
-    return this.font.info.size;
+    return this.font.common.lineHeight;
   }
 
   draw(image, x, y) {
+    // get spacing and padding
+    let [xsp, ysp] = this.font.info.spacing;
+    let [top, _right, _bot, left] = this.font.info.padding;
     return image.print(
       this.font,
-      x + this.offsetX,
-      y - this.height / 2 + this.offsetY,
+      x + this.offsetX + xsp + left,
+      y - this.height / 2 + ysp + top + this.offsetY,
       this.text
     );
   }
@@ -326,20 +329,20 @@ class Text extends Drawable {
 class ReportGenerator {
   constructor() {
     let fontPromises = {
-      ubuntuB_blue_32: resourceGetter.getFont("ubuntuBBlue32"),
-      ubuntuB_black_32: resourceGetter.getFont("ubuntuBBlack32"),
-      ubuntuB_red_32: resourceGetter.getFont("ubuntuBRed32"),
-      ubuntuB_green_32: resourceGetter.getFont("ubuntuBGreen32"),
-      ubuntuB_black_24: resourceGetter.getFont("ubuntuBBlack24"),
-      ubuntuB_green_24: resourceGetter.getFont("ubuntuBGreen24"),
-      ubuntuB_blue_24: resourceGetter.getFont("ubuntuBBlue24"),
-      ubuntuB_lightblue_32: resourceGetter.getFont("ubuntuBLightBlue32"),
-      ubuntuB_white_24: resourceGetter.getFont("ubuntuBWhite24"),
-      ubuntuB_white_32: resourceGetter.getFont("ubuntuBWhite32"),
-      ubuntuB_gold_52: resourceGetter.getFont("ubuntuBGold52"),
-      ubuntuB_yellow_32: resourceGetter.getFont("ubuntuBYellow32"),
-      ubuntuB_lightgreen_32: resourceGetter.getFont("ubuntuBLightGreen32"),
-      ubuntuB_lightred_32: resourceGetter.getFont("ubuntuBLightRed32"),
+      ubuntuB_blue_32: resourceGetter.getFont('ubuntuBBlue32'),
+      ubuntuB_black_32: resourceGetter.getFont('ubuntuBBlack32'),
+      ubuntuB_red_32: resourceGetter.getFont('ubuntuBRed32'),
+      ubuntuB_green_32: resourceGetter.getFont('ubuntuBGreen32'),
+      ubuntuB_black_24: resourceGetter.getFont('ubuntuBBlack24'),
+      ubuntuB_green_24: resourceGetter.getFont('ubuntuBGreen24'),
+      ubuntuB_blue_24: resourceGetter.getFont('ubuntuBBlue24'),
+      ubuntuB_lightblue_32: resourceGetter.getFont('ubuntuBLightBlue32'),
+      ubuntuB_white_24: resourceGetter.getFont('ubuntuBWhite24'),
+      ubuntuB_white_32: resourceGetter.getFont('ubuntuBWhite32'),
+      ubuntuB_gold_52: resourceGetter.getFont('ubuntuBGold52'),
+      ubuntuB_yellow_32: resourceGetter.getFont('ubuntuBYellow32'),
+      ubuntuB_lightgreen_32: resourceGetter.getFont('ubuntuBLightGreen32'),
+      ubuntuB_lightred_32: resourceGetter.getFont('ubuntuBLightRed32'),
     };
 
     this.fonts = Promise.all(_.values(fontPromises)).then((resources) =>
@@ -376,7 +379,7 @@ class ReportGenerator {
         async function (backgrounds) {
           for (var i = 0; i < backgrounds.length; i++) {
             if (backgrounds[i].isDefault) {
-              playObjects[i].artist = playObjects[i].artist + " <default bg>";
+              playObjects[i].artist = playObjects[i].artist + ' <default bg>';
             }
           }
 
@@ -388,32 +391,32 @@ class ReportGenerator {
             var yMultiOffset;
 
             if (i === 0) {
-              globalInstances.logMessage("writing to 1");
+              globalInstances.logMessage('writing to 1');
               yMultiOffset = 0;
               imageToEdit = report;
             } else if (i === 10) {
               reportImages.push(imageToEdit);
               imageToEdit = baseReport.clone();
-              globalInstances.logMessage("writing to 2");
+              globalInstances.logMessage('writing to 2');
               yMultiOffset = -2750;
             } else if (i === 20) {
               reportImages.push(imageToEdit);
               imageToEdit = baseReport.clone();
-              globalInstances.logMessage("writing to 3");
+              globalInstances.logMessage('writing to 3');
               yMultiOffset = -2750 * 2;
             } else if (i === 30) {
               reportImages.push(imageToEdit);
               imageToEdit = baseReport.clone();
-              globalInstances.logMessage("writing to 4");
+              globalInstances.logMessage('writing to 4');
               yMultiOffset = -2750 * 3;
             } else if (i >= 40) {
-              globalInstances.logMessage("break;");
+              globalInstances.logMessage('break;');
               break;
             }
             //console.log(data.length);
             //console.log(indexOfPlayImages + i);
             backgrounds[i].background.mask(
-              await resourceGetter.getImage("playImageMask"),
+              await resourceGetter.getImage('playImageMask'),
               0,
               0
             );
@@ -427,31 +430,31 @@ class ReportGenerator {
             // playObjects[i].version = "xxxx xxx xx x "
             // playObjects[i].artist = "xxxx xxx xx x  xxxxx xxx xx xxxxx xx xxxxxx xxxxx xxx x xxx x xxxxx x xxxx"
 
-            globalInstances.logMessage("| working on titles ");
+            globalInstances.logMessage('| working on titles ');
 
             var tempTitle = playObjects[i].title;
             var tempVersion = playObjects[i].version;
             if (tempVersion.length > 20) {
-              tempVersion = tempVersion.substring(0, 20) + "...";
+              tempVersion = tempVersion.substring(0, 20) + '...';
             }
             //jimp.measureText(fonts.ubuntuB_lightblue_32, playObjects[i].title)
             //1320
             while (
               jimp.measureText(
                 fonts.ubuntuB_lightblue_32,
-                tempTitle + " [" + tempVersion + "]"
+                tempTitle + ' [' + tempVersion + ']'
               ) > 1000
             ) {
               tempTitle = tempTitle.substring(0, tempTitle.length - 1);
             }
             if (tempTitle != playObjects[i].title) {
-              tempTitle = tempTitle + "...";
+              tempTitle = tempTitle + '...';
             }
             imageToEdit.print(
               fonts.ubuntuB_lightblue_32,
               30,
               505 + i * 275 + yMultiOffset,
-              "" + tempTitle + " [" + tempVersion + "]",
+              '' + tempTitle + ' [' + tempVersion + ']',
               680,
               (err, image, { x, y }) => {
                 var tempArtist = playObjects[i].artist;
@@ -465,7 +468,7 @@ class ReportGenerator {
                     fonts.ubuntuB_white_24,
                     30,
                     y,
-                    "  by " + playObjects[i].artist,
+                    '  by ' + playObjects[i].artist,
                     1000
                   );
                 } else {
@@ -473,85 +476,85 @@ class ReportGenerator {
                     fonts.ubuntuB_white_24,
                     30,
                     y,
-                    "  by " + tempArtist + "...",
+                    '  by ' + tempArtist + '...',
                     1000
                   );
                 }
               }
             );
 
-            globalInstances.logMessage("| working on rank ");
+            globalInstances.logMessage('| working on rank ');
             //rank
             var playRankX = 800;
             var playRankY = 50;
 
-            if (playObjects[i].rank == "XH") {
+            if (playObjects[i].rank == 'XH') {
               imageToEdit.composite(
-                await resourceGetter.getImage("rankSSPlus"),
+                await resourceGetter.getImage('rankSSPlus'),
                 playRankX,
                 505 + i * 275 + yMultiOffset + playRankY
               );
-            } else if (playObjects[i].rank == "X") {
+            } else if (playObjects[i].rank == 'X') {
               imageToEdit.composite(
-                await resourceGetter.getImage("rankSS"),
+                await resourceGetter.getImage('rankSS'),
                 playRankX,
                 505 + i * 275 + yMultiOffset + playRankY
               );
-            } else if (playObjects[i].rank == "SH") {
+            } else if (playObjects[i].rank == 'SH') {
               imageToEdit.composite(
-                await resourceGetter.getImage("rankSPlus"),
+                await resourceGetter.getImage('rankSPlus'),
                 playRankX,
                 505 + i * 275 + yMultiOffset + playRankY
               );
-            } else if (playObjects[i].rank == "S") {
+            } else if (playObjects[i].rank == 'S') {
               imageToEdit.composite(
-                await resourceGetter.getImage("rankS"),
+                await resourceGetter.getImage('rankS'),
                 playRankX,
                 505 + i * 275 + yMultiOffset + playRankY
               );
-            } else if (playObjects[i].rank == "A") {
+            } else if (playObjects[i].rank == 'A') {
               imageToEdit.composite(
-                await resourceGetter.getImage("rankA"),
+                await resourceGetter.getImage('rankA'),
                 playRankX + 10,
                 505 + i * 275 + yMultiOffset + playRankY
               );
-            } else if (playObjects[i].rank == "B") {
+            } else if (playObjects[i].rank == 'B') {
               imageToEdit.composite(
-                await resourceGetter.getImage("rankB"),
+                await resourceGetter.getImage('rankB'),
                 playRankX + 20,
                 505 + i * 275 + yMultiOffset + playRankY
               );
-            } else if (playObjects[i].rank == "C") {
+            } else if (playObjects[i].rank == 'C') {
               imageToEdit.composite(
-                await resourceGetter.getImage("rankC"),
+                await resourceGetter.getImage('rankC'),
                 playRankX + 20,
                 505 + i * 275 + yMultiOffset + playRankY
               );
-            } else if (playObjects[i].rank == "D") {
+            } else if (playObjects[i].rank == 'D') {
               imageToEdit.composite(
-                await resourceGetter.getImage("rankD"),
+                await resourceGetter.getImage('rankD'),
                 playRankX + 20,
                 505 + i * 275 + yMultiOffset + playRankY
               );
             }
 
-            if (playObjects[i].accuracy == "100.00") {
+            if (playObjects[i].accuracy == '100.00') {
               imageToEdit.print(
                 fonts.ubuntuB_gold_52,
                 583 + 120,
                 505 + i * 275 + yMultiOffset - 7,
-                playObjects[i].accuracy + "%"
+                playObjects[i].accuracy + '%'
               );
             } else {
               imageToEdit.print(
                 fonts.ubuntuB_gold_52,
                 610 + 120,
                 505 + i * 275 + yMultiOffset - 7,
-                playObjects[i].accuracy + "%"
+                playObjects[i].accuracy + '%'
               );
             }
 
-            globalInstances.logMessage("| working on difficulty ");
+            globalInstances.logMessage('| working on difficulty ');
             //difficulty
             var playStarY = 210;
             var playStarX = 195;
@@ -564,7 +567,7 @@ class ReportGenerator {
             for (var j = 1; j <= countOfStars; j++) {
               posOfPartialStar = playStarX + (j - 1) * 40;
               imageToEdit.composite(
-                await resourceGetter.getImage("onlineStar", 0),
+                await resourceGetter.getImage('onlineStar', 0),
                 playStarX + (j - 1) * 40,
                 505 + i * 275 + yMultiOffset + playStarY
               );
@@ -573,19 +576,19 @@ class ReportGenerator {
               posOfPartialStar = posOfPartialStar - 40;
             } else if (partialStar < 0.3) {
               imageToEdit.composite(
-                await resourceGetter.getImage("onlineStar", 3),
+                await resourceGetter.getImage('onlineStar', 3),
                 playStarX + posOfPartialStar - 144,
                 505 + i * 275 + yMultiOffset + playStarY + 10
               );
             } else if (partialStar < 0.6) {
               imageToEdit.composite(
-                await resourceGetter.getImage("onlineStar", 2),
+                await resourceGetter.getImage('onlineStar', 2),
                 playStarX + posOfPartialStar - 146,
                 505 + i * 275 + yMultiOffset + playStarY + 7
               );
             } else if (partialStar < 1) {
               imageToEdit.composite(
-                await resourceGetter.getImage("onlineStar", 1),
+                await resourceGetter.getImage('onlineStar', 1),
                 playStarX + posOfPartialStar - 152,
                 505 + i * 275 + yMultiOffset + playStarY + 4
               );
@@ -594,16 +597,16 @@ class ReportGenerator {
               fonts.ubuntuB_lightblue_32,
               30,
               505 + i * 275 + yMultiOffset + playStarY,
-              "Difficulty: "
+              'Difficulty: '
             );
             imageToEdit.print(
               fonts.ubuntuB_white_32,
               180 + posOfPartialStar - 100,
               505 + i * 275 + yMultiOffset + playStarY,
-              "(" + playObjects[i].stars + ")"
+              '(' + playObjects[i].stars + ')'
             );
 
-            globalInstances.logMessage("| working on duration ");
+            globalInstances.logMessage('| working on duration ');
             //duration:
             var songDurationTotalSeconds = parseInt(playObjects[i].duration);
             const [
@@ -623,7 +626,7 @@ class ReportGenerator {
               fonts.ubuntuB_lightblue_32,
               durationX,
               505 + i * 275 + yMultiOffset + durationY,
-              "Duration: "
+              'Duration: '
             );
             imageToEdit.print(
               fonts.ubuntuB_white_32,
@@ -632,7 +635,7 @@ class ReportGenerator {
               songDuration
             );
 
-            globalInstances.logMessage("| working on bpm ");
+            globalInstances.logMessage('| working on bpm ');
 
             //bpm
             var bpmX = 75;
@@ -641,7 +644,7 @@ class ReportGenerator {
               fonts.ubuntuB_lightblue_32,
               30 + bpmX,
               505 + i * 275 + yMultiOffset + bpmY,
-              "BPM: "
+              'BPM: '
             );
             imageToEdit.print(
               fonts.ubuntuB_white_32,
@@ -650,115 +653,115 @@ class ReportGenerator {
               playObjects[i].bpm
             );
 
-            globalInstances.logMessage("| working on pp ");
+            globalInstances.logMessage('| working on pp ');
             //pp
             imageToEdit.print(
               fonts.ubuntuB_gold_52,
               800 -
                 jimp.measureText(
                   fonts.ubuntuB_gold_52,
-                  Math.ceil(playObjects[i].pp) + "pp"
+                  Math.ceil(playObjects[i].pp) + 'pp'
                 ) +
                 107,
               505 + i * 275 + yMultiOffset + 185,
-              Math.ceil(playObjects[i].pp) + "pp"
+              Math.ceil(playObjects[i].pp) + 'pp'
             );
 
-            globalInstances.logMessage("| working on mods ");
+            globalInstances.logMessage('| working on mods ');
 
             //mods
             var modY = 120;
             var posOfMod = 870;
-            if (playObjects[i].mods.includes("DT")) {
+            if (playObjects[i].mods.includes('DT')) {
               imageToEdit.composite(
-                await resourceGetter.getImage("modDoubleTime"),
+                await resourceGetter.getImage('modDoubleTime'),
                 posOfMod,
                 505 + i * 275 + yMultiOffset + modY
               );
               posOfMod = posOfMod - 47;
             }
-            if (playObjects[i].mods.includes("NC")) {
+            if (playObjects[i].mods.includes('NC')) {
               imageToEdit.composite(
-                await resourceGetter.getImage("modNightcore"),
+                await resourceGetter.getImage('modNightcore'),
                 posOfMod,
                 505 + i * 275 + yMultiOffset + modY
               );
               posOfMod = posOfMod - 47;
             }
-            if (playObjects[i].mods.includes("PF")) {
+            if (playObjects[i].mods.includes('PF')) {
               imageToEdit.composite(
-                await resourceGetter.getImage("modPerfect"),
+                await resourceGetter.getImage('modPerfect'),
                 posOfMod,
                 505 + i * 275 + yMultiOffset + modY
               );
               posOfMod = posOfMod - 47;
             }
-            if (playObjects[i].mods.includes("HD")) {
+            if (playObjects[i].mods.includes('HD')) {
               imageToEdit.composite(
-                await resourceGetter.getImage("modHidden"),
+                await resourceGetter.getImage('modHidden'),
                 posOfMod,
                 505 + i * 275 + yMultiOffset + modY
               );
               posOfMod = posOfMod - 47;
             }
-            if (playObjects[i].mods.includes("SD")) {
+            if (playObjects[i].mods.includes('SD')) {
               imageToEdit.composite(
-                await resourceGetter.getImage("modSuddenDeath"),
+                await resourceGetter.getImage('modSuddenDeath'),
                 posOfMod,
                 505 + i * 275 + yMultiOffset + modY
               );
               posOfMod = posOfMod - 47;
             }
-            if (playObjects[i].mods.includes("FL")) {
+            if (playObjects[i].mods.includes('FL')) {
               imageToEdit.composite(
-                await resourceGetter.getImage("modFlashlight"),
+                await resourceGetter.getImage('modFlashlight'),
                 posOfMod,
                 505 + i * 275 + yMultiOffset + modY
               );
               posOfMod = posOfMod - 47;
             }
-            if (playObjects[i].mods.includes("HR")) {
+            if (playObjects[i].mods.includes('HR')) {
               imageToEdit.composite(
-                await resourceGetter.getImage("modHardRock"),
+                await resourceGetter.getImage('modHardRock'),
                 posOfMod,
                 505 + i * 275 + yMultiOffset + modY
               );
               posOfMod = posOfMod - 47;
             }
-            if (playObjects[i].mods.includes("NF")) {
+            if (playObjects[i].mods.includes('NF')) {
               imageToEdit.composite(
-                await resourceGetter.getImage("modNoFail"),
+                await resourceGetter.getImage('modNoFail'),
                 posOfMod,
                 505 + i * 275 + yMultiOffset + modY
               );
               posOfMod = posOfMod - 47;
             }
-            if (playObjects[i].mods.includes("EZ")) {
+            if (playObjects[i].mods.includes('EZ')) {
               imageToEdit.composite(
-                await resourceGetter.getImage("modEasy"),
+                await resourceGetter.getImage('modEasy'),
                 posOfMod,
                 505 + i * 275 + yMultiOffset + modY
               );
               posOfMod = posOfMod - 47;
             }
 
-            globalInstances.logMessage("| working on combo ");
+            globalInstances.logMessage('| working on combo ');
 
             //play combo
             imageToEdit.print(
               fonts.ubuntuB_lightblue_32,
               72,
               505 + i * 275 + yMultiOffset + 105,
-              "Combo: "
+              'Combo: '
             );
             imageToEdit.print(
               fonts.ubuntuB_white_32,
               190,
               505 + i * 275 + yMultiOffset + 105,
-              playObjects[i].combo + " / " + playObjects[i].maxCombo
+              playObjects[i].combo + ' / ' + playObjects[i].maxCombo
             );
 
-            globalInstances.logMessage("| working on counts ");
+            globalInstances.logMessage('| working on counts ');
 
             //play counts
             var countY = 155;
@@ -766,11 +769,11 @@ class ReportGenerator {
             var measurement = jimp.measureText(
               fonts.ubuntuB_lightblue_32,
               playObjects[i].countsObject.count_300 +
-                " / " +
+                ' / ' +
                 playObjects[i].countsObject.count_100 +
-                " / " +
+                ' / ' +
                 playObjects[i].countsObject.count_50 +
-                " / " +
+                ' / ' +
                 playObjects[i].countsObject.count_miss
             );
             imageToEdit.print(
@@ -785,10 +788,10 @@ class ReportGenerator {
                 measurement +
                 jimp.measureText(
                   fonts.ubuntuB_lightblue_32,
-                  playObjects[i].countsObject.count_300 + ""
+                  playObjects[i].countsObject.count_300 + ''
                 ),
               505 + i * 275 + yMultiOffset + countY,
-              " / "
+              ' / '
             );
             imageToEdit.print(
               fonts.ubuntuB_lightgreen_32,
@@ -796,7 +799,7 @@ class ReportGenerator {
                 measurement +
                 jimp.measureText(
                   fonts.ubuntuB_lightblue_32,
-                  playObjects[i].countsObject.count_300 + " / "
+                  playObjects[i].countsObject.count_300 + ' / '
                 ),
               505 + i * 275 + yMultiOffset + countY,
               playObjects[i].countsObject.count_100
@@ -808,11 +811,11 @@ class ReportGenerator {
                 jimp.measureText(
                   fonts.ubuntuB_lightblue_32,
                   playObjects[i].countsObject.count_300 +
-                    " / " +
+                    ' / ' +
                     playObjects[i].countsObject.count_100
                 ),
               505 + i * 275 + yMultiOffset + countY,
-              " / "
+              ' / '
             );
             imageToEdit.print(
               fonts.ubuntuB_yellow_32,
@@ -821,9 +824,9 @@ class ReportGenerator {
                 jimp.measureText(
                   fonts.ubuntuB_lightblue_32,
                   playObjects[i].countsObject.count_300 +
-                    " / " +
+                    ' / ' +
                     playObjects[i].countsObject.count_100 +
-                    " / "
+                    ' / '
                 ),
               505 + i * 275 + yMultiOffset + countY,
               playObjects[i].countsObject.count_50
@@ -835,13 +838,13 @@ class ReportGenerator {
                 jimp.measureText(
                   fonts.ubuntuB_lightblue_32,
                   playObjects[i].countsObject.count_300 +
-                    " / " +
+                    ' / ' +
                     playObjects[i].countsObject.count_100 +
-                    " / " +
+                    ' / ' +
                     playObjects[i].countsObject.count_50
                 ),
               505 + i * 275 + yMultiOffset + countY,
-              " / "
+              ' / '
             );
             imageToEdit.print(
               fonts.ubuntuB_lightred_32,
@@ -850,11 +853,11 @@ class ReportGenerator {
                 jimp.measureText(
                   fonts.ubuntuB_lightblue_32,
                   playObjects[i].countsObject.count_300 +
-                    " / " +
+                    ' / ' +
                     playObjects[i].countsObject.count_100 +
-                    " / " +
+                    ' / ' +
                     playObjects[i].countsObject.count_50 +
-                    " / "
+                    ' / '
                 ),
               505 + i * 275 + yMultiOffset + countY,
               playObjects[i].countsObject.count_miss
@@ -862,7 +865,7 @@ class ReportGenerator {
 
             if (playObjects.length - 1 == i) {
               globalInstances.logMessage(
-                "need to crop because its the last play"
+                'need to crop because its the last play'
               );
               if (i >= 10) {
                 imageToEdit.crop(0, 485, 950, 775 + (i % 10) * 275 - 485);
@@ -871,7 +874,7 @@ class ReportGenerator {
               }
             } else if ((i + 1) % 10 == 0) {
               globalInstances.logMessage(
-                "cropping because last play has been added"
+                'cropping because last play has been added'
               );
               if (i >= 10) {
                 imageToEdit.crop(0, 485, 950, 775 + 9 * 275 - 485);
