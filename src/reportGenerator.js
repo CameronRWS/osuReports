@@ -1,6 +1,12 @@
+/**
+ * @typedef {import('jimp/types/ts3.1/index')} Jimp
+ */
+
 const _ = require('lodash');
 const axios = require('axios');
+
 const jimp = require('jimp');
+const { promisify } = require('util');
 
 const globalInstances = require('./globalInstances');
 const resourceGetter = require('./resourceGetter');
@@ -17,6 +23,15 @@ const LEVEL_BAR_X_OFFSET = 0;
 const LEVEL_BAR_Y_OFFSET = 5;
 
 class Report {
+  /**
+   *
+   * @param {Jimp} template
+   * @param {*} player
+   * @param {*} user
+   * @param {*} sessionDuration
+   * @param {*} date
+   * @param {*} delta
+   */
   constructor(template, player, user, sessionDuration, date, delta) {
     this.image = template;
     this.player = player;
@@ -94,7 +109,7 @@ class Report {
   async _drawAvatar() {
     const avatar = await resourceGetter.getPlayerAvatar(this.user.id);
     const circleMask = await resourceGetter.getImage('circleMask');
-    avatar.mask(circleMask, 0);
+    avatar.mask(circleMask, 0, 0);
     this.image.composite(avatar, 25, 25);
   }
 
@@ -165,29 +180,41 @@ class Report {
   async _drawLevels() {
     //level bar
     const levelBar = await resourceGetter.getImage('levelBar');
-    const green = await resourceGetter.getFont('ubuntuBGreen24');
-    const blue = await resourceGetter.getFont('ubuntuBBlue24');
-    const black = await resourceGetter.getFont('ubuntuBBlack24');
 
     const { difLevel } = this.delta;
-    const levelProgress = (this.user.level % 1).toFixed(2);
-    const percentage = Math.trunc(levelProgress * 100).toString() + '%';
-    const level = Math.trunc(parseFloat(this.user.level)).toString();
+    const fLevel = parseFloat(this.user.level);
+    const fProgress = fLevel % 1;
+    const percentage = Math.trunc(fProgress * 100).toString() + '%';
+    const level = Math.trunc(fLevel).toString();
 
-    levelBar.resize(430 * levelProgress, 6);
-    this.image.composite(levelBar, 303, 309);
+    if (fProgress > 0) {
+      levelBar.resize(430 * fProgress, 6);
+      this.image.composite(levelBar, 303, 309);
+    }
+
+    const hex = (await resourceGetter.getImage('hex')).clone();
+    await this._printCentered(
+      hex,
+      'ubuntuBBlue24',
+      hex.getWidth() / 2,
+      hex.getHeight() / 2,
+      level
+    );
 
     const spacing = 5;
-
-    await this._drawConsecutive(
+    const center = 312;
+    return this._printCenteredY(
+      'ubuntuBBlack24',
       734 + LEVEL_BAR_X_OFFSET,
-      312,
-      spacing,
-      new Text(black, percentage),
-      new Text(green, difLevel),
-      new Image(await resourceGetter.getImage('hex')),
-      new Text(blue, level).center(-35.5 - spacing)
-    );
+      center,
+      percentage
+    )
+      .then(({ x }) =>
+        this._printCenteredY('ubuntuBGreen24', x + spacing, center, difLevel)
+      )
+      .then(({ x }) =>
+        this.image.blit(hex, x + spacing, center - hex.getHeight() / 2)
+      );
   }
 
   async _print(fontName, x, y, text) {
@@ -205,9 +232,62 @@ class Report {
   }
 
   async _printCenteredX(fontName, x, y, text) {
-    let font = await resourceGetter.getFont(fontName);
+    const font = await resourceGetter.getFont(fontName);
     const textWidth = jimp.measureText(font, text);
     this.image.print(font, x - textWidth / 2, y, text);
+  }
+
+  async _printCenteredY(fontName, x, y, text) {
+    const font = await resourceGetter.getFont(fontName);
+    const height = jimp.measureTextHeight(font, text, text.length);
+    const [xsp, ysp] = font.info.spacing;
+    return /** @type {Promise<{x: number, y: number}>} */ (new Promise(
+      (resolve, reject) => {
+        this.image.print(
+          font,
+          x + xsp,
+          y - height / 2 + ysp / 2,
+          text,
+          (err, image, coords) => {
+            if (err) reject(err);
+            resolve(coords);
+          }
+        );
+      }
+    ));
+  }
+
+  /**
+   *
+   * @param {Jimp} image
+   * @param {*} fontName
+   * @param {number} x
+   * @param {number} y
+   * @param {*} text
+   */
+  async _printCentered(image, fontName, x, y, text) {
+    const font = await resourceGetter.getFont(fontName);
+    const width = jimp.measureText(font, text);
+    const height = jimp.measureTextHeight(font, text, text.length);
+
+    const [xsp, ysp] = font.info.spacing;
+
+    const top = y - height / 2 + ysp / 2;
+    const left = x - width / 2 + xsp / 2;
+
+    image.print(font, left, top, text);
+  }
+
+  // for debugging text bounds
+  _drawBox(im, color, x, y, w, h) {
+    for (let ix = 0; ix < w; ++ix) {
+      im.setPixelColor(color, x + ix, y);
+      im.setPixelColor(color, x + ix, y + h);
+    }
+    for (let iy = 0; iy < h; ++iy) {
+      im.setPixelColor(color, x, y + iy);
+      im.setPixelColor(color, x + w, y + iy);
+    }
   }
 
   async _printDifferenceColor(x, y, offsetText, diff) {
@@ -235,94 +315,6 @@ class Report {
     thisCmd = thisCmd.bind(this, ...commonArgs);
     // e.g. thisCmd(a, b, c) === this._printOffset("ubuntuBBlue32", a, b, c)
     await Promise.all(args.map((cmdArgs) => thisCmd(...cmdArgs)));
-  }
-
-  async _drawConsecutive(startX, centerY, spacing, ...objs) {
-    let x = startX;
-    for (const obj of objs) {
-      obj.draw(this.image, x, centerY);
-      x += obj.width + spacing;
-    }
-  }
-}
-
-class Drawable {
-  get width() {
-    throw new Error('not implemented');
-  }
-
-  get height() {
-    throw new Error('not implemented');
-  }
-
-  center(offsetX = 0, offsetY = undefined) {
-    this.offsetX = offsetX - this.width / 2;
-    if (offsetY !== undefined) {
-      this.offsetY = offsetY;
-    }
-    return this;
-  }
-
-  draw(image, x, y) {
-    throw new Error('not implemented');
-  }
-}
-
-class Image extends Drawable {
-  constructor(image, offsetX = 0, offsetY = 0) {
-    super();
-    this.image = image;
-    this.offsetX = offsetX;
-    this.offsetY = offsetY;
-  }
-
-  get width() {
-    return this.image.bitmap.width;
-  }
-
-  get height() {
-    return this.image.bitmap.height;
-  }
-
-  draw(image, x, y) {
-    return image.composite(
-      this.image,
-      x + this.offsetX,
-      y - this.height / 2 + this.offsetY
-    );
-  }
-}
-
-class Text extends Drawable {
-  constructor(font, text, offsetX = 0, offsetY = 0) {
-    super();
-    this.font = font;
-    this.text = text;
-
-    this.offsetX = offsetX;
-    this.offsetY = offsetY;
-
-    this._width = jimp.measureText(font, text);
-  }
-
-  get width() {
-    return this._width;
-  }
-
-  get height() {
-    return this.font.common.lineHeight;
-  }
-
-  draw(image, x, y) {
-    // get spacing and padding
-    let [xsp, ysp] = this.font.info.spacing;
-    let [top, _right, _bot, left] = this.font.info.padding;
-    return image.print(
-      this.font,
-      x + this.offsetX + xsp + left,
-      y - this.height / 2 + ysp + top + this.offsetY,
-      this.text
-    );
   }
 }
 
@@ -358,7 +350,7 @@ class ReportGenerator {
     date,
     delta
   ) {
-    let report = new Report(
+    let generated = new Report(
       await resourceGetter.getNewReportTemplate(),
       player,
       user,
@@ -367,9 +359,9 @@ class ReportGenerator {
       delta
     );
 
-    let baseReport = (await report.generateBase()).clone();
-    await report.generate();
-    report = report.image;
+    let baseReport = (await generated.generateBase()).clone();
+    await generated.generate();
+    let report = generated.image;
 
     return this.fonts.then(async (fonts) => {
       let backgroundPromises = playObjects.map((play) =>
