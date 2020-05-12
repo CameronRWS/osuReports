@@ -198,8 +198,7 @@ class ResourceGetter {
 }
 
 /**
- * @class
- * @template T
+ * @template T - the type being cached
  */
 class LRUCache {
   /**
