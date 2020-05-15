@@ -3,7 +3,7 @@ var osuApi = require("./osuApi");
 class playObjectv2 {
   constructor(stars, pp, bpm, combo, max_combo, scoreOfRecentPlay) {
     if (stars != "") {
-      console.log("Play created: " + scoreOfRecentPlay.beatmapset.title);
+      //console.log("Play created: " + scoreOfRecentPlay.beatmapset.title);
       this.stars = stars;
       this.pp = pp;
       this.countsObject = scoreOfRecentPlay.statistics;
@@ -32,7 +32,6 @@ class playObjectv2 {
         this.bpm = bpm.toFixed(0);
       }
     } else {
-      console.log("Play created: " + scoreOfRecentPlay.title);
       this.rank = scoreOfRecentPlay.rank;
       this.date = new Date(scoreOfRecentPlay.date.getTime());
     }

@@ -54,6 +54,7 @@ class playerObject {
       })
       .catch((error) => {
         if (error instanceof NoNewScoresError) return;
+        console.log(error);
         globalInstances.logMessage(
           "updateSessionObjectv3(): Something went wrong: ",
           error
@@ -64,9 +65,9 @@ class playerObject {
   handleScore(score) {
     var mostRecentPlayTime = score.date;
     var minutesElapsed = calculateElapsedTime(mostRecentPlayTime);
-    console.log(
-      "minutesElapsed for " + this.osuUsername + ": " + minutesElapsed
-    );
+    // console.log(
+    //   "minutesElapsed for " + this.osuUsername + ": " + minutesElapsed
+    // );
     if (minutesElapsed > globalInstances.sessionTimeout) {
       if (this.sessionObject != undefined) {
         console.log("Ending session for: " + this.osuUsername);
@@ -144,7 +145,7 @@ class playerObject {
       scoreOfRecentPlay = data.scoresBest;
       this.sessionObject = new sessionObject(this, true);
       // add more if necessary
-      for (let i = 0; i < 1; i++) {
+      for (let i = 0; i < 40; i++) {
         await this.sessionObject.addNewPlayWEB(scoreOfRecentPlay[i % 5]);
         if (i % 5 === 0 && i) await waitSeconds(2);
       }

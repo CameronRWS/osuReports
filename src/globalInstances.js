@@ -6,7 +6,7 @@ var fs = require("fs");
 const globalInstances = {
   playerObjects: [],
   numberOfSessionsRecorded: 0,
-  sessionTimeout: 152,
+  sessionTimeout: 60,
   minimalSessionLengthSeconds: 300,
   whitelistedUsernames: whitelistedUsernamesString.split(","),
   whitelistedTwitterUsernames: whitelistedTwitterUsernamesString.split(","),

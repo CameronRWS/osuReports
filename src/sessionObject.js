@@ -17,6 +17,7 @@ const {
   sanitizeAndParse,
   secondsToDHMS,
 } = require("./utils");
+const { fstat } = require("fs");
 
 var T = new Twit({
   consumer_key: keys.consumer_key,
@@ -353,6 +354,14 @@ class sessionObject {
             difRankedScore,
           }
         );
+
+        //for testing
+        for (var i = 0; i < reportImages.length; i++) {
+          reportImages[i].write(
+            "./report" + this.player.osuUsername + i + 1 + ".png"
+          );
+        }
+        return;
 
         globalInstances.logMessage("\nTrying to tweet...");
 
