@@ -20,7 +20,7 @@ jobs:
     - name: login to docker
       env:
         DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-      run: echo "$DOCKER_TOKEN" | docker-login -u ajmadsen --password-stdin
+      run: echo "$DOCKER_TOKEN" | docker login -u ajmadsen --password-stdin
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag $IMAGE:latest
     - name: Push the docker image
