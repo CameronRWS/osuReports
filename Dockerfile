@@ -1,4 +1,4 @@
-FROM nodejs:lts
+FROM node:lts-slim
 
 WORKDIR /app
 COPY package*.json .
