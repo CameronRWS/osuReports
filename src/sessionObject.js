@@ -1,14 +1,13 @@
-var osuApi = require("./osuApi");
-var ojsama = require("ojsama");
-var playObjectv2 = require("./playObjectv2");
-var jimp = require("jimp");
-var globalInstances = require("./globalInstances");
-var Twit = require("twit");
-var keys = require("./consumerKeys");
-const util = require("util");
+const osuApi = require('./osuApi');
+const ojsama = require('ojsama');
+const playObjectv2 = require('./playObjectv2');
+const globalInstances = require('./globalInstances');
+const Twit = require('twit');
+const keys = require('./consumerKeys');
+const util = require('util');
 
-const db = require("./db");
-const ReportGenerator = require("./reportGenerator");
+const db = require('./db');
+const ReportGenerator = require('./reportGenerator');
 
 const {
   fetchAndParseBeatmap,
@@ -16,8 +15,7 @@ const {
   formatDifference,
   sanitizeAndParse,
   secondsToDHMS,
-} = require("./utils");
-const { fstat } = require("fs");
+} = require('./utils');
 
 var T = new Twit({
   consumer_key: keys.consumer_key,
@@ -50,7 +48,7 @@ class sessionObject {
         });
     } else {
       this.isDebug = isDebug;
-      globalInstances.logMessage("\ndebug mode init");
+      globalInstances.logMessage('\ndebug mode init');
       osuApi
         .getUser({ u: this.player.osuUsername })
         .then((user) => {
@@ -67,52 +65,58 @@ class sessionObject {
             parseFloat(this.userObjectStartOfSession.counts.plays) - 2;
         })
         .catch((err) => {
-          globalInstances.logMessage(" - " + err);
+          globalInstances.logMessage(' - ' + err);
         });
     }
   }
 
   addNewPlayAPI(scoreOfRecentPlay) {
-    console.log("adding new play via API");
+    console.log('adding new play via API');
     this.playObjects.push(
-      new playObjectv2("", "", "", "", "", scoreOfRecentPlay)
+      new playObjectv2('', '', '', '', '', scoreOfRecentPlay)
     );
   }
 
   async addNewPlayWEB(scoreOfRecentPlay) {
-    console.log("adding new play via WEB");
+    console.log('adding new play via WEB');
     return fetchBeatmapJson(scoreOfRecentPlay.beatmap.beatmapset_id)
       .then(async (data) => {
-        var bpm = data.bpm;
-        var mods = "";
+        const bpm = data.bpm;
+        let mods = '';
         if (scoreOfRecentPlay.mods.length > 0) {
-          mods = "+";
-          for (var i = 0; i < scoreOfRecentPlay.mods.length; i++) {
+          mods = '+';
+          for (let i = 0; i < scoreOfRecentPlay.mods.length; i++) {
             mods = mods + scoreOfRecentPlay.mods[i];
           }
         }
-        var acc_percent = scoreOfRecentPlay.accuracy * 100;
-        var combo = scoreOfRecentPlay.max_combo;
-        var nmiss = scoreOfRecentPlay.statistics.count_miss;
-        if (mods.startsWith("+")) {
-          mods = ojsama.modbits.from_string(mods.slice(1) || "");
+        const acc_percent = scoreOfRecentPlay.accuracy * 100;
+        let combo = scoreOfRecentPlay.max_combo;
+        const nmiss = scoreOfRecentPlay.statistics.count_miss;
+        if (mods.startsWith('+')) {
+          mods = ojsama.modbits.from_string(mods.slice(1) || '');
         }
         return fetchAndParseBeatmap(scoreOfRecentPlay.beatmap.id).then(
           (map) => {
             try {
-              var stars = new ojsama.diff().calc({ map: map, mods: mods });
-              var pp = ojsama.ppv2({
-                stars: stars,
-                combo: combo,
-                nmiss: nmiss,
-                acc_percent: acc_percent,
-              });
-              var max_combo = map.max_combo();
+              const stars = Math.min(
+                new ojsama.diff().calc({ map: map, mods: mods }),
+                100
+              );
+              const pp = Math.min(
+                ojsama.ppv2({
+                  stars: stars,
+                  combo: combo,
+                  nmiss: nmiss,
+                  acc_percent: acc_percent,
+                }),
+                10e4
+              );
+              const max_combo = map.max_combo();
               combo = combo || max_combo;
               this.playObjects.push(
                 new playObjectv2(
-                  stars.toString().split(" ")[0],
-                  pp.toString().split(" ")[0],
+                  stars.toString().split(' ')[0],
+                  pp.toString().split(' ')[0],
                   bpm,
                   combo,
                   max_combo,
@@ -121,291 +125,280 @@ class sessionObject {
               );
             } catch (error) {
               globalInstances.logMessage(
-                "Err: Problem occured when going to add a play from the web - " +
+                'Err: Problem occured when going to add a play from the web - ' +
                   error +
-                  "\n"
+                  '\n'
               );
             }
           }
         );
       })
       .catch((error) => {
-        globalInstances.logMessage(error + " 123");
+        globalInstances.logMessage(error + ' 123');
       });
   }
 
   async endSession() {
     globalInstances.logMessage(
-      "Attempting to end session for: " + this.player.osuUsername + "\n"
+      'Attempting to end session for: ' + this.player.osuUsername + '\n'
     );
     //checks to see if there are real plays in session
-    var isTweetable = false;
-    for (var i = 0; i < this.playObjects.length; i++) {
+    let isTweetable = false;
+    for (let i = 0; i < this.playObjects.length; i++) {
       if (this.playObjects[i].background != undefined) {
         isTweetable = true;
         break;
       }
     }
     //change 0 to 1
-    if (isTweetable == true && this.playObjects.length == 0) {
+    if (isTweetable && this.playObjects.length === 1) {
       isTweetable = false;
     }
-    if (isTweetable == false) {
-      var isTweetableResponse =
+    if (!isTweetable) {
+      const isTweetableResponse =
         this.player.osuUsername +
-        " - This session has no plays with a background or only has one play";
+        ' - This session has no plays with a background or only has one play';
       globalInstances.logMessage(isTweetableResponse);
       return;
     }
-    osuApi
-      .getUser({ u: this.player.osuUsername })
-      .then(async (user) => {
-        this.userObjectEndOfSession = user;
-        var currentTime = new Date();
-        currentTime.setHours(currentTime.getHours() - 6); //setting to central time
-        var date = currentTime
-          .toLocaleString("en-US", { timezone: "America/Chicago" })
-          .split(",")[0];
 
-        var sessionTotalSeconds = 0;
-        if (this.isDebug) {
-          sessionTotalSeconds = 1000;
-        } else {
-          sessionTotalSeconds =
-            (this.playObjects[this.playObjects.length - 1].date.getTime() -
-              this.playObjects[0].date.getTime()) /
-            1000;
-        }
+    const user = await osuApi.getUser({ u: this.player.osuUsername });
 
-        if (
-          sessionTotalSeconds < globalInstances.minimalSessionLengthSeconds &&
-          sessionTotalSeconds >= 0 &&
-          this.isDebug == false
-        ) {
-          var sessionDurationResponse =
-            this.player.osuUsername +
-            " - This session is not long enough: " +
-            sessionTotalSeconds +
-            "\n";
-          globalInstances.logMessage(sessionDurationResponse);
-          return;
-        }
+    this.userObjectEndOfSession = user;
+    const currentTime = new Date();
+    currentTime.setHours(currentTime.getHours() - 6); //setting to central time
+    const date = currentTime
+      .toLocaleString('en-US', { timeZone: 'America/Chicago' })
+      .split(',')[0];
 
-        const [
-          sessionDurationDays,
-          sessionDurationHours,
-          sessionDurationMinutes,
-          sessionDurationSeconds,
-        ] = secondsToDHMS(sessionTotalSeconds);
+    let sessionTotalSeconds = 0;
+    if (this.isDebug) {
+      sessionTotalSeconds = 1000;
+    } else {
+      sessionTotalSeconds =
+        (this.playObjects[this.playObjects.length - 1].date.getTime() -
+          this.playObjects[0].date.getTime()) /
+        1000;
+    }
 
-        var sessionDuration = globalInstances.convertTimeToHMS(
-          sessionDurationHours,
-          sessionDurationMinutes,
-          sessionDurationSeconds
-        );
+    if (
+      sessionTotalSeconds < globalInstances.minimalSessionLengthSeconds &&
+      sessionTotalSeconds >= 0 &&
+      this.isDebug == false
+    ) {
+      const sessionDurationResponse =
+        this.player.osuUsername +
+        ' - This session is not long enough: ' +
+        sessionTotalSeconds +
+        '\n';
+      globalInstances.logMessage(sessionDurationResponse);
+      return;
+    }
 
-        var difGlobalRank =
-          sanitizeAndParse(this.userObjectEndOfSession.pp.rank) -
-          sanitizeAndParse(this.userObjectStartOfSession.pp.rank);
-        difGlobalRank = formatDifference(difGlobalRank * -1);
+    const [
+      sessionDurationHours,
+      sessionDurationMinutes,
+      sessionDurationSeconds,
+    ] = secondsToDHMS(sessionTotalSeconds).slice(1);
 
-        var difCountryRank =
-          sanitizeAndParse(this.userObjectEndOfSession.pp.countryRank) -
-          sanitizeAndParse(this.userObjectStartOfSession.pp.countryRank);
-        difCountryRank = formatDifference(difCountryRank * -1);
+    const sessionDuration = globalInstances.convertTimeToHMS(
+      sessionDurationHours,
+      sessionDurationMinutes,
+      sessionDurationSeconds
+    );
 
-        var difLevel =
-          sanitizeAndParse(this.userObjectEndOfSession.level) -
-          sanitizeAndParse(this.userObjectStartOfSession.level);
-        difLevel = formatDifference(difLevel * 100, 0, "%");
+    const fDifGlobalRank =
+      sanitizeAndParse(this.userObjectEndOfSession.pp.rank) -
+      sanitizeAndParse(this.userObjectStartOfSession.pp.rank);
+    const difGlobalRank = formatDifference(fDifGlobalRank * -1);
 
-        var difRankedScore =
-          sanitizeAndParse(this.userObjectEndOfSession.scores.ranked) -
-          sanitizeAndParse(this.userObjectStartOfSession.scores.ranked);
-        difRankedScore = formatDifference(difRankedScore);
+    const fDifCountryRank =
+      sanitizeAndParse(this.userObjectEndOfSession.pp.countryRank) -
+      sanitizeAndParse(this.userObjectStartOfSession.pp.countryRank);
+    const difCountryRank = formatDifference(fDifCountryRank * -1);
 
-        var difAcc =
-          sanitizeAndParse(this.userObjectEndOfSession.accuracy) -
-          sanitizeAndParse(this.userObjectStartOfSession.accuracy);
-        difAcc = formatDifference(difAcc, 2, "%");
+    const fDifLevel =
+      sanitizeAndParse(this.userObjectEndOfSession.level) -
+      sanitizeAndParse(this.userObjectStartOfSession.level);
+    const difLevel = formatDifference(fDifLevel * 100, 0, '%');
 
-        var difPP =
-          sanitizeAndParse(this.userObjectEndOfSession.pp.raw) -
-          sanitizeAndParse(this.userObjectStartOfSession.pp.raw);
-        difPP = formatDifference(difPP, 2);
+    const fDifRankedScore =
+      sanitizeAndParse(this.userObjectEndOfSession.scores.ranked) -
+      sanitizeAndParse(this.userObjectStartOfSession.scores.ranked);
+    const difRankedScore = formatDifference(fDifRankedScore);
 
-        var difPlayCount =
-          sanitizeAndParse(this.userObjectEndOfSession.counts.plays) -
-          sanitizeAndParse(this.userObjectStartOfSession.counts.plays);
-        difPlayCount = formatDifference(difPlayCount);
+    const fDifAcc =
+      sanitizeAndParse(this.userObjectEndOfSession.accuracy) -
+      sanitizeAndParse(this.userObjectStartOfSession.accuracy);
+    const difAcc = formatDifference(fDifAcc, 2, '%');
 
-        for (var i = 0; i < this.playObjects.length; i++) {
-          if (this.playObjects[i].background == undefined) {
-            this.playObjects.splice(i, 1);
-            i--;
-          }
-        }
+    const fDifPP =
+      sanitizeAndParse(this.userObjectEndOfSession.pp.raw) -
+      sanitizeAndParse(this.userObjectStartOfSession.pp.raw);
+    const difPP = formatDifference(fDifPP, 2);
 
-        //db stuff
-        this.sessionID = globalInstances.numberOfSessionsRecorded + 1;
-        globalInstances.numberOfSessionsRecorded =
-          globalInstances.numberOfSessionsRecorded + 1;
+    const fDifPlayCount =
+      sanitizeAndParse(this.userObjectEndOfSession.counts.plays) -
+      sanitizeAndParse(this.userObjectStartOfSession.counts.plays);
+    const difPlayCount = formatDifference(fDifPlayCount);
 
-        let sqlSessionValues = {
-          $sessionId: this.sessionID,
-          $date: date,
-          $osuUsername: this.player.osuUsername,
-          $sessionDuration: sessionDuration,
-          $rank: this.userObjectEndOfSession.pp.rank,
-          $difGlobalRank: difGlobalRank,
-          $countryRank: this.userObjectEndOfSession.pp.countryRank,
-          $difCountryRank: difCountryRank,
-          $level: this.userObjectEndOfSession.level,
-          $difLevel: difLevel,
-          $accuracy: parseFloat(this.userObjectEndOfSession.accuracy).toFixed(
-            2
-          ),
-          $difAccuracy: difAcc,
-          $pp: parseFloat(this.userObjectEndOfSession.pp.raw),
-          $difPP: difPP,
-          $plays: parseFloat(this.userObjectEndOfSession.counts.plays),
-          $difPlays: difPlayCount,
-          $ssh: this.userObjectEndOfSession.counts.SSH,
-          $ss: this.userObjectEndOfSession.counts.SS,
-          $sh: this.userObjectEndOfSession.counts.SH,
-          $s: this.userObjectEndOfSession.counts.S,
-          $a: this.userObjectEndOfSession.counts.A,
-        };
+    for (let i = 0; i < this.playObjects.length; i++) {
+      if (this.playObjects[i].background == undefined) {
+        this.playObjects.splice(i, 1);
+        i--;
+      }
+    }
 
-        globalInstances.logMessage(
-          "Calling DB session query for: " +
-            this.player.osuUsername +
-            " - " +
-            util.inspect(sqlSessionValues) +
-            "\n"
-        );
+    //db stuff
+    this.sessionID = globalInstances.numberOfSessionsRecorded + 1;
+    globalInstances.numberOfSessionsRecorded =
+      globalInstances.numberOfSessionsRecorded + 1;
 
-        await db.insertSession(sqlSessionValues);
+    let sqlSessionValues = {
+      $sessionId: this.sessionID,
+      $date: date,
+      $osuUsername: this.player.osuUsername,
+      $sessionDuration: sessionDuration,
+      $rank: this.userObjectEndOfSession.pp.rank,
+      $difGlobalRank: fDifGlobalRank,
+      $countryRank: this.userObjectEndOfSession.pp.countryRank,
+      $difCountryRank: fDifCountryRank,
+      $level: this.userObjectEndOfSession.level,
+      $difLevel: fDifLevel,
+      $accuracy: parseFloat(this.userObjectEndOfSession.accuracy).toFixed(2),
+      $difAccuracy: fDifAcc,
+      $pp: parseFloat(this.userObjectEndOfSession.pp.raw),
+      $difPP: fDifPP,
+      $plays: parseFloat(this.userObjectEndOfSession.counts.plays),
+      $difPlays: fDifPlayCount,
+      $ssh: this.userObjectEndOfSession.counts.SSH,
+      $ss: this.userObjectEndOfSession.counts.SS,
+      $sh: this.userObjectEndOfSession.counts.SH,
+      $s: this.userObjectEndOfSession.counts.S,
+      $a: this.userObjectEndOfSession.counts.A,
+    };
 
-        for (var i = 0; i < this.playObjects.length; i++) {
-          var sqlTitle = this.playObjects[i].title;
-          var sqlVersion = this.playObjects[i].version;
-          var sqlArtist = this.playObjects[i].artist;
+    globalInstances.logMessage(
+      'Calling DB session query for: ' +
+        this.player.osuUsername +
+        ' - ' +
+        util.inspect(sqlSessionValues) +
+        '\n'
+    );
 
-          var songDurationTotalSeconds = parseInt(this.playObjects[i].duration);
-          const [
-            _,
-            songDurationHours,
-            songDurationMinutes,
-            songDurationSeconds,
-          ] = secondsToDHMS(songDurationTotalSeconds);
-          var songDuration = globalInstances.convertTimeToHMS(
-            songDurationHours,
-            songDurationMinutes,
-            songDurationSeconds
-          );
+    await db.insertSession(sqlSessionValues);
 
-          let sqlPlayValues = {
-            $sessionId: this.sessionID,
-            $bg: this.playObjects[i].background,
-            $title: sqlTitle,
-            $version: sqlVersion,
-            $artist: sqlArtist,
-            $combo:
-              this.playObjects[i].combo + " / " + this.playObjects[i].maxCombo,
-            $bpm: this.playObjects[i].bpm,
-            $playDuration: songDuration,
-            $difficulty: this.playObjects[i].stars,
-            $playAccuracy: this.playObjects[i].accuracy,
-            $rank: this.playObjects[i].rank,
-            $mods: this.playObjects[i].mods.join(", "),
-            $counts300: this.playObjects[i].countsObject.count_300,
-            $counts100: this.playObjects[i].countsObject.count_100,
-            $counts50: this.playObjects[i].countsObject.count_50,
-            $countsMiss: this.playObjects[i].countsObject.count_miss,
-            $playPP: this.playObjects[i].pp,
-          };
+    for (let i = 0; i < this.playObjects.length; i++) {
+      const sqlTitle = this.playObjects[i].title;
+      const sqlVersion = this.playObjects[i].version;
+      const sqlArtist = this.playObjects[i].artist;
 
-          globalInstances.logMessage(
-            "Calling DB play query for: " +
-              this.player.osuUsername +
-              " - " +
-              util.inspect(sqlPlayValues) +
-              "\n"
-          );
+      const songDurationTotalSeconds = parseInt(this.playObjects[i].duration);
+      const [
+        _,
+        songDurationHours,
+        songDurationMinutes,
+        songDurationSeconds,
+      ] = secondsToDHMS(songDurationTotalSeconds);
+      const songDuration = globalInstances.convertTimeToHMS(
+        songDurationHours,
+        songDurationMinutes,
+        songDurationSeconds
+      );
 
-          await db.insertPlay(sqlPlayValues);
-        }
-        //db stuff end
+      let sqlPlayValues = {
+        $sessionId: this.sessionID,
+        $bg: this.playObjects[i].background,
+        $title: sqlTitle,
+        $version: sqlVersion,
+        $artist: sqlArtist,
+        $combo:
+          this.playObjects[i].combo + ' / ' + this.playObjects[i].maxCombo,
+        $bpm: this.playObjects[i].bpm,
+        $playDuration: songDuration,
+        $difficulty: this.playObjects[i].stars,
+        $playAccuracy: this.playObjects[i].accuracy,
+        $rank: this.playObjects[i].rank,
+        $mods: this.playObjects[i].mods.join(', '),
+        $counts300: this.playObjects[i].countsObject.count_300,
+        $counts100: this.playObjects[i].countsObject.count_100,
+        $counts50: this.playObjects[i].countsObject.count_50,
+        $countsMiss: this.playObjects[i].countsObject.count_miss,
+        $playPP: this.playObjects[i].pp,
+      };
 
-        let reportImages = await ReportGenerator.generateReports(
-          this.playObjects,
-          this.player,
-          this.userObjectEndOfSession,
-          sessionDuration,
-          date,
-          {
-            difAcc,
-            difCountryRank,
-            difGlobalRank,
-            difLevel,
-            difPP,
-            difPlayCount,
-            difRankedScore,
-          }
-        );
+      globalInstances.logMessage(
+        'Calling DB play query for: ' +
+          this.player.osuUsername +
+          ' - ' +
+          util.inspect(sqlPlayValues) +
+          '\n'
+      );
 
-        //for testing
-        for (var i = 0; i < reportImages.length; i++) {
-          reportImages[i].write(
-            "./report" + this.player.osuUsername + i + 1 + ".png"
-          );
-        }
-        return;
+      await db.insertPlay(sqlPlayValues);
+    }
+    //db stuff end
 
-        globalInstances.logMessage("\nTrying to tweet...");
+    let reportImages = await ReportGenerator.generateReports(
+      this.playObjects,
+      this.player,
+      this.userObjectEndOfSession,
+      sessionDuration,
+      date,
+      {
+        difAcc,
+        difCountryRank,
+        difGlobalRank,
+        difLevel,
+        difPP,
+        difPlayCount,
+        difRankedScore,
+      }
+    );
 
-        const media = await Promise.all(
-          reportImages.map(async (image, idx, arr) => {
-            let buffer = await image.getBufferAsync(jimp.MIME_PNG);
-            globalInstances.logMessage(
-              `Posting image ${idx + 1}/${arr.length}`
-            );
-            return T.postAsync("media/upload", {
-              media_data: buffer.toString("base64"),
-            });
-          })
-        );
+    reportImages.forEach(async (image, idx) => {
+      image.writeAsync(`./out/${idx}.png`);
+    });
 
-        if (media.length > 0) {
-          return this.tweetReport(
-            this.player.twitterUsername,
-            this.player.osuUsername,
-            media.map((image) => image.media_id_string),
-            this.sessionID
-          );
-        } else {
-          globalInstances.logMessage("no images exist...? lol");
-        }
-      })
-      .catch((err) => {
-        globalInstances.logMessage("-1", err);
-      });
+    globalInstances.logMessage('\nTrying to tweet...');
+
+    // const media = await Promise.all(
+    //   reportImages.map(async (image, idx, arr) => {
+    //     let buffer = await image.getBufferAsync(jimp.MIME_PNG);
+    //     globalInstances.logMessage(
+    //       `Posting image ${idx + 1}/${arr.length}`
+    //     );
+    //     return T.postAsync('media/upload', {
+    //       media_data: buffer.toString('base64'),
+    //     });
+    //   })
+    // );
+
+    // if (media.length > 0) {
+    //   return this.tweetReport(
+    //     this.player.twitterUsername,
+    //     this.player.osuUsername,
+    //     media.map((image) => image.media_id_string),
+    //     this.sessionID
+    //   );
+    // } else {
+    //   globalInstances.logMessage('no images exist...? lol');
+    // }
   }
 
   async tweetReport(twitterUsername, osuUsername, id, sessionID) {
-    var tweet = {
-      status: "." + twitterUsername + " just finished an osu! session: ",
+    const tweet = {
+      status: '.' + twitterUsername + ' just finished an osu! session: ',
       media_ids: [id],
     };
-    return T.postAsync("statuses/update", tweet)
+    return T.postAsync('statuses/update', tweet)
       .then(async (data) => {
         globalInstances.logMessage(
           `Updating session with tweet ID for ${osuUsername} (${data.id_str})`
         );
         await db.updateSession(data.id_str, sessionID);
         globalInstances.logMessage(
-          " ---------------------------------------------------------------------------------A tweet was tweeted"
+          ' ---------------------------------------------------------------------------------A tweet was tweeted'
         );
       })
       .catch((err) => {
