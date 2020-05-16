@@ -2,20 +2,45 @@
  * @typedef {import('jimp/types/ts3.1/index')} Jimp
  * @typedef {import('./playObjectv2')} PlayObject
  */
-const jimp = require("jimp");
-const resourceGetter = require("./resourceGetter");
-const { DrawTools } = require("./drawTools");
-const globalInstances = require("./globalInstances");
-const { secondsToDHMS } = require("./utils");
+const jimp = require('jimp');
+const resourceGetter = require('./resourceGetter');
+const { DrawTools } = require('./drawTools');
+const globalInstances = require('./globalInstances');
+const { secondsToDHMS } = require('./utils');
 
 function truncateText(measure, text, maxWidth) {
   if (measure(text) <= maxWidth) return text;
-  text += "...";
+  text += '...';
   while (text.length > 3 && measure(text) > maxWidth) {
-    text = text.slice(0, -4) + "...";
+    text = text.slice(0, -4) + '...';
   }
   return text;
 }
+
+const nTimes = (n) => ({
+  next() {
+    let value = n;
+    return { value, done: !n || !n-- };
+  },
+  [Symbol.iterator]() {
+    return this;
+  },
+});
+
+/**
+ * @template T, M
+ * @param {{next() : {done: boolean, value: T}}} iter
+ * @param {(memo: M, value: T) => M} cb
+ * @param {M} memo
+ */
+const reduce = (iter, cb, memo) => {
+  while (true) {
+    let { done, value } = iter.next();
+    if (done) break;
+    memo = cb(memo, value);
+  }
+  return memo;
+};
 
 /**
  *
@@ -26,8 +51,8 @@ function truncateText(measure, text, maxWidth) {
 function wrapText(measure, text, maxWidth) {
   const words = text.split(/\s+/);
   const lines = words.reduce((lines, word) => {
-    const curLine = lines[lines.length - 1] || "";
-    const nextWidth = measure(curLine + " " + word);
+    const curLine = lines[lines.length - 1] || '';
+    const nextWidth = measure(curLine + ' ' + word);
     if (nextWidth > maxWidth && measure(word) <= maxWidth) {
       lines.splice(lines.length - 1, 1, curLine);
     } else if (nextWidth > maxWidth) {
@@ -36,6 +61,20 @@ function wrapText(measure, text, maxWidth) {
     return lines;
   }, []);
 }
+
+const PLAY_RANK_X_OFFSET = 774;
+const PLAY_RANK_Y_OFFSET = 50;
+
+const PLAY_RANK = {
+  XH: ['rankSSPlus', 0],
+  X: ['rankSS', 0],
+  SH: ['rankSPlus', 0],
+  S: ['rankS', 0],
+  A: ['rankA', 10],
+  B: ['rankB', 20],
+  C: ['rankC', 20],
+  D: ['rankD', 20],
+};
 
 class PlayImage extends DrawTools {
   /**
@@ -65,10 +104,10 @@ class PlayImage extends DrawTools {
       this.play.background
     );
     if (isDefault) {
-      this.play.artist += " <default bg>";
+      this.play.artist += ' <default bg>';
     }
 
-    background.mask(await resourceGetter.getImage("playImageMask"), 0, 0);
+    background.mask(await resourceGetter.getImage('playImageMask'), 0, 0);
     this.image.blit(background.brightness(-0.5), 0, 0);
 
     await this._drawTitle();
@@ -87,15 +126,14 @@ class PlayImage extends DrawTools {
 
   /** @private */
   async _drawTitle() {
-    globalInstances.logMessage("| working on titles ");
-    //this.play.version = "";
+    globalInstances.logMessage('| working on titles ');
     let version = this.play.version;
     if (version.length > 20) {
-      version = version.substring(0, 20) + "...";
+      version = version.substring(0, 20) + '...';
     }
 
-    const lightBlue = await resourceGetter.getFont("ubuntuBLightBlue32");
-    const white = await resourceGetter.getFont("ubuntuBWhite24");
+    const lightBlue = await resourceGetter.getFont('ubuntuBLightBlue32');
+    const white = await resourceGetter.getFont('ubuntuBWhite24');
     const measure = (text) => jimp.measureText(lightBlue, text);
     const formatVersion = (version) => ` [${version}]`;
 
@@ -114,170 +152,147 @@ class PlayImage extends DrawTools {
       (err, image, { y }) => {
         const measure = (text) => jimp.measureText(white, text);
         const artist = truncateText(measure, this.play.artist, 600);
-        image.print(white, 5, y, "  by " + artist, 1000);
+        image.print(white, 5, y, '  by ' + artist, 1000);
       }
     );
   }
 
   /** @private */
   async _drawRank() {
-    globalInstances.logMessage("| working on rank ");
-    var playRankX = 774;
-    var playRankY = 50;
+    globalInstances.logMessage('| working on rank ');
 
-    var playRankToResourceNameAndXOffset = {
-      XH: ["rankSSPlus", 0],
-      X: ["rankSS", 0],
-      SH: ["rankSPlus", 0],
-      S: ["rankS", 0],
-      A: ["rankA", 10],
-      B: ["rankB", 20],
-      C: ["rankC", 20],
-      D: ["rankD", 20],
-    };
-
-    var [resource, xOffset] = playRankToResourceNameAndXOffset[this.play.rank];
+    const [resource, xOffset] = PLAY_RANK[this.play.rank];
 
     this.image.composite(
       await resourceGetter.getImage(resource),
-      playRankX + xOffset,
-      playRankY
+      PLAY_RANK_X_OFFSET + xOffset,
+      PLAY_RANK_Y_OFFSET
     );
   }
 
   /** @private */
   async _drawAccuracy() {
-    globalInstances.logMessage("| working on acc ");
-    var gold = await resourceGetter.getFont("ubuntuBGold52");
+    globalInstances.logMessage('| working on acc ');
+    const gold = await resourceGetter.getFont('ubuntuBGold52');
 
-    var yOffset = -9;
-    var xOffset = 705;
-    if (this.play.accuracy == "100.00") {
+    const yOffset = -9;
+    let xOffset = this.image.getWidth() - 195;
+    if (this.play.accuracy == '100.00') {
       xOffset -= 27;
     }
-    this.image.print(gold, xOffset, yOffset, this.play.accuracy + "%");
+    this.image.print(gold, xOffset, yOffset, this.play.accuracy + '%');
   }
 
   /** @private */
   async _drawDifficulty() {
-    globalInstances.logMessage("| working on difficulty ");
-    var playStarY = 210;
-    var playStarX = 170;
-    var countOfStars = Math.ceil(parseFloat(this.play.stars)) - 1;
-    var partialStar = (parseFloat(this.play.stars) % 1).toFixed(2);
-    if (partialStar == "0.0") {
-      countOfStars += 1;
-    }
-    var posOfPartialStar;
-    for (var i = 1; i <= countOfStars; i++) {
-      posOfPartialStar = playStarX + (i - 1) * 40;
-      this.image.composite(
-        await resourceGetter.getImage("onlineStar", 0),
-        playStarX + (i - 1) * 40,
-        playStarY
-      );
+    globalInstances.logMessage('| working on difficulty ');
+    const playStarY = 210;
+    const stars = parseFloat(this.play.stars);
+    const wholeStars = Math.floor(stars);
+    const partialStar = stars % 1;
+
+    const accum = this._printAccumulator(5, playStarY);
+    let diffX = accum(
+      await resourceGetter.getFont('ubuntuBLightBlue32'),
+      'Difficulty: '
+    );
+
+    const diffText = `(${this.play.stars})`;
+    const diffFont = await resourceGetter.getFont('ubuntuBWhite32');
+    const diffWidth = jimp.measureText(diffFont, diffText);
+    const diffHeight = jimp.measureTextHeight(diffFont, diffText, Infinity);
+
+    const maxWidth = 505 - diffWidth;
+    let star = await Promise.all(
+      new Array(4)
+        .fill(0)
+        .map((_, i) => resourceGetter.getImage('onlineStar', i))
+    );
+    const starPadding = 1.08;
+    const allStarsWidth = stars * star[0].getWidth() * starPadding;
+    const starScale = allStarsWidth <= maxWidth ? 1 : maxWidth / allStarsWidth;
+
+    if (starScale < 1) {
+      star = star.map((s) => s.clone().scale(starScale));
     }
 
-    var shouldPrintPartialStar = true;
-    var partialStarX;
-    var partialStarY;
-    var starSize;
-    if (partialStar == "0.0") {
-      posOfPartialStar = posOfPartialStar - 40; //offset where the (x.xx) prints
-      shouldPrintPartialStar = false;
-    } else if (partialStar < "0.3") {
-      starSize = 3;
-      partialStarX = -119;
-      partialStarY = 10;
-    } else if (partialStar < "0.6") {
-      starSize = 2;
-      partialStarX = -121;
-      partialStarY = 7;
-    } else if (partialStar < "1") {
-      starSize = 1;
-      partialStarX = -127;
-      partialStarY = 4;
-    }
-    if (shouldPrintPartialStar) {
-      this.image.composite(
-        await resourceGetter.getImage("onlineStar", starSize),
-        playStarX + posOfPartialStar + partialStarX,
-        playStarY + partialStarY
-      );
-    }
-    this.image.print(
-      await resourceGetter.getFont("ubuntuBLightBlue32"),
-      5,
-      playStarY,
-      "Difficulty: "
+    const starOffsetY = star.map((s) => (diffHeight - s.getHeight()) / 2);
+
+    let nextX = reduce(
+      nTimes(wholeStars),
+      (p) =>
+        p.then((x) => {
+          this.image.blit(star[0], x, playStarY + starOffsetY[0]);
+          return x + star[0].getWidth() * starPadding;
+        }),
+      diffX
     );
-    this.image.print(
-      await resourceGetter.getFont("ubuntuBWhite32"),
-      180 + posOfPartialStar - 100,
-      playStarY,
-      "(" + this.play.stars + ")"
-    );
+
+    const partialStarSize = Math.floor((1 - partialStar) * 3);
+    if (partialStarSize < 3) {
+      nextX = nextX.then(async (x) => {
+        const partialStar = star[partialStarSize + 1];
+        this.image.composite(
+          partialStar,
+          x,
+          playStarY +
+            starOffsetY[partialStarSize + 1] +
+            (partialStar.getHeight() - partialStar.getHeight()) / 2
+        );
+        return x + partialStar.getWidth() * starPadding;
+      });
+    }
+
+    await nextX.then(async (x) => {
+      const padding = starScale < 1 ? (1 - starScale) * star[0].getWidth() : 0;
+      this.image.print(diffFont, x + padding, playStarY, diffText);
+    });
   }
 
   async _drawSongDuration() {
-    globalInstances.logMessage("| working on song duration ");
-    var durationX = 16;
-    var durationY = 175;
-    var songDurationTotalSeconds = parseInt(this.play.duration);
+    globalInstances.logMessage('| working on song duration ');
+    const durationX = 16;
+    const durationY = 175;
+    const songDurationTotalSeconds = parseInt(this.play.duration);
     const [
       _,
       songDurationHours,
       songDurationMinutes,
       songDurationSeconds,
     ] = secondsToDHMS(songDurationTotalSeconds);
-    var songDuration = globalInstances.convertTimeToHMS(
+    const songDuration = globalInstances.convertTimeToHMS(
       songDurationHours,
       songDurationMinutes,
       songDurationSeconds
     );
-    this.image.print(
-      await resourceGetter.getFont("ubuntuBLightBlue32"),
-      durationX,
-      durationY,
-      "Duration: "
+    const accum = this._printAccumulator(durationX, durationY);
+    await accum(
+      await resourceGetter.getFont('ubuntuBLightBlue32'),
+      'Duration: '
     );
-    this.image.print(
-      await resourceGetter.getFont("ubuntuBWhite32"),
-      durationX + 150,
-      durationY,
-      songDuration
-    );
+    await accum(await resourceGetter.getFont('ubuntuBWhite32'), songDuration);
   }
 
   async _drawBPM() {
-    var bpmX = 80;
-    var bpmY = 140;
-    this.image.print(
-      await resourceGetter.getFont("ubuntuBLightBlue32"),
-      bpmX,
-      bpmY,
-      "BPM: "
-    );
-    this.image.print(
-      await resourceGetter.getFont("ubuntuBWhite32"),
-      bpmX + 85,
-      bpmY,
-      this.play.bpm
-    );
+    const bpmX = 80;
+    const bpmY = 140;
+    const accum = this._printAccumulator(bpmX, bpmY);
+    await accum(await resourceGetter.getFont('ubuntuBLightBlue32'), 'BPM: ');
+    await accum(await resourceGetter.getFont('ubuntuBWhite32'), this.play.bpm);
   }
 
   async _drawPP() {
-    globalInstances.logMessage("| working on pp ");
-    var yPPOffset = 185;
-    var xPPOffset = -18;
-    var lengthOfPlayImage = 900;
-    var pp = Math.ceil(this.play.pp) + "pp";
-    var lengthOfText = await jimp.measureText(
-      await resourceGetter.getFont("ubuntuBGold52"),
+    globalInstances.logMessage('| working on pp ');
+    const yPPOffset = 185;
+    const xPPOffset = -18;
+    const lengthOfPlayImage = 900;
+    const pp = Math.ceil(this.play.pp) + 'pp';
+    const lengthOfText = await jimp.measureText(
+      await resourceGetter.getFont('ubuntuBGold52'),
       pp
     );
     this.image.print(
-      await resourceGetter.getFont("ubuntuBGold52"),
+      await resourceGetter.getFont('ubuntuBGold52'),
       lengthOfPlayImage - lengthOfText + xPPOffset,
       yPPOffset,
       pp
@@ -285,21 +300,21 @@ class PlayImage extends DrawTools {
   }
 
   async _drawMods() {
-    globalInstances.logMessage("| working on mods ");
-    var modY = 120;
-    var modX = 842;
-    var playModToResource = {
-      DT: "modDoubleTime",
-      NC: "modNightcore",
-      PF: "modPerfect",
-      HD: "modHidden",
-      SD: "modSuddenDeath",
-      FL: "modFlashlight",
-      HR: "modHardRock",
-      NF: "modNoFail",
-      EZ: "modEasy",
+    globalInstances.logMessage('| working on mods ');
+    const modY = 120;
+    let modX = this.image.getWidth() - 58;
+    const playModToResource = {
+      DT: 'modDoubleTime',
+      NC: 'modNightcore',
+      PF: 'modPerfect',
+      HD: 'modHidden',
+      SD: 'modSuddenDeath',
+      FL: 'modFlashlight',
+      HR: 'modHardRock',
+      NF: 'modNoFail',
+      EZ: 'modEasy',
     };
-    for (var mod in playModToResource) {
+    for (const mod in playModToResource) {
       if (this.play.mods.includes(mod)) {
         this.image.composite(
           await resourceGetter.getImage(playModToResource[mod]),
@@ -312,54 +327,62 @@ class PlayImage extends DrawTools {
   }
 
   async _drawCombo() {
-    var xCombo = 47;
-    var yCombo = 105;
-    globalInstances.logMessage("| working on combo ");
-    this.image.print(
-      await resourceGetter.getFont("ubuntuBLightBlue32"),
-      xCombo,
-      yCombo,
-      "Combo: "
-    );
-    this.image.print(
-      await resourceGetter.getFont("ubuntuBWhite32"),
-      xCombo + 118,
-      yCombo,
-      this.play.combo + " / " + this.play.maxCombo
+    const xCombo = 47;
+    const yCombo = 105;
+    globalInstances.logMessage('| working on combo ');
+    const accum = this._printAccumulator(xCombo, yCombo);
+    await accum(await resourceGetter.getFont('ubuntuBLightBlue32'), 'Combo: ');
+    await accum(
+      await resourceGetter.getFont('ubuntuBWhite32'),
+      `${this.play.combo} / ${this.play.maxCombo}`
     );
   }
 
   async _drawCounts() {
-    globalInstances.logMessage("| working on counts ");
-    var countY = 155;
-    var count300 = this.play.countsObject.count_300;
-    var count100 = this.play.countsObject.count_100;
-    var count50 = this.play.countsObject.count_50;
-    var countMiss = this.play.countsObject.count_miss;
-    var blue = await resourceGetter.getFont("ubuntuBLightBlue32");
-    var white = await resourceGetter.getFont("ubuntuBWhite32");
-    var green = await resourceGetter.getFont("ubuntuBLightGreen32");
-    var yellow = await resourceGetter.getFont("ubuntuBYellow32");
-    var red = await resourceGetter.getFont("ubuntuBLightRed32");
-    var fontToMeasureWith = blue;
-    var totalLength = jimp.measureText(
+    globalInstances.logMessage('| working on counts ');
+    const offsetY = 155;
+    const {
+      count_300: count300,
+      count_100: count100,
+      count_50: count50,
+      count_miss: countMiss,
+    } = this.play.countsObject;
+
+    const blue = await resourceGetter.getFont('ubuntuBLightBlue32');
+    const white = await resourceGetter.getFont('ubuntuBWhite32');
+    const green = await resourceGetter.getFont('ubuntuBLightGreen32');
+    const yellow = await resourceGetter.getFont('ubuntuBYellow32');
+    const red = await resourceGetter.getFont('ubuntuBLightRed32');
+    const fontToMeasureWith = blue;
+    const totalLength = jimp.measureText(
       fontToMeasureWith,
-      count300 + " / " + count100 + " / " + count50 + " / " + countMiss
+      `${count300} / ${count100} / ${count50} / ${countMiss}`
     );
-    var countX = 885 - totalLength;
-    this.image.print(blue, countX, countY, count300);
-    countX += jimp.measureText(fontToMeasureWith, count300 + "");
-    this.image.print(white, countX, countY, " / ");
-    countX += jimp.measureText(fontToMeasureWith, " / ");
-    this.image.print(green, countX, countY, count100);
-    countX += jimp.measureText(fontToMeasureWith, count100 + "");
-    this.image.print(white, countX, countY, " / ");
-    countX += jimp.measureText(fontToMeasureWith, " / ");
-    this.image.print(yellow, countX, countY, count50);
-    countX += jimp.measureText(fontToMeasureWith, count50 + "");
-    this.image.print(white, countX, countY, " / ");
-    countX += jimp.measureText(fontToMeasureWith, " / ");
-    this.image.print(red, countX, countY, countMiss);
+    let offsetX = this.image.getWidth() - 15 - totalLength;
+
+    const accum = this._printAccumulator(offsetX, offsetY);
+    await accum(blue, count300);
+    await accum(white, ' / ');
+    await accum(green, count100);
+    await accum(white, ' / ');
+    await accum(yellow, count50);
+    await accum(white, ' / ');
+    await accum(red, countMiss);
+  }
+
+  _printAccumulator(startX, y) {
+    let p = Promise.resolve(startX);
+    return (font, text) => {
+      return (p = p.then(
+        (x) =>
+          new Promise((resolve, reject) =>
+            this.image.print(font, x, y, `${text}`, (err, _, { x }) => {
+              if (err) reject(err);
+              resolve(x);
+            })
+          )
+      ));
+    };
   }
 }
 

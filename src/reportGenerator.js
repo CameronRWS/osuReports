@@ -2,16 +2,8 @@
  * @typedef {import('jimp/types/ts3.1/index')} Jimp
  */
 
-const _ = require("lodash");
-const axios = require("axios");
+const resourceGetter = require('./resourceGetter');
 
-const jimp = require("jimp");
-const { promisify } = require("util");
-
-const globalInstances = require("./globalInstances");
-const resourceGetter = require("./resourceGetter");
-
-const { secondsToDHMS } = require("./utils");
 const {
   DrawTools,
   GENERAL_X_OFFSET,
@@ -20,8 +12,8 @@ const {
   LEVEL_BAR_Y_OFFSET,
   RANK_X_OFFSET,
   RANK_Y_OFFSET,
-} = require("./drawTools");
-const PlayImage = require("./playImage");
+} = require('./drawTools');
+const PlayImage = require('./playImage');
 
 class Report extends DrawTools {
   /**
@@ -44,54 +36,51 @@ class Report extends DrawTools {
   }
 
   get globalRank() {
-    return "#" + parseFloat(this.user.pp.rank).toLocaleString("en");
+    return '#' + parseFloat(this.user.pp.rank).toLocaleString('en');
   }
 
   get countryRank() {
-    return "#" + parseFloat(this.user.pp.countryRank).toLocaleString("en");
+    return '#' + parseFloat(this.user.pp.countryRank).toLocaleString('en');
   }
 
   get accuracy() {
-    return parseFloat(this.user.accuracy).toFixed(2) + "%";
+    return parseFloat(this.user.accuracy).toFixed(2) + '%';
   }
 
   get pp() {
-    return parseFloat(this.user.pp.raw).toLocaleString("en");
+    return parseFloat(this.user.pp.raw).toLocaleString('en');
   }
 
   get plays() {
-    return parseFloat(this.user.counts.plays).toLocaleString("en");
-  }
-
-  async generateBase() {
-    await this._drawRanks();
-    await this._drawAvatar();
-    await this._drawFlag();
-    return this.image;
+    return parseFloat(this.user.counts.plays).toLocaleString('en');
   }
 
   async generate() {
+    await this._drawRanks();
+    await this._drawAvatar();
+    await this._drawFlag();
     await this._drawSessionInfo();
     await this._drawSessionFields();
     await this._drawDifferences();
     await this._drawLevels();
+    return this.image;
   }
 
   async _drawRanks() {
     await this._drawCommands(
       this._drawRank,
       [],
-      ["rankSSPlus", 220, 305],
-      ["rankSS", 340, 305],
-      ["rankSPlus", 460, 305],
-      ["rankS", 580, 305],
-      ["rankA", 700, 305]
+      ['rankSSPlus', 220, 305],
+      ['rankSS', 340, 305],
+      ['rankSPlus', 460, 305],
+      ['rankS', 580, 305],
+      ['rankA', 700, 305]
     );
 
     const { SSH, SS, SH, S, A } = this.user.counts;
     await this._drawCommands(
       this._printRanks,
-      ["ubuntuBBlack24"],
+      ['ubuntuBBlack24'],
       [280, 365 + RANK_Y_OFFSET, SSH],
       [400, 365 + RANK_Y_OFFSET, SS],
       [520, 365 + RANK_Y_OFFSET, SH],
@@ -110,7 +99,7 @@ class Report extends DrawTools {
 
   async _drawAvatar() {
     const avatar = await resourceGetter.getPlayerAvatar(this.user.id);
-    const circleMask = await resourceGetter.getImage("circleMask");
+    const circleMask = await resourceGetter.getImage('circleMask');
     avatar.mask(circleMask, 0, 0);
     this.image.composite(avatar, 25, 25);
   }
@@ -123,7 +112,7 @@ class Report extends DrawTools {
   async _drawSessionInfo() {
     await this._drawCommands(
       this._print,
-      ["ubuntuBBlack32"],
+      ['ubuntuBBlack32'],
       [25, 450, `Session Duration: ${this.sessionDuration}`],
       [502, 450, `Date of Session: ${this.date}`]
     );
@@ -132,18 +121,18 @@ class Report extends DrawTools {
   async _drawSessionFields() {
     await this._drawCommands(
       this._printOffset,
-      ["ubuntuBBlue32"],
-      [326, 100, "Global Rank:"],
-      [300, 140, "Country Rank:"],
-      [371, 180, "Accuracy:"],
-      [466, 220, "PP:"],
-      [341, 260, "Play Count:"]
+      ['ubuntuBBlue32'],
+      [326, 100, 'Global Rank:'],
+      [300, 140, 'Country Rank:'],
+      [371, 180, 'Accuracy:'],
+      [466, 220, 'PP:'],
+      [341, 260, 'Play Count:']
     );
 
     await this._drawCommands(
       this._printOffset,
       // with black font at x-offset 522
-      ["ubuntuBBlack32", 522],
+      ['ubuntuBBlack32', 522],
       [100, this.globalRank],
       [140, this.countryRank],
       [180, this.accuracy],
@@ -152,7 +141,7 @@ class Report extends DrawTools {
     );
 
     await this._printCenteredX(
-      "ubuntuBBlack32",
+      'ubuntuBBlack32',
       505 + GENERAL_X_OFFSET,
       28 + GENERAL_Y_OFFSET,
       `osu! Report for: ${this.player.osuUsername}`
@@ -181,12 +170,12 @@ class Report extends DrawTools {
 
   async _drawLevels() {
     //level bar
-    const levelBar = await resourceGetter.getImage("levelBar");
+    const levelBar = await resourceGetter.getImage('levelBar');
 
     const { difLevel } = this.delta;
     const fLevel = parseFloat(this.user.level);
     const fProgress = fLevel % 1;
-    const percentage = Math.trunc(fProgress * 100).toString() + "%";
+    const percentage = Math.trunc(fProgress * 100).toString() + '%';
     const level = Math.trunc(fLevel).toString();
 
     if (fProgress > 0) {
@@ -194,10 +183,10 @@ class Report extends DrawTools {
       this.image.composite(levelBar, 303, 309);
     }
 
-    const hex = (await resourceGetter.getImage("hex")).clone();
+    const hex = (await resourceGetter.getImage('hex')).clone();
     await this._printCentered(
       hex,
-      "ubuntuBBlue24",
+      'ubuntuBBlue24',
       hex.getWidth() / 2,
       hex.getHeight() / 2,
       level
@@ -206,13 +195,13 @@ class Report extends DrawTools {
     const spacing = 5;
     const center = 312;
     return this._printCenteredY(
-      "ubuntuBBlack24",
+      'ubuntuBBlack24',
       734 + LEVEL_BAR_X_OFFSET,
       center,
       percentage
     )
       .then(({ x }) =>
-        this._printCenteredY("ubuntuBGreen24", x + spacing, center, difLevel)
+        this._printCenteredY('ubuntuBGreen24', x + spacing, center, difLevel)
       )
       .then(({ x }) =>
         this.image.blit(hex, x + spacing, center - hex.getHeight() / 2)
@@ -221,29 +210,6 @@ class Report extends DrawTools {
 }
 
 class ReportGenerator {
-  constructor() {
-    let fontPromises = {
-      ubuntuB_blue_32: resourceGetter.getFont("ubuntuBBlue32"),
-      ubuntuB_black_32: resourceGetter.getFont("ubuntuBBlack32"),
-      ubuntuB_red_32: resourceGetter.getFont("ubuntuBRed32"),
-      ubuntuB_green_32: resourceGetter.getFont("ubuntuBGreen32"),
-      ubuntuB_black_24: resourceGetter.getFont("ubuntuBBlack24"),
-      ubuntuB_green_24: resourceGetter.getFont("ubuntuBGreen24"),
-      ubuntuB_blue_24: resourceGetter.getFont("ubuntuBBlue24"),
-      ubuntuB_lightblue_32: resourceGetter.getFont("ubuntuBLightBlue32"),
-      ubuntuB_white_24: resourceGetter.getFont("ubuntuBWhite24"),
-      ubuntuB_white_32: resourceGetter.getFont("ubuntuBWhite32"),
-      ubuntuB_gold_52: resourceGetter.getFont("ubuntuBGold52"),
-      ubuntuB_yellow_32: resourceGetter.getFont("ubuntuBYellow32"),
-      ubuntuB_lightgreen_32: resourceGetter.getFont("ubuntuBLightGreen32"),
-      ubuntuB_lightred_32: resourceGetter.getFont("ubuntuBLightRed32"),
-    };
-
-    this.fonts = Promise.all(_.values(fontPromises)).then((resources) =>
-      _.zipObject(_.keys(fontPromises), resources)
-    );
-  }
-
   async generateReports(
     playObjects,
     player,
@@ -252,8 +218,9 @@ class ReportGenerator {
     date,
     delta
   ) {
-    let generated = new Report(
-      await resourceGetter.getNewReportTemplate(),
+    const baseReport = await resourceGetter.getNewReportTemplate();
+    let generator = new Report(
+      baseReport.clone(),
       player,
       user,
       sessionDuration,
@@ -261,63 +228,46 @@ class ReportGenerator {
       delta
     );
 
-    let baseReport = (await generated.generateBase()).clone();
-    await generated.generate();
-    let report = generated.image;
+    let reportWithHeader = await generator.generate();
 
-    var yMultiOffset;
-    var imageToEdit;
-    var reportImages = [];
-    for (var i = 0; i < playObjects.length; i++) {
-      if (i === 0) {
-        globalInstances.logMessage("writing to 1");
-        yMultiOffset = 0;
-        imageToEdit = report;
-      } else if (i === 10) {
-        reportImages.push(imageToEdit);
-        imageToEdit = baseReport.clone();
-        globalInstances.logMessage("writing to 2");
-        yMultiOffset += -2750;
-      } else if (i === 20) {
-        reportImages.push(imageToEdit);
-        imageToEdit = baseReport.clone();
-        globalInstances.logMessage("writing to 3");
-        yMultiOffset += -2750;
-      } else if (i === 30) {
-        reportImages.push(imageToEdit);
-        imageToEdit = baseReport.clone();
-        globalInstances.logMessage("writing to 4");
-        yMultiOffset += -2750;
-      } else if (i >= 40) {
-        globalInstances.logMessage("break;");
-        break;
-      }
+    const playsPerImage = 10;
+    const maxImages = 4;
+    const plays = await Promise.all(
+      playObjects
+        .slice(0, maxImages * playsPerImage)
+        .map((play) => PlayImage.create(play))
+    );
+    const playSets = new Array(Math.ceil(plays.length / playsPerImage))
+      .fill(null)
+      .map((_, n) => plays.slice(n * playsPerImage, (n + 1) * playsPerImage));
 
-      var heightOfGeneralInfo = 505;
-      await PlayImage.create(playObjects[i]).then((im) =>
-        imageToEdit.composite(im, 25, yMultiOffset + heightOfGeneralInfo)
+    const heightOfGeneralInfo = 480;
+    const padding = { x: 25, y: 25, between: 25 };
+
+    const reports = playSets.map((plays, ridx) => {
+      const report = ridx > 0 ? baseReport.clone() : reportWithHeader;
+      plays.forEach((play, idx) => {
+        report.composite(
+          play,
+          padding.x,
+          (play.getHeight() + padding.between) * idx +
+            heightOfGeneralInfo +
+            padding.y
+        );
+      });
+      report.crop(
+        0,
+        +(ridx > 0) * heightOfGeneralInfo,
+        report.getWidth(),
+        heightOfGeneralInfo +
+          padding.y +
+          (plays[0].getHeight() + padding.between) * plays.length +
+          -(ridx > 0) * heightOfGeneralInfo
       );
-      yMultiOffset += 275;
+      return report;
+    });
 
-      if (playObjects.length - 1 == i) {
-        globalInstances.logMessage("need to crop because its the last play");
-        if (i >= 10) {
-          imageToEdit.crop(0, 485, 950, 775 + (i % 10) * 275 - 485);
-        } else {
-          imageToEdit.crop(0, 0, 950, 775 + (i % 10) * 275);
-        }
-      } else if ((i + 1) % 10 == 0) {
-        globalInstances.logMessage("cropping because last play has been added");
-        if (i >= 10) {
-          imageToEdit.crop(0, 485, 950, 775 + 9 * 275 - 485);
-        } else {
-          imageToEdit.crop(0, 0, 950, 775 + 9 * 275);
-        }
-      }
-    }
-    reportImages.push(imageToEdit);
-
-    return reportImages;
+    return reports;
   }
 }
 
