@@ -1,5 +1,5 @@
 var sqlite3 = require('sqlite3');
-var db = new sqlite3.Database('osuReports_v2.db');
+var db = new sqlite3.Database('osuReports.db');
 
 db.serialize(() => {
   db.run(

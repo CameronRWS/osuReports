@@ -1,5 +1,5 @@
-const sqlite3 = require("sqlite3");
-const promisify = require("util").promisify;
+const sqlite3 = require('sqlite3');
+const promisify = require('util').promisify;
 
 function prepare(self, prop, stmt) {
   if (prop in self && self[prop] !== null) return Promise.resolve();
@@ -42,23 +42,23 @@ class DB extends sqlite3.Database {
     return Promise.all([
       prepare(
         this,
-        "_add_session_stmt",
-        "INSERT INTO sessionsTable VALUES ($sessionId, NULL, $date, $osuUsername," +
-          " $sessionDuration, $rank, $difGlobalRank, $countryRank, $difCountryRank," +
-          " $level, $difLevel, $accuracy, $difAccuracy, $pp, $difPP, $plays," +
-          " $difPlays, $ssh, $ss, $sh, $s, $a)"
+        '_add_session_stmt',
+        'INSERT INTO sessionsTable VALUES ($sessionId, NULL, $date, $osuUsername,' +
+          ' $sessionDuration, $rank, $difGlobalRank, $countryRank, $difCountryRank,' +
+          ' $level, $difLevel, $accuracy, $difAccuracy, $pp, $difPP, $plays,' +
+          ' $difPlays, $ssh, $ss, $sh, $s, $a)'
       ),
       prepare(
         this,
-        "_add_play_stmt",
-        "INSERT INTO playsTable VALUES ($sessionId, $bg, $title, $version, $artist, " +
-          "$combo, $bpm, $playDuration, $difficulty, $playAccuracy, $rank, $mods, " +
-          "$counts300, $counts100, $counts50, $countsMiss, $playPP)"
+        '_add_play_stmt',
+        'INSERT INTO playsTable VALUES ($sessionId, $bg, $title, $version, $artist, ' +
+          '$combo, $bpm, $playDuration, $difficulty, $playAccuracy, $rank, $mods, ' +
+          '$counts300, $counts100, $counts50, $countsMiss, $playPP)'
       ),
       prepare(
         this,
-        "_update_session_stmt",
-        "UPDATE sessionsTable SET tweetID = $tweetId WHERE sessionID = $sessionId"
+        '_update_session_stmt',
+        'UPDATE sessionsTable SET tweetID = $tweetId WHERE sessionID = $sessionId'
       ),
     ]);
   }
@@ -97,7 +97,8 @@ class DB extends sqlite3.Database {
   }
 }
 
-const db = new DB("osuReports_v2.db");
+const dbPath = process.env.DATABASE || 'osuReports.db';
+const db = new DB(dbPath);
 db.initialize();
 
 module.exports = db;

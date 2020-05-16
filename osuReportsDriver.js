@@ -2,7 +2,7 @@ var globalInstances = require('./src/globalInstances');
 var playerObject = require('./src/playerObject');
 var startServer = require('./src/server');
 var sqlite3 = require('sqlite3');
-var db = new sqlite3.Database('osuReports_v2.db');
+var db = require('./src/db');
 var fs = require('fs');
 
 var loopTime = 1000;

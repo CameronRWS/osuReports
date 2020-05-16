@@ -1,15 +1,14 @@
-const express = require('express')
-const axios = require('axios');
-var playerObject = require("./playerObject")
+const express = require('express');
+const axios = require('axios').default;
+var playerObject = require('./playerObject');
 var keys = require('./consumerKeys');
-const app = express()
-const port = process.env.PORT || 3000
-const bodyParser = require('body-parser')
+const app = express();
+const port = process.env.PORT || 3000;
+const bodyParser = require('body-parser');
 var passport = require('passport');
 var Strategy = require('passport-twitter').Strategy;
-var globalInstances = require("./globalInstances")
-var sqlite3 = require('sqlite3');
-var db = new sqlite3.Database('osuReports_v2.db');
+var globalInstances = require('./globalInstances');
+var db = require('./db');
 
 var session = require('express-session');
 
