@@ -118,7 +118,7 @@ class PlayImage extends DrawTools {
       }
     );
   }
-  //cam - plz review
+
   /** @private */
   async _drawRank() {
     globalInstances.logMessage("| working on rank ");
@@ -135,8 +135,9 @@ class PlayImage extends DrawTools {
       C: ["rankC", 20],
       D: ["rankD", 20],
     };
-    var resource = playRankToResourceNameAndXOffset[this.play.rank][0];
-    var xOffset = playRankToResourceNameAndXOffset[this.play.rank][1];
+
+    var [resource, xOffset] = playRankToResourceNameAndXOffset[this.play.rank];
+
     this.image.composite(
       await resourceGetter.getImage(resource),
       playRankX + xOffset,
@@ -144,7 +145,6 @@ class PlayImage extends DrawTools {
     );
   }
 
-  //cam - plz review
   /** @private */
   async _drawAccuracy() {
     globalInstances.logMessage("| working on acc ");
@@ -158,7 +158,6 @@ class PlayImage extends DrawTools {
     this.image.print(gold, xOffset, yOffset, this.play.accuracy + "%");
   }
 
-  //cam - plz review THIS ONE SUCKS
   /** @private */
   async _drawDifficulty() {
     globalInstances.logMessage("| working on difficulty ");
