@@ -348,7 +348,12 @@ class sessionObject {
         }).then(async (data) => {
           if ('__fake__' in data) {
             // running w/o tweets
-            await image.writeAsync(`./out/${idx}.png`);
+            await image.writeAsync(
+              `./out/${this.player.osuUsername.replace(
+                /[^A-Za-z0-9_-]/,
+                ''
+              )}.${idx}.png`
+            );
           }
           return data;
         });
