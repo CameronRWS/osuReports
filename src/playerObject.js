@@ -69,13 +69,13 @@ class playerObject {
     //   "minutesElapsed for " + this.osuUsername + ": " + minutesElapsed
     // );
     if (minutesElapsed > globalInstances.sessionTimeout) {
-      if (this.sessionObject != undefined) {
+      if (this.sessionObject !== undefined) {
         console.log('Ending session for: ' + this.osuUsername);
         return this.handleSessionTimeout();
       }
       return;
     }
-    if (this.sessionObject == undefined) {
+    if (this.sessionObject === undefined) {
       console.log('Creating new session for: ' + this.osuUsername);
       this.sessionObject = new sessionObject(this, false);
       return this.handleScoreWithSession(score);
@@ -88,13 +88,13 @@ class playerObject {
   }
 
   handleScoreWithSession(score) {
-    if (score.rank == 'F') {
-      this.sessionObject.addNewPlayAPI(score);
+    if (score.rank === 'F') {
+      return this.sessionObject.addNewPlayAPI(score);
     } else {
       return fetchScoresFromProfile(this.osuUsername)
         .then((data) => {
           var scoreOfRecentPlay = data.scoresRecent[0];
-          if (score.score == scoreOfRecentPlay.score) {
+          if (score.score === scoreOfRecentPlay.score) {
             this.sessionObject.addNewPlayWEB(scoreOfRecentPlay);
           } else {
             this.sessionObject.addNewPlayAPI(score);
@@ -124,6 +124,7 @@ class playerObject {
   isNewPlay(score) {
     // this isn't supposed to happen
     if (!this.sessionObject) return false;
+    if (!this.sessionObject.playObjects.length) return true;
 
     let attemptedNewPlayTime = score.date.getTime();
     let lastPlay = this.sessionObject.playObjects[
