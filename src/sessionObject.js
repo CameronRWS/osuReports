@@ -362,28 +362,26 @@ class sessionObject {
 
     globalInstances.logMessage('\nTrying to tweet...');
 
-    // const media = await Promise.all(
-    //   reportImages.map(async (image, idx, arr) => {
-    //     let buffer = await image.getBufferAsync(jimp.MIME_PNG);
-    //     globalInstances.logMessage(
-    //       `Posting image ${idx + 1}/${arr.length}`
-    //     );
-    //     return T.postAsync('media/upload', {
-    //       media_data: buffer.toString('base64'),
-    //     });
-    //   })
-    // );
+    const media = await Promise.all(
+      reportImages.map(async (image, idx, arr) => {
+        let buffer = await image.getBufferAsync(jimp.MIME_PNG);
+        globalInstances.logMessage(`Posting image ${idx + 1}/${arr.length}`);
+        return T.postAsync('media/upload', {
+          media_data: buffer.toString('base64'),
+        });
+      })
+    );
 
-    // if (media.length > 0) {
-    //   return this.tweetReport(
-    //     this.player.twitterUsername,
-    //     this.player.osuUsername,
-    //     media.map((image) => image.media_id_string),
-    //     this.sessionID
-    //   );
-    // } else {
-    //   globalInstances.logMessage('no images exist...? lol');
-    // }
+    if (media.length > 0) {
+      return this.tweetReport(
+        this.player.twitterUsername,
+        this.player.osuUsername,
+        media.map((image) => image.media_id_string),
+        this.sessionID
+      );
+    } else {
+      globalInstances.logMessage('no images exist...? lol');
+    }
   }
 
   async tweetReport(twitterUsername, osuUsername, id, sessionID) {
