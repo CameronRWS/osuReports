@@ -80,63 +80,57 @@ class sessionObject {
 
   async addNewPlayWEB(scoreOfRecentPlay) {
     console.log('adding new play via WEB');
-    return fetchBeatmapJson(scoreOfRecentPlay.beatmap.beatmapset_id)
-      .then(async (data) => {
-        const bpm = data.bpm;
-        let mods = '';
-        if (scoreOfRecentPlay.mods.length > 0) {
-          mods = '+';
-          for (let i = 0; i < scoreOfRecentPlay.mods.length; i++) {
-            mods = mods + scoreOfRecentPlay.mods[i];
-          }
-        }
-        const acc_percent = scoreOfRecentPlay.accuracy * 100;
-        let combo = scoreOfRecentPlay.max_combo;
-        const nmiss = scoreOfRecentPlay.statistics.count_miss;
-        if (mods.startsWith('+')) {
-          mods = ojsama.modbits.from_string(mods.slice(1) || '');
-        }
-        return fetchAndParseBeatmap(scoreOfRecentPlay.beatmap.id).then(
-          (map) => {
-            try {
-              const stars = Math.min(
-                new ojsama.diff().calc({ map: map, mods: mods }),
-                100
-              );
-              const pp = Math.min(
-                ojsama.ppv2({
-                  stars: stars,
-                  combo: combo,
-                  nmiss: nmiss,
-                  acc_percent: acc_percent,
-                }),
-                10e4
-              );
-              const max_combo = map.max_combo();
-              combo = combo || max_combo;
-              this.playObjects.push(
-                new playObjectv2(
-                  stars.toString().split(' ')[0],
-                  pp.toString().split(' ')[0],
-                  bpm,
-                  combo,
-                  max_combo,
-                  scoreOfRecentPlay
-                )
-              );
-            } catch (error) {
-              globalInstances.logMessage(
-                'Err: Problem occured when going to add a play from the web - ' +
-                  error +
-                  '\n'
-              );
-            }
-          }
-        );
-      })
-      .catch((error) => {
-        globalInstances.logMessage(error + ' 123');
-      });
+    const data = await fetchBeatmapJson(
+      scoreOfRecentPlay.beatmap.beatmapset_id
+    );
+    const bpm = data.bpm;
+    let mods = '';
+    if (scoreOfRecentPlay.mods.length > 0) {
+      mods = '+';
+      for (let i = 0; i < scoreOfRecentPlay.mods.length; i++) {
+        mods = mods + scoreOfRecentPlay.mods[i];
+      }
+    }
+    const acc_percent = scoreOfRecentPlay.accuracy * 100;
+    let combo = scoreOfRecentPlay.max_combo;
+    const nmiss = scoreOfRecentPlay.statistics.count_miss;
+    if (mods.startsWith('+')) {
+      mods = ojsama.modbits.from_string(mods.slice(1) || '');
+    }
+    const map = await fetchAndParseBeatmap(scoreOfRecentPlay.beatmap.id);
+    try {
+      const stars = Math.min(
+        new ojsama.diff().calc({ map: map, mods: mods }),
+        100
+      );
+      const pp = Math.min(
+        ojsama.ppv2({
+          stars: stars,
+          combo: combo,
+          nmiss: nmiss,
+          acc_percent: acc_percent,
+        }),
+        10e4
+      );
+      const max_combo = map.max_combo();
+      combo = combo || max_combo;
+      this.playObjects.push(
+        new playObjectv2(
+          stars.toString().split(' ')[0],
+          pp.toString().split(' ')[0],
+          bpm,
+          combo,
+          max_combo,
+          scoreOfRecentPlay
+        )
+      );
+    } catch (error) {
+      globalInstances.logMessage(
+        'Err: Problem occured when going to add a play from the web - ' +
+          error +
+          '\n'
+      );
+    }
   }
 
   async endSession() {
@@ -146,7 +140,7 @@ class sessionObject {
     //checks to see if there are real plays in session
     let isTweetable = false;
     for (let i = 0; i < this.playObjects.length; i++) {
-      if (this.playObjects[i].background != undefined) {
+      if (this.playObjects[i].background !== undefined) {
         isTweetable = true;
         break;
       }

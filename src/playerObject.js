@@ -93,7 +93,10 @@ class playerObject {
     } else {
       return fetchScoresFromProfile(this.osuUsername)
         .then((data) => {
-          var scoreOfRecentPlay = data.scoresRecent[0];
+          const scoreOfRecentPlay = data.scoresRecent[0];
+          globalInstances.logMessage(
+            `Score from API: ${score.score}, score from WEB: ${scoreOfRecentPlay.score}`
+          );
           if (score.score === scoreOfRecentPlay.score) {
             this.sessionObject.addNewPlayWEB(scoreOfRecentPlay);
           } else {
