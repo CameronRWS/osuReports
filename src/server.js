@@ -19,13 +19,20 @@ app.use(bodyParser.urlencoded({ extended: false }))
 var Twit = require('twit');
 var T = new Twit({ consumer_key: keys.consumer_key, consumer_secret: keys.consumer_secret, access_token: keys.access_token, access_token_secret: keys.access_token_secret });
 
-passport.use(new Strategy({
+passport.use(
+  new Strategy(
+    {
     consumerKey: keys.consumer_key,
     consumerSecret: keys.consumer_secret,
-    callbackURL: 'https://osureports.ameo.design/twitter/return'// 'http://localhost:3000/twitter/return' //'https://osureports.ameo.design/twitter/return'
-}, function (token, tokenSecret, profile, callback) {
+      callbackURL:
+        process.env.CALLBACK_URL ||
+        'https://osureports.ameo.design/twitter/return', // 'http://localhost:3000/twitter/return' //'https://osureports.ameo.design/twitter/return'
+    },
+    function (token, tokenSecret, profile, callback) {
     return callback(null, profile);
-}));
+    }
+  )
+);
 
 passport.serializeUser(function (user, callback) {
     callback(null, user);
