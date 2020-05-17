@@ -2,6 +2,7 @@ const osuApi = require('./osuApi');
 const ojsama = require('ojsama');
 const playObjectv2 = require('./playObjectv2');
 const globalInstances = require('./globalInstances');
+const jimp = require('jimp');
 const Twit = require('twit');
 const keys = require('./consumerKeys');
 const util = require('util');
@@ -17,7 +18,7 @@ const {
   secondsToDHMS,
 } = require('./utils');
 
-var T = new Twit({
+const T = new Twit({
   consumer_key: keys.consumer_key,
   consumer_secret: keys.consumer_secret,
   access_token: keys.access_token,
@@ -355,10 +356,6 @@ class sessionObject {
         difRankedScore,
       }
     );
-
-    reportImages.forEach(async (image, idx) => {
-      image.writeAsync(`./out/${idx}.png`);
-    });
 
     globalInstances.logMessage('\nTrying to tweet...');
 

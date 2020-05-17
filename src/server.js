@@ -17,29 +17,34 @@ app.use(express.static('./static'));
 app.use(bodyParser.urlencoded({ extended: false }));
 
 var Twit = require('twit');
-var T = new Twit({ consumer_key: keys.consumer_key, consumer_secret: keys.consumer_secret, access_token: keys.access_token, access_token_secret: keys.access_token_secret });
+var T = new Twit({
+  consumer_key: keys.consumer_key,
+  consumer_secret: keys.consumer_secret,
+  access_token: keys.access_token,
+  access_token_secret: keys.access_token_secret,
+});
 
 passport.use(
   new Strategy(
     {
-    consumerKey: keys.consumer_key,
-    consumerSecret: keys.consumer_secret,
+      consumerKey: keys.consumer_key,
+      consumerSecret: keys.consumer_secret,
       callbackURL:
         process.env.CALLBACK_URL ||
         'https://osureports.ameo.design/twitter/return', // 'http://localhost:3000/twitter/return' //'https://osureports.ameo.design/twitter/return'
     },
     function (token, tokenSecret, profile, callback) {
-    return callback(null, profile);
+      return callback(null, profile);
     }
   )
 );
 
 passport.serializeUser(function (user, callback) {
-    callback(null, user);
+  callback(null, user);
 });
 
 passport.deserializeUser(function (obj, callback) {
-    callback(null, obj);
+  callback(null, obj);
 });
 
 app.use(session({ secret: 'whatever', resave: true, saveUninitialized: true }));
@@ -51,16 +56,16 @@ app.set('view engine', 'ejs');
 app.set('views', './static/views');
 
 function startServer() {
-    app.get('/', (req, res) => {
+  app.get('/', (req, res) => {
     var numOfPlayers = 0,
       numOfPlays = 0,
       numOfSessions = 0;
-        db.get('SELECT Count(*) FROM playersTable', (err, rows) => {
-            numOfPlayers = rows['Count(*)'];
-            db.get('SELECT Count(*) FROM playsTable', (err, rows) => {
-                numOfPlays = rows['Count(*)'];
-                db.get('SELECT Count(*) FROM sessionsTable', (err, rows) => {
-                    numOfSessions = rows['Count(*)'];
+    db.get('SELECT Count(*) FROM playersTable', (err, rows) => {
+      numOfPlayers = rows['Count(*)'];
+      db.get('SELECT Count(*) FROM playsTable', (err, rows) => {
+        numOfPlays = rows['Count(*)'];
+        db.get('SELECT Count(*) FROM sessionsTable', (err, rows) => {
+          numOfSessions = rows['Count(*)'];
           res.render('index.ejs', {
             user: ' ',
             numOfPlayers: numOfPlayers,
@@ -72,34 +77,34 @@ function startServer() {
     });
   });
 
-    app.get('/return', (req, res) => {
-        updatePage(req, res);
+  app.get('/return', (req, res) => {
+    updatePage(req, res);
   });
 
-    app.get('/whitelist', (req, res) => {
-        if (req.user.username == null) {
+  app.get('/whitelist', (req, res) => {
+    if (req.user.username == null) {
       res.render('privacy.ejs', { user: 'x' });
       return;
-        }
-        db.all('SELECT * FROM playersTable', (err, rows) => {
+    }
+    db.all('SELECT * FROM playersTable', (err, rows) => {
       res.render('whitelist.ejs', { user: req.user.username, rows: rows });
     });
   });
 
-    app.get('/sessionslist', (req, res) => {
+  app.get('/sessionslist', (req, res) => {
     console.log(req);
     console.log(res);
-        if (req.user.username == null) {
+    if (req.user.username == null) {
       res.render('privacy.ejs', { user: 'x' });
       return;
-        }
-        db.all('SELECT * FROM sessionsTable', (err, rows) => {
+    }
+    db.all('SELECT * FROM sessionsTable', (err, rows) => {
       res.render('sessionslist.ejs', { user: req.user.username, rows: rows });
     });
   });
 
-    app.get('/sessions', (req, res) => {
-        console.log(req.user.username);
+  app.get('/sessions', (req, res) => {
+    console.log(req.user.username);
     db.all(
       "SELECT * FROM sessionsTable WHERE osuUsername = (SELECT osuUsername FROM  playersTable WHERE twitterUsername = '@" +
         req.user.username +
@@ -108,10 +113,10 @@ function startServer() {
         res.render('sessions.ejs', { user: req.user.username, sessions: rows });
       }
     );
-        });
+  });
 
-    app.get('/stats', (req, res) => {
-        console.log(req.user.username);
+  app.get('/stats', (req, res) => {
+    console.log(req.user.username);
     db.all(
       "SELECT * FROM sessionsTable WHERE osuUsername = (SELECT osuUsername FROM  playersTable WHERE twitterUsername = '@" +
         req.user.username +
@@ -125,7 +130,7 @@ function startServer() {
     );
   });
 
-    app.get('/privacy', (req, res) => {
+  app.get('/privacy', (req, res) => {
     res.render('privacy.ejs', { user: 'x' });
   });
 
@@ -141,37 +146,37 @@ function startServer() {
     }
   );
 
-    app.post('/action_enable', (req, res) => {
+  app.post('/action_enable', (req, res) => {
     console.log(req.body.username + ' ' + req.body.twitterUsername);
 
     var canBeWhitelisted = true;
     var cap = '';
 
-        var osuUserURL = 'https://osu.ppy.sh/users/' + req.body.username;
+    var osuUserURL = 'https://osu.ppy.sh/users/' + req.body.username;
     axios
       .get(osuUserURL)
-            .then(() => {
-                //console.log("profile exists");
-                for (var i = 0; i < globalInstances.playerObjects.length; i++) {
+      .then(() => {
+        //console.log("profile exists");
+        for (var i = 0; i < globalInstances.playerObjects.length; i++) {
           if (
             globalInstances.playerObjects[i].twitterUsername ==
             req.body.twitterUsername
           ) {
-                        canBeWhitelisted = false;
-                        //console.log("Failed: " + req.body.username + "'s osu! Reports are already tweeted at " + req.body.twitterUsername);
+            canBeWhitelisted = false;
+            //console.log("Failed: " + req.body.username + "'s osu! Reports are already tweeted at " + req.body.twitterUsername);
           } else if (
             globalInstances.playerObjects[i].osuUsername == req.body.username
           ) {
-                        canBeWhitelisted = false;
+            canBeWhitelisted = false;
             cap =
               'Activation failed: \nThe osu! username ' +
               req.body.username +
               ' is already enabled by the twitter user: ' +
               globalInstances.playerObjects[i].twitterUsername +
               '. If this is your old twitter account and you still have access, sign in with it and disable osu! Reports. If you do not recognize this twitter username or you no longer have access to the twitter account, DM @osureports and explain your issue.';
-                    }
-                }
-                if (canBeWhitelisted == true) {
+          }
+        }
+        if (canBeWhitelisted == true) {
           globalInstances.playerObjects.push(
             new playerObject(req.body.username, req.body.twitterUsername)
           );
@@ -191,8 +196,8 @@ function startServer() {
               ' has joined osu! Reports. osu! profile linked: https://osu.ppy.sh/users/' +
               req.body.username.replace(/ /g, '%20'),
           };
-                    T.post('statuses/update', tweet, function (err, data, response) {
-                        if (err) {
+          T.post('statuses/update', tweet, function (err, data, response) {
+            if (err) {
               console.log(err);
               cap = 'Activation successful!';
             } else {
@@ -201,30 +206,30 @@ function startServer() {
               );
               cap =
                 "Activation successful! - Check osu! Reports' latest tweet to ensure everything is setup properly.";
-                        }
+            }
           });
-                        }
+        }
         updatePage(req, res, cap);
-                    })
+      })
       .catch(() => {
-                //console.log("profile does not exist.")
-                canBeWhitelisted = false;
+        //console.log("profile does not exist.")
+        canBeWhitelisted = false;
         cap =
           'Activation failed: \nThe osu! profile ' +
           req.body.username +
           ' does not exist.';
         updatePage(req, res, cap);
       });
-            });
+  });
 
-    //called when a user wants to disable osu! Reports
-    app.post('/action_disable', (req, res) => {
-        for (var i = 0; i < globalInstances.playerObjects.length; i++) {
+  //called when a user wants to disable osu! Reports
+  app.post('/action_disable', (req, res) => {
+    for (var i = 0; i < globalInstances.playerObjects.length; i++) {
       if (
         globalInstances.playerObjects[i].twitterUsername ==
         req.body.twitterUsername
       ) {
-                //console.log("osu! Reports have been disable for: " + req.body.twitterUsername);
+        //console.log("osu! Reports have been disable for: " + req.body.twitterUsername);
         cap =
           'Successfully disabled osu! Reports for: ' +
           globalInstances.playerObjects[i].osuUsername;
@@ -234,8 +239,8 @@ function startServer() {
             req.body.twitterUsername +
             "'"
         );
-            }
-        }
+      }
+    }
     updatePage(req, res, cap);
   });
 
@@ -243,19 +248,19 @@ function startServer() {
 }
 
 function updatePage(req, res, cap) {
-    //console.log(req.user.username);
+  //console.log(req.user.username);
 
   var statusString = '';
   var ejspage = 'disable.ejs';
-    var numberOfSessions = '0';
-    var isUsernameWhitelisted = false;
-    for (var i = 0; i < globalInstances.playerObjects.length; i++) {
+  var numberOfSessions = '0';
+  var isUsernameWhitelisted = false;
+  for (var i = 0; i < globalInstances.playerObjects.length; i++) {
     if (
       '@' + req.user.username ==
       globalInstances.playerObjects[i].twitterUsername
     ) {
       statusString = 'osu! Reports are enabled';
-            isUsernameWhitelisted = true;
+      isUsernameWhitelisted = true;
       cap =
         'Assigned osu! username: ' +
         globalInstances.playerObjects[i].osuUsername;
@@ -264,40 +269,35 @@ function updatePage(req, res, cap) {
           req.user.username +
           "') ORDER BY sessionID ASC",
         (err, rows) => {
-                numberOfSessions = rows[0]['Count(*)'];
-                //console.log(numberOfSessions);
+          numberOfSessions = rows[0]['Count(*)'];
+          //console.log(numberOfSessions);
           res.render(ejspage, {
             cap: cap,
             user: req.user.username,
             statusString: statusString,
             numberOfSessions: numberOfSessions,
-            });
+          });
         }
       );
-            break;
-        }
+      break;
     }
+  }
 
-    if (!isUsernameWhitelisted) {
+  if (!isUsernameWhitelisted) {
     if (statusString == '') {
       statusString = 'osu! Reports are currently disabled';
       ejspage = 'enable.ejs';
-        }
+    }
 
-        //console.log(statusString);
-        //console.log("passed: " + numberOfSessions);
+    //console.log(statusString);
+    //console.log("passed: " + numberOfSessions);
     res.render(ejspage, {
       cap: cap,
       user: req.user.username,
       statusString: statusString,
       numberOfSessions: numberOfSessions,
     });
-    }
+  }
 }
 
 module.exports = startServer;
-
-
-
-
-module.exports = startServer
