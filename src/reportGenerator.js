@@ -241,8 +241,8 @@ class ReportGenerator {
       .fill(null)
       .map((_, n) => plays.slice(n * playsPerImage, (n + 1) * playsPerImage));
 
-    const heightOfGeneralInfo = 480;
-    const padding = { x: 25, y: 25, between: 25 };
+    const heightOfGeneralInfo = 485;
+    const padding = { x: 25, y: 20, between: 25 };
 
     const reports = playSets.map((plays, ridx) => {
       const report = ridx > 0 ? baseReport.clone() : reportWithHeader;
@@ -262,6 +262,7 @@ class ReportGenerator {
         heightOfGeneralInfo +
           padding.y +
           (plays[0].getHeight() + padding.between) * plays.length +
+          -5 +
           -(ridx > 0) * heightOfGeneralInfo
       );
       return report;

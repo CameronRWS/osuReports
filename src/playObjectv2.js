@@ -1,8 +1,8 @@
-var osuApi = require("./osuApi");
+var osuApi = require('./osuApi');
 
 class playObjectv2 {
   constructor(stars, pp, bpm, combo, max_combo, scoreOfRecentPlay) {
-    if (stars != "") {
+    if (stars != '') {
       //console.log("Play created: " + scoreOfRecentPlay.beatmapset.title);
       this.stars = stars;
       this.pp = pp;
@@ -21,7 +21,7 @@ class playObjectv2 {
       this.date = new Date(scoreOfRecentPlay.created_at);
       this.beatmapid = scoreOfRecentPlay.beatmap.id;
       this.beatmapsetid = scoreOfRecentPlay.beatmap.beatmapset_id;
-      if (scoreOfRecentPlay.mods.includes("DT")) {
+      if (scoreOfRecentPlay.mods.includes('DT')) {
         this.duration = (
           scoreOfRecentPlay.beatmap.hit_length *
           (2 / 3)
@@ -35,6 +35,11 @@ class playObjectv2 {
       this.rank = scoreOfRecentPlay.rank;
       this.date = new Date(scoreOfRecentPlay.date.getTime());
     }
+  }
+
+  static fromJSON(obj) {
+    obj.date = new Date(obj.date);
+    return obj;
   }
 }
 

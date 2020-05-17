@@ -175,7 +175,7 @@ class PlayImage extends DrawTools {
     globalInstances.logMessage('| working on acc ');
     const gold = await resourceGetter.getFont('ubuntuBGold52');
 
-    const yOffset = -9;
+    const yOffset = -6;
     let xOffset = this.image.getWidth() - 195;
     if (this.play.accuracy == '100.00') {
       xOffset -= 27;
