@@ -9,20 +9,13 @@ var passport = require('passport');
 var Strategy = require('passport-twitter').Strategy;
 var globalInstances = require('./globalInstances');
 var db = require('./db');
+var T = require('./twitterInstance');
 
 var session = require('express-session');
 
 app.use(express.static('./static'));
 
 app.use(bodyParser.urlencoded({ extended: false }));
-
-var Twit = require('twit');
-var T = new Twit({
-  consumer_key: keys.consumer_key,
-  consumer_secret: keys.consumer_secret,
-  access_token: keys.access_token,
-  access_token_secret: keys.access_token_secret,
-});
 
 passport.use(
   new Strategy(
@@ -224,6 +217,7 @@ function startServer() {
 
   //called when a user wants to disable osu! Reports
   app.post('/action_disable', (req, res) => {
+    let cap;
     for (var i = 0; i < globalInstances.playerObjects.length; i++) {
       if (
         globalInstances.playerObjects[i].twitterUsername ==

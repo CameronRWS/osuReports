@@ -3,7 +3,6 @@ const ojsama = require('ojsama');
 const playObjectv2 = require('./playObjectv2');
 const globalInstances = require('./globalInstances');
 const jimp = require('jimp');
-const Twit = require('twit');
 const keys = require('./consumerKeys');
 const util = require('util');
 
@@ -18,15 +17,9 @@ const {
   secondsToDHMS,
 } = require('./utils');
 
-const T = new Twit({
-  consumer_key: keys.consumer_key,
-  consumer_secret: keys.consumer_secret,
-  access_token: keys.access_token,
-  access_token_secret: keys.access_token_secret,
-});
+const T = require('./twitterInstance');
 
 // promisify some methods
-T.postAsync = util.promisify(T.post);
 
 class sessionObject {
   constructor(player, isDebug) {
@@ -99,25 +92,19 @@ class sessionObject {
     }
     const map = await fetchAndParseBeatmap(scoreOfRecentPlay.beatmap.id);
     try {
-      const stars = Math.min(
-        new ojsama.diff().calc({ map: map, mods: mods }),
-        100
-      );
-      const pp = Math.min(
-        ojsama.ppv2({
-          stars: stars,
-          combo: combo,
-          nmiss: nmiss,
-          acc_percent: acc_percent,
-        }),
-        10e4
-      );
+      const stars = new ojsama.diff().calc({ map: map, mods: mods });
       const max_combo = map.max_combo();
+      const pp = ojsama.ppv2({
+        stars,
+        combo,
+        nmiss,
+        acc_percent,
+      });
       combo = combo || max_combo;
       this.playObjects.push(
         new playObjectv2(
-          stars.toString().split(' ')[0],
-          pp.toString().split(' ')[0],
+          Math.min(stars.total, 100),
+          Math.min(pp.total, 10e3),
           bpm,
           combo,
           max_combo,
@@ -126,9 +113,8 @@ class sessionObject {
       );
     } catch (error) {
       globalInstances.logMessage(
-        'Err: Problem occured when going to add a play from the web - ' +
-          error +
-          '\n'
+        'Err: Problem occured when going to add a play from the web - ',
+        error
       );
     }
   }
@@ -357,8 +343,14 @@ class sessionObject {
       reportImages.map(async (image, idx, arr) => {
         let buffer = await image.getBufferAsync(jimp.MIME_PNG);
         globalInstances.logMessage(`Posting image ${idx + 1}/${arr.length}`);
-        return T.postAsync('media/upload', {
+        return T.post('media/upload', {
           media_data: buffer.toString('base64'),
+        }).then(async (data) => {
+          if ('__fake__' in data) {
+            // running w/o tweets
+            await image.writeAsync(`./out/${idx}.png`);
+          }
+          return data;
         });
       })
     );
@@ -367,7 +359,7 @@ class sessionObject {
       return this.tweetReport(
         this.player.twitterUsername,
         this.player.osuUsername,
-        media.map((image) => image.media_id_string),
+        media.map((image) => image.data.media_id_string),
         this.sessionID
       );
     } else {
@@ -380,12 +372,12 @@ class sessionObject {
       status: '.' + twitterUsername + ' just finished an osu! session: ',
       media_ids: [id],
     };
-    return T.postAsync('statuses/update', tweet)
+    return T.post('statuses/update', tweet)
       .then(async (data) => {
         globalInstances.logMessage(
-          `Updating session with tweet ID for ${osuUsername} (${data.id_str})`
+          `Updating session with tweet ID for ${osuUsername} (${data.data.id_str})`
         );
-        await db.updateSession(data.id_str, sessionID);
+        await db.updateSession(data.data.id_str, sessionID);
         globalInstances.logMessage(
           ' ---------------------------------------------------------------------------------A tweet was tweeted'
         );

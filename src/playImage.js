@@ -197,7 +197,7 @@ class PlayImage extends DrawTools {
       'Difficulty: '
     );
 
-    const diffText = `(${this.play.stars})`;
+    const diffText = `(${this.play.stars.toFixed(2)})`;
     const diffFont = await resourceGetter.getFont('ubuntuBWhite32');
     const diffWidth = jimp.measureText(diffFont, diffText);
     const diffHeight = jimp.measureTextHeight(diffFont, diffText, Infinity);
