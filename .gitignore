@@ -3,3 +3,4 @@ logs.txt
 *.db
 src/consumerKeys.js
 /*.png
+/out/**
