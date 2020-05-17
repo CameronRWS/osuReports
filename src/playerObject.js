@@ -109,11 +109,11 @@ class playerObject {
     }
   }
 
-  handleSessionTimeout() {
+  async handleSessionTimeout() {
     if (!globalInstances.isSessionEnding) {
       globalInstances.isSessionEnding = true;
       try {
-        this.sessionObject.endSession();
+        await this.sessionObject.endSession();
       } catch (err) {
         globalInstances.logMessage(
           'Critical Error: Problem occured when ending session - ' + err + '\n'
