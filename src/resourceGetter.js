@@ -153,10 +153,10 @@ class ResourceGetter {
     const logo = await this.getImage('osuReportsLogo');
 
     const overlayed = /** @type {Promise<Jimp>} */ (promisify(
-      template.blit.bind(template)
-    )(logo, 840, 10));
+      template.blit
+    ).bind(template)(logo, 840, 10));
     this.cache.images[key] = overlayed;
-    return overlayed.then((im) => promisify(im.clone.bind(im))());
+    return overlayed.then((im) => promisify(im.clone).bind(im)());
   }
 
   /**
