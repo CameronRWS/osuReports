@@ -1,19 +1,20 @@
 var globalInstances = require('./src/globalInstances');
 var playerObject = require('./src/playerObject');
 var startServer = require('./src/server');
-var sqlite3 = require('sqlite3');
-var db = require('./src/db');
 var fs = require('fs');
+const sessionStore = require('./src/sessionStore');
+const db = require('./src/db');
 
 var loopTime = 1000;
 
 setSessionsRecorded();
 
-startServer();
-
-initialize();
-
-//test();
+if (!process.env.DEBUG) {
+  startServer();
+  initialize();
+} else {
+  test();
+}
 
 async function test() {
   globalInstances.playerObjects.push(new playerObject('PenZa', '@penz_'));
@@ -22,15 +23,18 @@ async function test() {
   await globalInstances.playerObjects[0].sessionObject.endSession();
 }
 
-function initialize() {
-  db.all(
+async function initialize() {
+  return db.all(
     'SELECT osuUsername, twitterUsername FROM playersTable',
-    (err, rows) => {
+    async (err, rows) => {
       for (var i = 0; i < rows.length; i++) {
         globalInstances.playerObjects.push(
           new playerObject(rows[i].osuUsername, rows[i].twitterUsername)
         );
       }
+      globalInstances.logMessage('Loading sessions...');
+      await sessionStore.loadSessions();
+
       globalInstances.logMessage(
         'From initialize(): Starting to loop through players...'
       );

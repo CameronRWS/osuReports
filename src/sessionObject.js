@@ -18,8 +18,6 @@ const {
 
 const T = require('./twitterInstance');
 
-// promisify some methods
-
 class sessionObject {
   constructor(player, isDebug) {
     this.player = player;
@@ -27,10 +25,10 @@ class sessionObject {
     this.userObjectEndOfSession = null;
     this.playObjects = [];
     this.sessionID = null;
-    this.isDebug = null;
+    this.isDebug = isDebug;
 
     //get the initial state of the user
-    if (isDebug == false) {
+    if (!isDebug) {
       osuApi
         .getUser({ u: this.player.osuUsername })
         .then((user) => {
@@ -40,7 +38,6 @@ class sessionObject {
           globalInstances.logMessage(err);
         });
     } else {
-      this.isDebug = isDebug;
       globalInstances.logMessage('\ndebug mode init');
       osuApi
         .getUser({ u: this.player.osuUsername })
@@ -123,10 +120,6 @@ class sessionObject {
       'Attempting to end session for: ' + this.player.osuUsername + '\n'
     );
 
-    globalInstances.logMessage(
-      `User plays: ${util.inspect(this.playObjects, { depth: 5 })}`
-    );
-
     //checks to see if there are real plays in session
     let isTweetable = false;
     for (let i = 0; i < this.playObjects.length; i++) {
@@ -169,7 +162,7 @@ class sessionObject {
     if (
       sessionTotalSeconds < globalInstances.minimalSessionLengthSeconds &&
       sessionTotalSeconds >= 0 &&
-      this.isDebug == false
+      !this.isDebug
     ) {
       const sessionDurationResponse =
         this.player.osuUsername +

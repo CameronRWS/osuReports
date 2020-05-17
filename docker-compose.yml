@@ -11,3 +11,15 @@ services:
       - ./data:/data
     environment:
       DATABASE: /data/osuReports.db
+      REDIS_HOST: redis
+
+  redis:
+    image: redis:6.0
+    restart: unless-stopped
+    expose:
+      - 6379
+    volumes:
+      - 'redis-data:/data'
+
+volumes:
+  redis-data:

@@ -3,6 +3,7 @@ var globalInstances = require('./globalInstances');
 var sessionObject = require('./sessionObject');
 var axios = require('axios').default;
 var cheerio = require('cheerio');
+const sessionStore = require('./sessionStore');
 
 function fetchScoresFromProfile(profileId) {
   const url = 'https://osu.ppy.sh/users/' + profileId + '/osu';
@@ -32,7 +33,7 @@ class playerObject {
     this.sessionObject;
   }
 
-  updateSessionObjectv3() {
+  async updateSessionObjectv3() {
     return osuApi
       .getUserRecent({ u: this.osuUsername })
       .catch((error) => {
@@ -62,7 +63,7 @@ class playerObject {
       });
   }
 
-  handleScore(score) {
+  async handleScore(score) {
     var mostRecentPlayTime = score.date;
     var minutesElapsed = calculateElapsedTime(mostRecentPlayTime);
     // console.log(
@@ -87,26 +88,23 @@ class playerObject {
     // we have no updates, so just exit here
   }
 
-  handleScoreWithSession(score) {
+  async handleScoreWithSession(score) {
     if (score.rank === 'F') {
-      return this.sessionObject.addNewPlayAPI(score);
+      this.sessionObject.addNewPlayAPI(score);
     } else {
-      return fetchScoresFromProfile(this.osuUsername)
-        .then((data) => {
-          const scoreOfRecentPlay = data.scoresRecent[0];
-          globalInstances.logMessage(
-            `Score from API: ${score.score}, score from WEB: ${scoreOfRecentPlay.score}`
-          );
-          if (+score.score === +scoreOfRecentPlay.score) {
-            return this.sessionObject.addNewPlayWEB(scoreOfRecentPlay);
-          } else {
-            return this.sessionObject.addNewPlayAPI(score);
-          }
-        })
-        .catch((error) => {
-          globalInstances.logMessage(error);
-        });
+      const data = await fetchScoresFromProfile(this.osuUsername);
+      const scoreOfRecentPlay = data.scoresRecent[0];
+      globalInstances.logMessage(
+        `Score from API: ${score.score}, score from WEB: ${scoreOfRecentPlay.score}`
+      );
+      if (+score.score === +scoreOfRecentPlay.score) {
+        await this.sessionObject.addNewPlayWEB(scoreOfRecentPlay);
+      } else {
+        this.sessionObject.addNewPlayAPI(score);
+      }
     }
+
+    return sessionStore.storeSession(this.sessionObject);
   }
 
   async handleSessionTimeout() {
@@ -120,6 +118,7 @@ class playerObject {
         );
       }
       this.sessionObject = undefined;
+      await sessionStore.deleteSession(this);
       globalInstances.isSessionEnding = false;
     }
   }
@@ -149,7 +148,7 @@ class playerObject {
       scoreOfRecentPlay = data.scoresBest;
       this.sessionObject = new sessionObject(this, true);
       // add more if necessary
-      for (let i = 0; i < 25; i++) {
+      for (let i = 0; i < 6; i++) {
         if (i < 5) {
           await this.sessionObject.addNewPlayWEB(scoreOfRecentPlay[i]);
         } else {
