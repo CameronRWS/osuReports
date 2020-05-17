@@ -9,3 +9,5 @@ services:
       - '3000:3000'
     volumes:
       - ./data:/data
+    environment:
+      DATABASE: /data/osuReports.db
