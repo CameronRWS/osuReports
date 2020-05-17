@@ -3,7 +3,6 @@ const ojsama = require('ojsama');
 const playObjectv2 = require('./playObjectv2');
 const globalInstances = require('./globalInstances');
 const jimp = require('jimp');
-const keys = require('./consumerKeys');
 const util = require('util');
 
 const db = require('./db');
@@ -123,6 +122,11 @@ class sessionObject {
     globalInstances.logMessage(
       'Attempting to end session for: ' + this.player.osuUsername + '\n'
     );
+
+    globalInstances.logMessage(
+      `User plays: ${util.inspect(this.playObjects, { depth: 5 })}`
+    );
+
     //checks to see if there are real plays in session
     let isTweetable = false;
     for (let i = 0; i < this.playObjects.length; i++) {

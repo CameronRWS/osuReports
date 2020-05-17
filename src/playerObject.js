@@ -33,7 +33,7 @@ class playerObject {
   }
 
   updateSessionObjectv3() {
-    osuApi
+    return osuApi
       .getUserRecent({ u: this.osuUsername })
       .catch((error) => {
         /* do nothing because we have no new scores */
@@ -98,9 +98,9 @@ class playerObject {
             `Score from API: ${score.score}, score from WEB: ${scoreOfRecentPlay.score}`
           );
           if (+score.score === +scoreOfRecentPlay.score) {
-            this.sessionObject.addNewPlayWEB(scoreOfRecentPlay);
+            return this.sessionObject.addNewPlayWEB(scoreOfRecentPlay);
           } else {
-            this.sessionObject.addNewPlayAPI(score);
+            return this.sessionObject.addNewPlayAPI(score);
           }
         })
         .catch((error) => {
