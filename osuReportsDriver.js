@@ -5,7 +5,7 @@ var fs = require('fs');
 const sessionStore = require('./src/sessionStore');
 const db = require('./src/db');
 
-var loopTime = 1000;
+const msPerIteration = 30000;
 
 setSessionsRecorded();
 
@@ -39,23 +39,55 @@ async function initialize() {
         'From initialize(): Starting to loop through players...'
       );
       // globalInstances.playerObjects = [new playerObject('PenZa', '@penz_')];
-      loopThroughPlayers();
+      mainLoop();
     }
   );
 }
 
-var iPlayers = 0;
-var secondsPerIteration = 30000;
-function loopThroughPlayers() {
-  loopTime = secondsPerIteration / globalInstances.playerObjects.length;
-  globalInstances.playerObjects[iPlayers].updateSessionObjectv3();
-  if (iPlayers == globalInstances.playerObjects.length - 1) {
-    iPlayers = 0;
+async function sleep(delay) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, delay);
+  });
+}
+
+async function mainLoop() {
+  let shutdownRequested = false;
+  let canShutdown = false;
+
+  const handler = () => {
+    if (canShutdown) {
+      globalInstances.logMessage('Shutting down...');
+      process.exit(0);
+    }
+    globalInstances.logMessage('Shutdown requested...');
+    shutdownRequested = true;
+  };
+
+  process.on('SIGINT', handler);
+  process.on('SIGTERM', handler);
+
+  const loopTime = msPerIteration / globalInstances.playerObjects.length;
+  while (true) {
+    for (const player of globalInstances.playerObjects) {
+      const start = +new Date();
+      canShutdown = false;
+      await player.updateSessionObjectv3();
+      const runTime = +new Date() - start;
+      canShutdown = true;
+
+      if (shutdownRequested) {
+        globalInstances.logMessage('Shutting down...');
+        process.exit(0);
+      }
+
+      const delay = loopTime - runTime;
+      // globalInstances.logMessage(
+      //   `Sleeping ${delay.toFixed(0)} ms before checking next player`
+      // );
+      await sleep(delay);
+    }
     getSessionInfoForConsole();
-  } else {
-    iPlayers = iPlayers + 1;
   }
-  setTimeout(loopThroughPlayers, loopTime);
 }
 
 var numOfOutputs = 0;
@@ -64,78 +96,46 @@ function getSessionInfoForConsole() {
   numOfOutputs++;
   if (numOfOutputs > 2000) {
     //notice the writeFile
-    fs.writeFile('./logs.txt', 'CLEARED', (err) => {
-      if (err) throw err;
-    });
+    if (!process.env.NO_FILE_LOG) {
+      fs.writeFile('./logs.txt', 'CLEARED', (err) => {
+        if (err) throw err;
+      });
+    }
     numOfOutputs = 0;
   }
   var countPlayerObjects = globalInstances.playerObjects.length;
   var countPlayObjects = 0;
   var countSessionObjects = 0;
   var currentTime = new Date();
-  currentTime.setHours(currentTime.getHours() - 6);
   var output = '';
   output += '\nx-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x\n';
-  output +=
-    '\nDate: ' +
-    (currentTime.getMonth() + 1) +
-    '/' +
-    currentTime.getDate() +
-    '/' +
-    currentTime.getFullYear() +
-    ' | Time: ' +
-    currentTime.getHours() +
-    ':' +
-    currentTime.getMinutes() +
-    ':' +
-    currentTime.getSeconds();
-  output += '';
-  for (var i = 0; i < globalInstances.playerObjects.length; i++) {
-    if (globalInstances.playerObjects[i].sessionObject != null) {
-      countSessionObjects++;
-      output +=
-        "\n             -- '" +
-        globalInstances.playerObjects[i].osuUsername +
-        "' --\n   Plays:\n";
-      var isPlays = false;
-      var totalPlays = 0;
-      for (
-        var j = 0;
-        j < globalInstances.playerObjects[i].sessionObject.playObjects.length;
-        j++
-      ) {
-        countPlayObjects++;
-        totalPlays++;
-        if (
-          globalInstances.playerObjects[i].sessionObject.playObjects[j].title !=
-          null
-        ) {
-          output +=
-            '       ' +
-            globalInstances.playerObjects[i].sessionObject.playObjects[j]
-              .title +
-            ' [' +
-            globalInstances.playerObjects[i].sessionObject.playObjects[j]
-              .version +
-            '] by: ' +
-            globalInstances.playerObjects[i].sessionObject.playObjects[j]
-              .artist +
-            '\n\n';
-          // output += ("           Rank: " + globalInstances.playerObjects[i].sessionObject.playObjects[j].rank + "\n");
-          // output += ("           Acc: " + globalInstances.playerObjects[i].sessionObject.playObjects[j].accuracy + "%" + "\n");
-          // output += ("           PP: " + globalInstances.playerObjects[i].sessionObject.playObjects[j].pp + "\n");
-          isPlays = true;
-        }
-      }
-      if (!isPlays) {
-        output += '       No plays that will be tweeted...\n';
-      }
-      output += '       Total plays (including failed): ' + totalPlays + '\n';
+  output += `\nDate: ${currentTime.toLocaleString('en-US', {
+    timeZone: 'America/Chicago',
+  })}`;
+  for (const player of globalInstances.playerObjects) {
+    if (!player.sessionObject) {
+      continue;
     }
+    countSessionObjects++;
+    output += `\n             -- '${player.osuUsername}' --\n   Plays:\n`;
+    var isPlays = false;
+    var totalPlays = 0;
+    for (const play of player.sessionObject.playObjects) {
+      countPlayObjects++;
+      totalPlays++;
+      if (play.title != null) {
+        output += `       ${play.title} [${play.version}] by: ${play.artist}\n\n`;
+        isPlays = true;
+      }
+    }
+    if (!isPlays) {
+      output += '       No plays that will be tweeted...\n';
+    }
+    output += '       Total plays (including failed): ' + totalPlays + '\n';
   }
-  output += '\n   Count of player objects: ' + countPlayerObjects + '\n';
-  output += '   Count of session objects: ' + countSessionObjects + '\n';
-  output += '   Count of play objects: ' + countPlayObjects + '\n';
+  output += `\n   Count of player objects: ${countPlayerObjects}\n`;
+  output += `   Count of session objects: ${countSessionObjects}\n`;
+  output += `   Count of play objects: ${countPlayObjects}\n`;
   output += '\nx-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x\n';
   globalInstances.logMessage(output);
 }
