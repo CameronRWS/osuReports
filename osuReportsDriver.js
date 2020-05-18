@@ -144,7 +144,7 @@ function setSessionsRecorded() {
   db.get(
     'SELECT sessionID FROM sessionsTable ORDER BY sessionID DESC LIMIT 1',
     (err, row) => {
-      if (err === null) return;
+      if (err !== null) return;
       globalInstances.logMessage(row.sessionID + ' entries in the db.');
       globalInstances.numberOfSessionsRecorded = row.sessionID + 1;
     }
