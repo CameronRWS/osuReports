@@ -2,72 +2,72 @@
  * @typedef {import('jimp/types/ts3.1/index')} Jimp
  */
 
-const jimp = require('jimp');
-const axios = require('axios').default;
-const promisify = require('util').promisify;
-const { URL } = require('url');
-const util = require('util');
-const _ = require('lodash');
+const jimp = require("jimp");
+const axios = require("axios").default;
+const promisify = require("util").promisify;
+const { URL } = require("url");
+const util = require("util");
+const _ = require("lodash");
 
 const DEFAULT_BACKGROUND =
-  'https://assets.ppy.sh/beatmaps/1084284/covers/cover.jpg?1581740491';
+  "https://assets.ppy.sh/beatmaps/1084284/covers/cover.jpg?1581740491";
 
 /** @type { { [key: string]: (string | [string, ...(<T extends Jimp>(arg: T) => T)[]]) } } */
 const INITIAL_IMAGES = {
-  report: './static/images/rawReports/report1.png',
-  circleMask: './static/masks/circleMask.png',
+  report: "./static/images/rawReports/report1.png",
+  circleMask: "./static/masks/circleMask.png",
   rankSSPlus: [
-    './static/images/ranks/SSPlus.png',
+    "./static/images/ranks/SSPlus.png",
     (im) => im.resize(120, 63.6),
   ],
-  rankSS: ['./static/images/ranks/SS.png', (im) => im.resize(120, 63.6)],
-  rankSPlus: ['./static/images/ranks/SPlus.png', (im) => im.resize(120, 63.6)],
-  rankS: ['./static/images/ranks/S.png', (im) => im.resize(120, 63.6)],
-  rankA: ['./static/images/ranks/A.png', (im) => im.resize(109.2, 63.6)],
-  rankB: ['./static/images/ranks/B.png', (im) => im.resize(95.16, 63.6)],
-  rankC: ['./static/images/ranks/C.png', (im) => im.resize(95.16, 63.6)],
-  rankD: ['./static/images/ranks/D.png', (im) => im.resize(95.16, 63.6)],
+  rankSS: ["./static/images/ranks/SS.png", (im) => im.resize(120, 63.6)],
+  rankSPlus: ["./static/images/ranks/SPlus.png", (im) => im.resize(120, 63.6)],
+  rankS: ["./static/images/ranks/S.png", (im) => im.resize(120, 63.6)],
+  rankA: ["./static/images/ranks/A.png", (im) => im.resize(109.2, 63.6)],
+  rankB: ["./static/images/ranks/B.png", (im) => im.resize(95.16, 63.6)],
+  rankC: ["./static/images/ranks/C.png", (im) => im.resize(95.16, 63.6)],
+  rankD: ["./static/images/ranks/D.png", (im) => im.resize(95.16, 63.6)],
   osuReportsLogo: [
-    './static/images/osuReportsLogo.png',
+    "./static/images/osuReportsLogo.png",
     (im) => im.resize(100, 100),
   ],
-  levelBar: './static/images/levelBar.png',
-  hex: './static/images/hex.png',
-  playImageMask: './static/masks/playImageMask.png',
-  playShadowMask: './static/masks/playShadowMask.png',
+  levelBar: "./static/images/levelBar.png",
+  hex: "./static/images/hex.png",
+  playImageMask: "./static/masks/playImageMask.png",
+  playShadowMask: "./static/masks/playShadowMask.png",
   onlineStar: [
-    './static/images/stars/onlinestar.png',
+    "./static/images/stars/onlinestar.png",
     (im) => im.resize(35, 35),
     (im) => im.resize(28, 28),
     (im) => im.resize(20, 20),
     (im) => im.resize(15, 15),
   ],
-  modFlashlight: './static/images/mods/mod_flashlight.png',
-  modHardRock: './static/images/mods/mod_hard-rock.png',
-  modHidden: './static/images/mods/mod_hidden.png',
-  modNightcore: './static/images/mods/mod_nightcore.png',
-  modPerfect: './static/images/mods/mod_perfect.png',
-  modSuddenDeath: './static/images/mods/mod_sudden-death.png',
-  modDoubleTime: './static/images/mods/mod_double-time.png',
-  modNoFail: './static/images/mods/mod_no-fail.png',
-  modEasy: './static/images/mods/mod_easy.png',
+  modFlashlight: "./static/images/mods/mod_flashlight.png",
+  modHardRock: "./static/images/mods/mod_hard-rock.png",
+  modHidden: "./static/images/mods/mod_hidden.png",
+  modNightcore: "./static/images/mods/mod_nightcore.png",
+  modPerfect: "./static/images/mods/mod_perfect.png",
+  modSuddenDeath: "./static/images/mods/mod_sudden-death.png",
+  modDoubleTime: "./static/images/mods/mod_double-time.png",
+  modNoFail: "./static/images/mods/mod_no-fail.png",
+  modEasy: "./static/images/mods/mod_easy.png",
 };
 
 const INITIAL_FONTS = {
-  ubuntuBBlue32: './static/fonts/ubuntuB_blue_32.fnt',
-  ubuntuBBlack32: './static/fonts/ubuntuB_black_32.fnt',
-  ubuntuBRed32: './static/fonts/ubuntuB_red_32.fnt',
-  ubuntuBGreen32: './static/fonts/ubuntuB_green_32.fnt',
-  ubuntuBBlack24: './static/fonts/ubuntuB_black_24.fnt',
-  ubuntuBGreen24: './static/fonts/ubuntuB_green_24.fnt',
-  ubuntuBBlue24: './static/fonts/ubuntuB_blue_24.fnt',
-  ubuntuBLightBlue32: './static/fonts/ubuntuB_lightblue_32.fnt',
-  ubuntuBWhite24: './static/fonts/ubuntuB_white_24.fnt',
-  ubuntuBWhite32: './static/fonts/ubuntuB_white_32.fnt',
-  ubuntuBGold52: './static/fonts/ubuntuB_gold_52.fnt',
-  ubuntuBYellow32: './static/fonts/ubuntuB_yellow_32.fnt',
-  ubuntuBLightGreen32: './static/fonts/ubuntuB_lightgreen_32.fnt',
-  ubuntuBLightRed32: './static/fonts/ubuntuB_lightred_32.fnt',
+  ubuntuBBlue32: "./static/fonts/ubuntuB_blue_32.fnt",
+  ubuntuBBlack32: "./static/fonts/ubuntuB_black_32.fnt",
+  ubuntuBRed32: "./static/fonts/ubuntuB_red_32.fnt",
+  ubuntuBGreen32: "./static/fonts/ubuntuB_green_32.fnt",
+  ubuntuBBlack24: "./static/fonts/ubuntuB_black_24.fnt",
+  ubuntuBGreen24: "./static/fonts/ubuntuB_green_24.fnt",
+  ubuntuBBlue24: "./static/fonts/ubuntuB_blue_24.fnt",
+  ubuntuBLightBlue32: "./static/fonts/ubuntuB_lightblue_32.fnt",
+  ubuntuBWhite24: "./static/fonts/ubuntuB_white_24.fnt",
+  ubuntuBWhite32: "./static/fonts/ubuntuB_white_32.fnt",
+  ubuntuBGold52: "./static/fonts/ubuntuB_gold_52.fnt",
+  ubuntuBYellow32: "./static/fonts/ubuntuB_yellow_32.fnt",
+  ubuntuBLightGreen32: "./static/fonts/ubuntuB_lightgreen_32.fnt",
+  ubuntuBLightRed32: "./static/fonts/ubuntuB_lightred_32.fnt",
 };
 
 class ResourceGetter {
@@ -103,13 +103,13 @@ class ResourceGetter {
   }
 
   async getPlayerAvatar(userId) {
-    const url = 'https://a.ppy.sh/' + userId;
+    const url = "https://a.ppy.sh/" + userId;
     return jimp.read(url).then((im) => im.resize(256, 256));
   }
 
   async getPlayerCountryFlag(countryFlag) {
     const key = `countryFlag_${countryFlag}`;
-    const url = './static/images/flags/' + countryFlag + '.png';
+    const url = "./static/images/flags/" + countryFlag + ".png";
     return this.getAndCacheImage(key, url);
   }
 
@@ -143,18 +143,18 @@ class ResourceGetter {
   }
 
   async getNewReportTemplate() {
-    const key = '_reportTemplate';
+    const key = "_reportTemplate";
     if (key in this.cache.images) {
       const p = /** @type {Promise<Jimp>} */ (this.cache.images[key]);
       return p.then((im) => im.clone());
     }
 
-    const template = (await this.getImage('report')).clone();
-    const logo = await this.getImage('osuReportsLogo');
+    const template = (await this.getImage("report")).clone();
+    const logo = await this.getImage("osuReportsLogo");
 
     const overlayed = /** @type {Promise<Jimp>} */ (promisify(
       template.blit
-    ).bind(template)(logo, 840, 10));
+    ).bind(template)(logo, 840, 15));
     this.cache.images[key] = overlayed;
     return overlayed.then((im) => promisify(im.clone).bind(im)());
   }
@@ -166,12 +166,12 @@ class ResourceGetter {
   async getBackground(url) {
     const parsed = new URL(url);
     const getter = (url) =>
-      axios.get(url, { responseType: 'arraybuffer' }).then((data) => {
+      axios.get(url, { responseType: "arraybuffer" }).then((data) => {
         return jimp.read(data.data);
       });
     let isDefault = false;
 
-    if (parsed.search === '0') {
+    if (parsed.search === "0") {
       // this background does not exist, return default
       url = DEFAULT_BACKGROUND;
       isDefault = true;
@@ -184,7 +184,7 @@ class ResourceGetter {
         isDefault,
       }))
       .catch(async (err) => {
-        if ('response' in err && err.response.status === 404) {
+        if ("response" in err && err.response.status === 404) {
           return this.lru
             .get(DEFAULT_BACKGROUND, () => getter(DEFAULT_BACKGROUND))
             .then((background) => ({
@@ -232,7 +232,7 @@ class LRUCache {
     if (key in this.cache) {
       const idx = this.accessed.indexOf(key);
       if (idx === -1) {
-        throw new Error('key was in cached, but not accessed list');
+        throw new Error("key was in cached, but not accessed list");
       }
       this.accessed.splice(idx, 1);
       this.accessed.unshift(key);
