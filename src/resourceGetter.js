@@ -154,7 +154,7 @@ class ResourceGetter {
 
     const overlayed = /** @type {Promise<Jimp>} */ (promisify(
       template.blit
-    ).bind(template)(logo, 840, 15));
+    ).bind(template)(logo, 840, 10));
     this.cache.images[key] = overlayed;
     return overlayed.then((im) => promisify(im.clone).bind(im)());
   }
