@@ -52,7 +52,7 @@ async function sleep(delay) {
 
 async function mainLoop() {
   let shutdownRequested = false;
-  let canShutdown = false;
+  let canShutdown = true;
 
   const handler = () => {
     if (canShutdown) {
