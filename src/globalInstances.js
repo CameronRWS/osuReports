@@ -88,7 +88,10 @@ function getCaller() {
 
     // skip this function and the parent, since we want the caller of
     // the function who calls this function
-    let callers = err.stack.slice(2);
+    // weird casting because TS doesn't like converting string -> CallSite[]
+    let callers = /** @type {NodeJS.CallSite[]} */ (
+      /** @type {unknown} */ (err.stack.slice(2))
+    );
     let functionName = callers[0] && callers[0].getFunctionName();
     return functionName || "<unknown caller>";
   } catch (e) {

@@ -266,12 +266,12 @@ class sessionObject {
 
     await db.insertSession(sqlSessionValues);
 
-    for (let i = 0; i < this.playObjects.length; i++) {
-      const sqlTitle = this.playObjects[i].title;
-      const sqlVersion = this.playObjects[i].version;
-      const sqlArtist = this.playObjects[i].artist;
+    for (const play of this.playObjects) {
+      const sqlTitle = play.title;
+      const sqlVersion = play.version;
+      const sqlArtist = play.artist;
 
-      const songDurationTotalSeconds = parseInt(this.playObjects[i].duration);
+      const songDurationTotalSeconds = parseInt(play.duration);
       const [
         _,
         songDurationHours,
@@ -286,23 +286,22 @@ class sessionObject {
 
       let sqlPlayValues = {
         $sessionId: this.sessionID,
-        $bg: this.playObjects[i].background,
+        $bg: play.background,
         $title: sqlTitle,
         $version: sqlVersion,
         $artist: sqlArtist,
-        $combo:
-          this.playObjects[i].combo + ' / ' + this.playObjects[i].maxCombo,
-        $bpm: this.playObjects[i].bpm,
+        $combo: `${play.combo} / ${play.maxCombo}`,
+        $bpm: play.bpm,
         $playDuration: songDuration,
-        $difficulty: this.playObjects[i].stars,
-        $playAccuracy: this.playObjects[i].accuracy,
-        $rank: this.playObjects[i].rank,
-        $mods: this.playObjects[i].mods.join(', '),
-        $counts300: this.playObjects[i].countsObject.count_300,
-        $counts100: this.playObjects[i].countsObject.count_100,
-        $counts50: this.playObjects[i].countsObject.count_50,
-        $countsMiss: this.playObjects[i].countsObject.count_miss,
-        $playPP: this.playObjects[i].pp,
+        $difficulty: play.stars.toFixed(2),
+        $playAccuracy: play.accuracy,
+        $rank: play.rank,
+        $mods: play.mods.join(', '),
+        $counts300: play.countsObject.count_300,
+        $counts100: play.countsObject.count_100,
+        $counts50: play.countsObject.count_50,
+        $countsMiss: play.countsObject.count_miss,
+        $playPP: play.pp.toFixed(2),
       };
 
       globalInstances.logMessage(
