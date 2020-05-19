@@ -1,7 +1,50 @@
+var osuApi = require("./osuApi");
+var username = "9152327";
+
+start();
+
+async function start() {
+  var userId = await convertOsuUser(username, 1);
+  console.log(userId);
+}
+
+async function convertOsuUser(osuUsernameOrId, requestedForm) {
+  const USER_NAME_BOOL = 1;
+  const USER_ID_BOOL = 0;
+  if (USER_NAME_BOOL === requestedForm) {
+    if (isNaN(osuUsernameOrId)) {
+      return osuUsernameOrId;
+    } else {
+      return await getIdOrName(requestedForm);
+    }
+  } else if (USER_ID_BOOL === requestedForm) {
+    if (!isNaN(osuUsernameOrId)) {
+      return osuUsernameOrId;
+    } else {
+      return await getIdOrName(requestedForm);
+    }
+  } else {
+    return "problem1";
+  }
+
+  async function getIdOrName(requestedForm) {
+    return osuApi
+      .getUser({ u: username })
+      .then((user) => {
+        if (requestedForm === USER_NAME_BOOL) {
+          return user.name;
+        } else {
+          return user.id;
+        }
+      })
+      .catch((err) => {
+        return "problem2";
+      });
+  }
+}
 
 // var sqlite3 = require('sqlite3');
 // var db = new sqlite3.Database('../osuReports_v2.db');
-
 
 // db.all('SELECT * FROM playersTable', (err, rows) => {
 //     console.log(rows);
@@ -26,28 +69,6 @@
 // fetchedPromise.then(mapURLs => mapURLs.forEach(item => console.log(item)));
 
 // // BELOW WORKS
-
-const axios = require('axios');
-
-isTwitterAccountActive();
-
-function isTwitterAccountActive() {
-    axios.get('https://twitter.com/Gaston_Osu')
-        .then(response => {
-            console.log("OK");
-            var $ = cheerio.load(response.data);
-            var html = $("#css-901oao css-16my406 r-1qd0xha r-ad9z0x r-bcqeeo r-qvutc0").html();
-            var data = JSON.parse(html);
-            console.log(data);
-            return true;
-
-
-        }).catch(error => {
-            console.log("false");
-            return false;
-        })
-
-}
 
 // var $ = cheerio.load(response.data);
 // var html = $("").html();
@@ -80,12 +101,6 @@ function isTwitterAccountActive() {
 //     console.log("-" + err)
 // });
 
-
-
-
-
-
-
 // //ABOVE WORKS
 
 // const axios = require('axios');
@@ -113,13 +128,6 @@ function isTwitterAccountActive() {
 //     console.log(maps[i])
 // }
 
-
-
-
-
-
-
-
 // for (var i = 0; i < maps.length; i++) {
 //     axios.get(maps[i])
 //         .then((response) => {
@@ -128,7 +136,6 @@ function isTwitterAccountActive() {
 //             maps[i] = 'https://assets.ppy.sh/beatmaps/1084284/covers/cover.jpg?1581740491';
 //         })
 // }
-
 
 // var Twit = require('twit');
 
@@ -140,10 +147,8 @@ function isTwitterAccountActive() {
 // recipient_id = "";
 // message = "hi";
 
-
 // var stream = T.stream('user');
 // //stream.on('direct_message', tweetEvent);
-
 
 // function tweetEvent(eventMsg) {
 //     //console.log("tweet event")
@@ -169,10 +174,6 @@ function isTwitterAccountActive() {
 //     }).catch(() => {
 //         console.log("profile does not exist.")
 //     });
-
-
-
-
 
 // var x = "https://osu.ppy.sh/users/"
 
@@ -202,7 +203,3 @@ function isTwitterAccountActive() {
 //         console.log(data)
 //     })
 // })
-
-
-
-
