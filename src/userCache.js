@@ -1,9 +1,9 @@
-const Redis = require('ioredis');
-const _ = require('lodash');
-const osuApi = require('./osuApi');
-const globalInstances = require('./globalInstances');
+const Redis = require("ioredis");
+const _ = require("lodash");
+const osuApi = require("./osuApi");
+const globalInstances = require("./globalInstances");
 
-const USER_PREFIX = 'usercache:';
+const USER_PREFIX = "usercache:";
 const USER_CACHE_TIME = 24 * 60 * 60;
 
 /**
@@ -13,7 +13,7 @@ const USER_CACHE_TIME = 24 * 60 * 60;
 class UserCache {
   constructor(options) {
     options = _.merge({
-      host: 'localhost',
+      host: "localhost",
       port: 6379,
     });
 
@@ -27,8 +27,10 @@ class UserCache {
 
   static async convertOsuUser(osuUsernameOrId, requestedForm) {
     if (
-      (requestedForm === 'id' && isNaN(osuUsernameOrId)) ||
-      (requestedForm === 'username' && !isNaN(osuUsernameOrId))
+      (requestedForm === "id" &&
+        !isNaN(osuUsernameOrId) &&
+        osuUsernameOrId.length > 7) ||
+      (requestedForm === "username" && isNaN(osuUsernameOrId))
     ) {
       //already is a user name not a user id so don't call api
       return osuUsernameOrId;
@@ -39,9 +41,9 @@ class UserCache {
     async function getRequestedForm() {
       return osuApi
         .getUser({ u: osuUsernameOrId })
-        .then((user) => (requestedForm === 'id' ? user.id : user.name))
+        .then((user) => (requestedForm === "id" ? user.id : user.name))
         .catch((err) => {
-          globalInstances.logMessage('Failed to fetch user information', err);
+          globalInstances.logMessage("Failed to fetch user information", err);
           return null;
         });
     }
@@ -57,7 +59,7 @@ class UserCache {
     } catch (ex) {}
 
     // not cached
-    username = await UserCache.convertOsuUser(osuId, 'username');
+    username = await UserCache.convertOsuUser(osuId, "username");
     await this.client.setex(key, USER_CACHE_TIME, username);
     return username;
   }
