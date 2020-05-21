@@ -1,13 +1,11 @@
-var globalInstances = require('./src/globalInstances');
-var playerObject = require('./src/playerObject');
-var startServer = require('./src/server');
-var fs = require('fs');
-const sessionStore = require('./src/sessionStore');
-const db = require('./src/db');
+var globalInstances = require("./src/globalInstances");
+var playerObject = require("./src/playerObject");
+var startServer = require("./src/server");
+var fs = require("fs");
+const sessionStore = require("./src/sessionStore");
+const db = require("./src/db");
 
 const msPerIteration = 30000;
-
-setSessionsRecorded();
 
 if (!process.env.DEBUG) {
   startServer();
@@ -17,26 +15,28 @@ if (!process.env.DEBUG) {
 }
 
 async function test() {
-  globalInstances.playerObjects.push(new playerObject('PenZa', '@penz_'));
+  setSessionsRecorded();
+  globalInstances.playerObjects.push(new playerObject("PenZa", "@penz_"));
   await globalInstances.playerObjects[0].createFakeSession();
-  globalInstances.logMessage('From test(): Ending session...');
+  globalInstances.logMessage("From test(): Ending session...");
   await globalInstances.playerObjects[0].sessionObject.endSession();
 }
 
 async function initialize() {
+  setSessionsRecorded();
   return db.all(
-    'SELECT osuUsername, twitterUsername FROM playersTable',
+    "SELECT osuUsername, twitterUsername FROM playersTable",
     async (err, rows) => {
       for (var i = 0; i < rows.length; i++) {
         globalInstances.playerObjects.push(
           new playerObject(rows[i].osuUsername, rows[i].twitterUsername)
         );
       }
-      globalInstances.logMessage('Loading sessions...');
+      globalInstances.logMessage("Loading sessions...");
       await sessionStore.loadSessions();
 
       globalInstances.logMessage(
-        'From initialize(): Starting to loop through players...'
+        "From initialize(): Starting to loop through players..."
       );
       // globalInstances.playerObjects = [new playerObject('PenZa', '@penz_')];
       mainLoop();
@@ -56,15 +56,15 @@ async function mainLoop() {
 
   const handler = () => {
     if (canShutdown) {
-      globalInstances.logMessage('Shutting down...');
+      globalInstances.logMessage("Shutting down...");
       process.exit(0);
     }
-    globalInstances.logMessage('Shutdown requested...');
+    globalInstances.logMessage("Shutdown requested...");
     shutdownRequested = true;
   };
 
-  process.on('SIGINT', handler);
-  process.on('SIGTERM', handler);
+  process.on("SIGINT", handler);
+  process.on("SIGTERM", handler);
 
   const loopTime = msPerIteration / globalInstances.playerObjects.length;
   while (true) {
@@ -76,7 +76,7 @@ async function mainLoop() {
       canShutdown = true;
 
       if (shutdownRequested) {
-        globalInstances.logMessage('Shutting down...');
+        globalInstances.logMessage("Shutting down...");
         process.exit(0);
       }
 
@@ -97,7 +97,7 @@ function getSessionInfoForConsole() {
   if (numOfOutputs > 2000) {
     //notice the writeFile
     if (!process.env.NO_FILE_LOG) {
-      fs.writeFile('./logs.txt', 'CLEARED', (err) => {
+      fs.writeFile("./logs.txt", "CLEARED", (err) => {
         if (err) throw err;
       });
     }
@@ -107,10 +107,10 @@ function getSessionInfoForConsole() {
   var countPlayObjects = 0;
   var countSessionObjects = 0;
   var currentTime = new Date();
-  var output = '';
-  output += '\nx-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x\n';
-  output += `\nDate: ${currentTime.toLocaleString('en-US', {
-    timeZone: 'America/Chicago',
+  var output = "";
+  output += "\nx-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x\n";
+  output += `\nDate: ${currentTime.toLocaleString("en-US", {
+    timeZone: "America/Chicago",
   })}`;
   for (const player of globalInstances.playerObjects) {
     if (!player.sessionObject) {
@@ -129,23 +129,23 @@ function getSessionInfoForConsole() {
       }
     }
     if (!isPlays) {
-      output += '       No plays that will be tweeted...\n';
+      output += "       No plays that will be tweeted...\n";
     }
-    output += '       Total plays (including failed): ' + totalPlays + '\n';
+    output += "       Total plays (including failed): " + totalPlays + "\n";
   }
   output += `\n   Count of player objects: ${countPlayerObjects}\n`;
   output += `   Count of session objects: ${countSessionObjects}\n`;
   output += `   Count of play objects: ${countPlayObjects}\n`;
-  output += '\nx-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x\n';
+  output += "\nx-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x\n";
   globalInstances.logMessage(output);
 }
 
 function setSessionsRecorded() {
   db.get(
-    'SELECT sessionID FROM sessionsTable ORDER BY sessionID DESC LIMIT 1',
+    "SELECT sessionID FROM sessionsTable ORDER BY sessionID DESC LIMIT 1",
     (err, row) => {
       if (err !== null) return;
-      globalInstances.logMessage(row.sessionID + ' entries in the db.');
+      globalInstances.logMessage(row.sessionID + " entries in the db.");
       globalInstances.numberOfSessionsRecorded = row.sessionID + 1;
     }
   );
