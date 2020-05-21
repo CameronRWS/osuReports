@@ -26,27 +26,13 @@ class UserCache {
    */
 
   static async convertOsuUser(osuUsernameOrId, requestedForm) {
-    if (
-      (requestedForm === "id" &&
-        !isNaN(osuUsernameOrId) &&
-        osuUsernameOrId.length > 7) ||
-      (requestedForm === "username" && isNaN(osuUsernameOrId))
-    ) {
-      //already is a user name not a user id so don't call api
-      return osuUsernameOrId;
-    } else {
-      return getRequestedForm();
-    }
-
-    async function getRequestedForm() {
-      return osuApi
-        .getUser({ u: osuUsernameOrId })
-        .then((user) => (requestedForm === "id" ? user.id : user.name))
-        .catch((err) => {
-          globalInstances.logMessage("Failed to fetch user information", err);
-          return null;
-        });
-    }
+    return osuApi
+      .getUser({ u: osuUsernameOrId })
+      .then((user) => (requestedForm === "id" ? user.id : user.name))
+      .catch((err) => {
+        globalInstances.logMessage("Failed to fetch user information", err);
+        return null;
+      });
   }
 
   async getOsuUser(osuId) {
