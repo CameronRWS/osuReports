@@ -9,11 +9,10 @@ const msPerIteration = 30000;
 
 setSessionsRecorded();
 
-if (!process.env.DEBUG && true == false) {
+if (!process.env.DEBUG) {
   startServer();
   initialize();
 } else {
-  console.log("OK");
   test();
 }
 
@@ -147,7 +146,7 @@ function setSessionsRecorded() {
     (err, row) => {
       if (err !== null) return;
       globalInstances.logMessage(row.sessionID + " entries in the db.");
-      globalInstances.numberOfSessionsRecorded = row.sessionID + 1;
+      globalInstances.numberOfSessionsRecorded = row.sessionID;
     }
   );
 }

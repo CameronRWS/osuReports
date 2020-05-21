@@ -57,14 +57,14 @@
         <% } %>
 
         <div>
-            <form action="/sessions" method="GET">
+            <!-- <form action="/sessions" method="GET">
                 <input type="hidden" twitterUsername="@<%= user %>" name="twitterUsername" value="@<%= user %>" />
                 <button class="btn btn-success my-2">View your tweeted osu! Reports </button>
             </form>
             <form action="/stats" method="GET">
                 <input type="hidden" twitterUsername="@<%= user %>" name="twitterUsername" value="@<%= user %>" />
                 <button class="btn btn-primary my-2">View your osu! Reports Stats</button>
-            </form>
+            </form> -->
             <form action="/action_disable" method="POST">
                 <input type="hidden" twitterUsername="@<%= user %>" name="twitterUsername" value="@<%= user %>" />
                 <button class="btn btn-danger my-2">Disable osu! Reports</button>

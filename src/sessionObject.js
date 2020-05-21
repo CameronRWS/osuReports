@@ -63,7 +63,7 @@ class sessionObject {
   addNewPlayAPI(scoreOfRecentPlay) {
     console.log("adding new play via API");
     this.playObjects.push(
-      new playObjectv2("", "", "", "", "", scoreOfRecentPlay)
+      new playObjectv2("", "", "", "", "", scoreOfRecentPlay, "", "")
     );
   }
 
@@ -87,7 +87,6 @@ class sessionObject {
       mods = ojsama.modbits.from_string(mods.slice(1) || "");
     }
     const map = await fetchAndParseBeatmap(scoreOfRecentPlay.beatmap.id);
-    console.log(map);
     try {
       const stars = new ojsama.diff().calc({ map: map, mods: mods });
       const max_combo = map.max_combo();
@@ -105,7 +104,9 @@ class sessionObject {
           bpm,
           combo,
           max_combo,
-          scoreOfRecentPlay
+          scoreOfRecentPlay,
+          map,
+          this.player.osuUsername
         )
       );
     } catch (error) {
@@ -145,6 +146,7 @@ class sessionObject {
 
     this.userObjectEndOfSession = user;
     const currentTime = new Date();
+    const currentTimeForDB = new Date();
     currentTime.setHours(currentTime.getHours() - 6); //setting to central time
     const date = currentTime
       .toLocaleString("en-US", { timeZone: "America/Chicago" })
@@ -235,21 +237,21 @@ class sessionObject {
 
     let sqlSessionValues = {
       $sessionId: this.sessionID,
-      $date: date,
+      $date: currentTimeForDB,
       $osuUsername: this.player.osuUsername,
       $sessionDuration: sessionDuration,
       $rank: this.userObjectEndOfSession.pp.rank,
-      $difGlobalRank: fDifGlobalRank,
+      $difGlobalRank: difGlobalRank,
       $countryRank: this.userObjectEndOfSession.pp.countryRank,
-      $difCountryRank: fDifCountryRank,
+      $difCountryRank: difCountryRank,
       $level: this.userObjectEndOfSession.level,
-      $difLevel: fDifLevel,
+      $difLevel: difLevel,
       $accuracy: parseFloat(this.userObjectEndOfSession.accuracy).toFixed(2),
-      $difAccuracy: fDifAcc,
+      $difAccuracy: difAcc,
       $pp: parseFloat(this.userObjectEndOfSession.pp.raw),
-      $difPP: fDifPP,
+      $difPP: difPP,
       $plays: parseFloat(this.userObjectEndOfSession.counts.plays),
-      $difPlays: fDifPlayCount,
+      $difPlays: difPlayCount,
       $ssh: this.userObjectEndOfSession.counts.SSH,
       $ss: this.userObjectEndOfSession.counts.SS,
       $sh: this.userObjectEndOfSession.counts.SH,
@@ -287,11 +289,14 @@ class sessionObject {
 
       let sqlPlayValues = {
         $sessionId: this.sessionID,
+        $osuUsername: play.osuUsername,
+        $date: play.date,
         $bg: play.background,
         $title: sqlTitle,
         $version: sqlVersion,
         $artist: sqlArtist,
-        $combo: `${play.combo} / ${play.maxCombo}`,
+        $combo: play.combo,
+        $maxCombo: play.maxCombo,
         $bpm: play.bpm,
         $playDuration: songDuration,
         $difficulty: play.stars.toFixed(2),
@@ -303,7 +308,24 @@ class sessionObject {
         $counts50: play.countsObject.count_50,
         $countsMiss: play.countsObject.count_miss,
         $playPP: play.pp.toFixed(2),
+        $numSpinners: play.numSpinners,
+        $numSliders: play.numSliders,
+        $numCircles: play.numCircles,
+        $numObjects: play.numObjects,
+        $approachRate: play.ar,
+        $healthPoints: play.hp,
+        $overallDifficulty: play.od,
+        $circleSize: play.cs,
       };
+      // this.osuUsername = osuUsername;
+      // this.numSpinners = map.nspinners;
+      // this.numSliders = map.nsliders;
+      // this.numCircles = map.ncircles;
+      // this.numObjects = map.objects.length;
+      // this.ar = map.ar;
+      // this.hp = map.hp;
+      // this.od = map.od;
+      // this.cs = map.cs;
 
       globalInstances.logMessage(
         "Calling DB play query for: " +

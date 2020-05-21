@@ -1,7 +1,9 @@
-var osuApi = require("./osuApi");
-var T = require("./twitterInstance");
-const db = require("./db");
-var globalInstances = require("./globalInstances");
+var osuApi = require("./src/osuApi");
+var T = require("./src/twitterInstance");
+const db = require("./src/db");
+var globalInstances = require("./src/globalInstances");
+
+updateFollowingList();
 
 async function updateFollowingList() {
   var friendsList = await getFriends("osureports");
@@ -33,7 +35,7 @@ async function updateFollowingList() {
 async function unfollowTwitterUsers(peopleToUnfollow) {
   return new Promise(async (resolve, reject) => {
     for (var person of peopleToUnfollow) {
-      await T.post("friendships/create", {
+      await T.post("friendships/destroy", {
         screen_name: person,
       });
     }
@@ -44,7 +46,7 @@ async function unfollowTwitterUsers(peopleToUnfollow) {
 async function followTwitterUsers(peopleToFollow) {
   return new Promise(async (resolve, reject) => {
     for (var person of peopleToFollow) {
-      await T.post("friendships/destroy", {
+      await T.post("friendships/create", {
         screen_name: person,
       });
     }
