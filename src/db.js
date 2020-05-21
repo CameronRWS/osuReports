@@ -51,10 +51,12 @@ class DB extends sqlite3.Database {
       prepare(
         this,
         "_add_play_stmt",
-        "INSERT INTO playsTable VALUES ($sessionId, $bg, $title, $version, $artist, " +
-          "$combo, $bpm, $playDuration, $difficulty, $playAccuracy, $rank, $mods, " +
-          "$counts300, $counts100, $counts50, $countsMiss, $playPP)"
+        "INSERT INTO playsTable VALUES ($sessionId, $osuUsername, $date, $bg, $title, $version, $artist, " +
+          "$combo, $maxCombo, $bpm, $playDuration, $difficulty, $playAccuracy, $rank, $mods, " +
+          "$counts300, $counts100, $counts50, $countsMiss, $playPP, $numSpinners, $numSliders, " +
+          "$numCircles, $numObjects, $approachRate, $healthPoints, $overallDifficulty, $circleSize)"
       ),
+
       prepare(
         this,
         "_update_session_stmt",
