@@ -4,10 +4,9 @@ var startServer = require("./src/server");
 var fs = require("fs");
 const sessionStore = require("./src/sessionStore");
 const db = require("./src/db");
+var UserCache = require("./src/userCache");
 
 const msPerIteration = 30000;
-
-setSessionsRecorded();
 
 if (!process.env.DEBUG) {
   startServer();
@@ -17,6 +16,7 @@ if (!process.env.DEBUG) {
 }
 
 async function test() {
+  setSessionsRecorded();
   globalInstances.playerObjects.push(new playerObject("PenZa", "@penz_"));
   await globalInstances.playerObjects[0].createFakeSession();
   globalInstances.logMessage("From test(): Ending session...");
@@ -24,6 +24,7 @@ async function test() {
 }
 
 async function initialize() {
+  setSessionsRecorded();
   return db.all(
     "SELECT osuUsername, twitterUsername FROM playersTable",
     async (err, rows) => {
@@ -92,7 +93,7 @@ async function mainLoop() {
 
 var numOfOutputs = 0;
 
-function getSessionInfoForConsole() {
+async function getSessionInfoForConsole() {
   numOfOutputs++;
   if (numOfOutputs > 2000) {
     //notice the writeFile
@@ -117,7 +118,9 @@ function getSessionInfoForConsole() {
       continue;
     }
     countSessionObjects++;
-    output += `\n             -- '${player.osuUsername}' --\n   Plays:\n`;
+    output += `\n             -- '${await UserCache.getOsuUser(
+      player.osuUsername
+    )}' --\n   Plays:\n`;
     var isPlays = false;
     var totalPlays = 0;
     for (const play of player.sessionObject.playObjects) {

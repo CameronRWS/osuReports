@@ -25,7 +25,7 @@ class UserCache {
    * @param {UserForm} requestedForm - boolean for telling the function what the requested form is
    */
 
-  static async convertOsuUser(osuUsernameOrId, requestedForm) {
+  async convertOsuUser(osuUsernameOrId, requestedForm) {
     return osuApi
       .getUser({ u: osuUsernameOrId })
       .then((user) => (requestedForm === "id" ? user.id : user.name))
@@ -41,11 +41,14 @@ class UserCache {
     let username;
     try {
       username = await this.client.get(key);
-      return username;
+      //added by cam 5/21/2020
+      if (username != null) {
+        return username;
+      }
     } catch (ex) {}
 
     // not cached
-    username = await UserCache.convertOsuUser(osuId, "username");
+    username = await this.convertOsuUser(osuId, "username");
     await this.client.setex(key, USER_CACHE_TIME, username);
     return username;
   }

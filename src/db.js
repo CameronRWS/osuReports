@@ -33,16 +33,18 @@ function runCallback(resolve, reject) {
 class DB extends sqlite3.Database {
   constructor(file) {
     super(file);
-    this._add_session_stmt = null;
-    this._add_play_stmt = null;
+    this._insert_session_stmt = null;
+    this._insert_play_stmt = null;
     this._update_session_stmt = null;
+    this._delete_player_stmt = null;
+    this._insert_player_stmt = null;
   }
 
   async initialize() {
     return Promise.all([
       prepare(
         this,
-        "_add_session_stmt",
+        "_insert_session_stmt",
         "INSERT INTO sessionsTable VALUES ($sessionId, NULL, $date, $osuUsername," +
           " $sessionDuration, $rank, $difGlobalRank, $countryRank, $difCountryRank," +
           " $level, $difLevel, $accuracy, $difAccuracy, $pp, $difPP, $plays," +
@@ -50,7 +52,7 @@ class DB extends sqlite3.Database {
       ),
       prepare(
         this,
-        "_add_play_stmt",
+        "_insert_play_stmt",
         "INSERT INTO playsTable VALUES ($sessionId, $osuUsername, $date, $bg, $title, $version, $artist, " +
           "$combo, $maxCombo, $bpm, $playDuration, $difficulty, $playAccuracy, $rank, $mods, " +
           "$counts300, $counts100, $counts50, $countsMiss, $playPP, $numSpinners, $numSliders, " +
@@ -62,7 +64,44 @@ class DB extends sqlite3.Database {
         "_update_session_stmt",
         "UPDATE sessionsTable SET tweetID = $tweetId WHERE sessionID = $sessionId"
       ),
+
+      prepare(
+        this,
+        "_delete_player_stmt",
+        "DELETE FROM playersTable WHERE twitterUsername = $twitterUsername"
+      ),
+      prepare(
+        this,
+        "_insert_player_stmt",
+        "INSERT INTO playersTable VALUES ($osuUsername, $twitterUsername)"
+      ),
     ]);
+  }
+
+  async deletePlayer(twitterUsername) {
+    return new Promise(async (resolve, reject) => {
+      await db.initialize();
+
+      this.serialize(() => {
+        this._delete_player_stmt.run(
+          { $twitterUsername: twitterUsername },
+          runCallback(resolve, reject)
+        );
+      });
+    });
+  }
+
+  async insertPlayer(osuUsername, twitterUsername) {
+    return new Promise(async (resolve, reject) => {
+      await db.initialize();
+
+      this.serialize(() => {
+        this._insert_player_stmt.run(
+          { $osuUsername: osuUsername, $twitterUsername: twitterUsername },
+          runCallback(resolve, reject)
+        );
+      });
+    });
   }
 
   async updateSession(tweetId, sessionId) {
@@ -83,7 +122,7 @@ class DB extends sqlite3.Database {
       await db.initialize();
 
       this.serialize(() => {
-        this._add_session_stmt.run(sessionObj, runCallback(resolve, reject));
+        this._insert_session_stmt.run(sessionObj, runCallback(resolve, reject));
       });
     });
   }
@@ -93,7 +132,7 @@ class DB extends sqlite3.Database {
       await db.initialize();
 
       this.serialize(() => {
-        this._add_play_stmt.run(playObj, runCallback(resolve, reject));
+        this._insert_play_stmt.run(playObj, runCallback(resolve, reject));
       });
     });
   }

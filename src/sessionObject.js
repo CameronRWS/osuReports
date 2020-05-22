@@ -4,6 +4,7 @@ const playObjectv2 = require("./playObjectv2");
 const globalInstances = require("./globalInstances");
 const jimp = require("jimp");
 const util = require("util");
+var UserCache = require("./userCache");
 
 const db = require("./db");
 const ReportGenerator = require("./reportGenerator");
@@ -28,6 +29,7 @@ class sessionObject {
     this.isDebug = isDebug;
 
     //get the initial state of the user
+
     if (!isDebug) {
       osuApi
         .getUser({ u: this.player.osuUsername })
@@ -60,15 +62,15 @@ class sessionObject {
     }
   }
 
-  addNewPlayAPI(scoreOfRecentPlay) {
-    console.log("adding new play via API");
+  async addNewPlayAPI(scoreOfRecentPlay) {
+    // console.log("Adding new play via API");
     this.playObjects.push(
       new playObjectv2("", "", "", "", "", scoreOfRecentPlay, "", "")
     );
   }
 
   async addNewPlayWEB(scoreOfRecentPlay) {
-    console.log("adding new play via WEB");
+    // console.log("adding new play via WEB");
     const data = await fetchBeatmapJson(
       scoreOfRecentPlay.beatmap.beatmapset_id
     );
@@ -119,7 +121,9 @@ class sessionObject {
 
   async endSession() {
     globalInstances.logMessage(
-      "Attempting to end session for: " + this.player.osuUsername + "\n"
+      "Attempting to end session for: " +
+        (await UserCache.getOsuUser(this.player.osuUsername)) +
+        "\n"
     );
 
     //checks to see if there are real plays in session
@@ -367,11 +371,11 @@ class sessionObject {
         }).then(async (data) => {
           if ("__fake__" in data) {
             // running w/o tweets
+            let osuUsername = await UserCache.getOsuUser(
+              this.player.osuUsername
+            );
             await image.writeAsync(
-              `./out/${this.player.osuUsername.replace(
-                /[^A-Za-z0-9_-]/,
-                ""
-              )}.${idx}.png`
+              `./out/${osuUsername.replace(/[^A-Za-z0-9_-]/, "")}.${idx}.png`
             );
           }
           return data;
