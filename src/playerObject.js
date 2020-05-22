@@ -1,15 +1,16 @@
-var osuApi = require('./osuApi');
-var globalInstances = require('./globalInstances');
-var sessionObject = require('./sessionObject');
-var axios = require('axios').default;
-var cheerio = require('cheerio');
-const sessionStore = require('./sessionStore');
+var osuApi = require("./osuApi");
+var globalInstances = require("./globalInstances");
+var sessionObject = require("./sessionObject");
+var axios = require("axios").default;
+var cheerio = require("cheerio");
+const sessionStore = require("./sessionStore");
+var UserCache = require("./userCache");
 
 function fetchScoresFromProfile(profileId) {
-  const url = 'https://osu.ppy.sh/users/' + profileId + '/osu';
+  const url = "https://osu.ppy.sh/users/" + profileId + "/osu";
   return axios.get(url).then((response) => {
     var $ = cheerio.load(response.data);
-    var html = $('#json-extras').html();
+    var html = $("#json-extras").html();
     return JSON.parse(html);
   });
 }
@@ -22,7 +23,7 @@ function calculateElapsedTime(lastPlay) {
 
 class NoNewScoresError extends Error {
   constructor(msg) {
-    super(msg || 'no new scores');
+    super(msg || "no new scores");
   }
 }
 
@@ -45,10 +46,10 @@ class playerObject {
           .getBeatmaps({ b: scores[0].beatmapId })
           .then((beatmaps) => {
             if (beatmaps.length === 0) {
-              globalInstances.logMessage('beatmap not found');
+              globalInstances.logMessage("beatmap not found");
               return;
             }
-            if (beatmaps[0].mode === 'Standard') {
+            if (beatmaps[0].mode === "Standard") {
               return this.handleScore(scores[0]);
             }
           });
@@ -57,7 +58,7 @@ class playerObject {
         if (error instanceof NoNewScoresError) return;
         console.log(error);
         globalInstances.logMessage(
-          'updateSessionObjectv3(): Something went wrong: ',
+          "updateSessionObjectv3(): Something went wrong: ",
           error
         );
       });
@@ -69,27 +70,28 @@ class playerObject {
     // console.log(
     //   "minutesElapsed for " + this.osuUsername + ": " + minutesElapsed
     // );
+    let osuUsername = await UserCache.getOsuUser(this.osuUsername);
     if (minutesElapsed > globalInstances.sessionTimeout) {
       if (this.sessionObject !== undefined) {
-        console.log('Ending session for: ' + this.osuUsername);
+        console.log("Ending session for: " + osuUsername);
         return this.handleSessionTimeout();
       }
       return;
     }
     if (this.sessionObject === undefined) {
-      console.log('Creating new session for: ' + this.osuUsername);
+      console.log("Creating new session for: " + osuUsername);
       this.sessionObject = new sessionObject(this, false);
       return this.handleScoreWithSession(score);
     }
     if (this.isNewPlay(score)) {
-      console.log('Adding new play for: ' + this.osuUsername);
+      console.log("Adding new play for: " + osuUsername);
       return this.handleScoreWithSession(score);
     }
     // we have no updates, so just exit here
   }
 
   async handleScoreWithSession(score) {
-    if (score.rank === 'F') {
+    if (score.rank === "F") {
       this.sessionObject.addNewPlayAPI(score);
     } else {
       const data = await fetchScoresFromProfile(this.osuUsername);
@@ -114,7 +116,7 @@ class playerObject {
         await this.sessionObject.endSession();
       } catch (err) {
         globalInstances.logMessage(
-          'Critical Error: Problem occured when ending session - ' + err + '\n'
+          "Critical Error: Problem occured when ending session - " + err + "\n"
         );
       }
       this.sessionObject = undefined;
@@ -137,13 +139,13 @@ class playerObject {
   }
 
   async createFakeSession() {
-    const url = 'https://osu.ppy.sh/users/' + this.osuUsername;
+    const url = "https://osu.ppy.sh/users/" + this.osuUsername;
     var scoreOfRecentPlay;
     const waitSeconds = (seconds) =>
       new Promise((resolve) => setTimeout(resolve, seconds * 1000));
     return axios.get(url).then(async (response) => {
       var $ = cheerio.load(response.data);
-      var html = $('#json-extras').html();
+      var html = $("#json-extras").html();
       var data = JSON.parse(html);
       scoreOfRecentPlay = data.scoresBest;
       this.sessionObject = new sessionObject(this, true);
