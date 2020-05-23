@@ -1,6 +1,5 @@
-const redis = require("redis");
+const Redis = require("ioredis");
 const _ = require("lodash");
-const { promisify } = require("util");
 const globalInstances = require("./globalInstances");
 const sessionObject = require("./sessionObject");
 const playObjectv2 = require("./playObjectv2");
@@ -17,10 +16,7 @@ class SessionStore {
       options
     );
 
-    let client = redis.createClient(options);
-    for (const cmd of ["get", "set", "keys", "mget", "del"]) {
-      client[`${cmd}Async`] = promisify(client[cmd]).bind(client);
-    }
+    let client = new Redis(options);
 
     this.client = client;
   }
@@ -31,21 +27,19 @@ class SessionStore {
       return value;
     });
     const sessionKey = SESSION_PREFIX + session.player.twitterUsername;
-    return this.client.setAsync(sessionKey, sessionData);
+    return this.client.set(sessionKey, sessionData);
   }
 
   async loadSessions() {
     let restored = 0;
-    const sessionKeys = await this.client.keysAsync(SESSION_PREFIX + "*");
+    const sessionKeys = await this.client.keys(SESSION_PREFIX + "*");
     if (sessionKeys.length > 0) {
-      const sessions = await this.client
-        .mgetAsync(sessionKeys)
-        .then((sessions) =>
-          _.zip(
-            sessionKeys,
-            sessions.map((session) => JSON.parse(session))
-          )
-        );
+      const sessions = await this.client.mget(sessionKeys).then((sessions) =>
+        _.zip(
+          sessionKeys,
+          sessions.map((session) => JSON.parse(session))
+        )
+      );
       for (const [key, session] of sessions) {
         const { player } = session;
         let inst = globalInstances.playerObjects.find(
@@ -55,13 +49,13 @@ class SessionStore {
           globalInstances.logMessage(
             `Warning, have session for ${session.twitterUsername}, who is no longer tracked.`
           );
-          await this.client.delAsync(key);
+          await this.client.del(key);
           continue;
         }
 
         let curSession = inst.sessionObject;
         if (!curSession) {
-          curSession = inst.sessionObject = new sessionObject(inst, false);
+          curSession = inst.sessionObject = new sessionObject(inst);
         }
 
         for (const key of ["userObjectStartOfSession", "sessionID"]) {
@@ -82,7 +76,7 @@ class SessionStore {
   }
 
   async deleteSession(player) {
-    return this.client.delAsync(SESSION_PREFIX + player.twitterUsername);
+    return this.client.del(SESSION_PREFIX + player.twitterUsername);
   }
 }
 

@@ -25,7 +25,6 @@
     "ojsama": "^1.2.1",
     "passport": "^0.4.0",
     "passport-twitter": "^1.0.4",
-    "redis": "^3.0.2",
     "request": "^2.88.0",
     "sqlite3": "^4.1.0",
     "twit": "^2.2.11"
