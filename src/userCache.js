@@ -12,10 +12,13 @@ const USER_CACHE_TIME = 24 * 60 * 60;
 
 class UserCache {
   constructor(options) {
-    options = _.merge({
-      host: 'localhost',
-      port: 6379,
-    });
+    options = _.merge(
+      {
+        host: 'localhost',
+        port: 6379,
+      },
+      options
+    );
 
     this.client = new Redis(options);
   }
