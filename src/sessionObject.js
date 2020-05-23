@@ -1,13 +1,13 @@
-const osuApi = require("./osuApi");
-const ojsama = require("ojsama");
-const playObjectv2 = require("./playObjectv2");
-const globalInstances = require("./globalInstances");
-const jimp = require("jimp");
-const util = require("util");
-var UserCache = require("./userCache");
+const osuApi = require('./osuApi');
+const ojsama = require('ojsama');
+const playObjectv2 = require('./playObjectv2');
+const globalInstances = require('./globalInstances');
+const jimp = require('jimp');
+const util = require('util');
+var UserCache = require('./userCache');
 
-const db = require("./db");
-const ReportGenerator = require("./reportGenerator");
+const db = require('./db');
+const ReportGenerator = require('./reportGenerator');
 
 const {
   fetchAndParseBeatmap,
@@ -15,9 +15,9 @@ const {
   formatDifference,
   sanitizeAndParse,
   secondsToDHMS,
-} = require("./utils");
+} = require('./utils');
 
-const T = require("./twitterInstance");
+const T = require('./twitterInstance');
 
 class sessionObject {
   constructor(player, isDebug) {
@@ -40,7 +40,7 @@ class sessionObject {
           globalInstances.logMessage(err);
         });
     } else {
-      globalInstances.logMessage("\ndebug mode init");
+      globalInstances.logMessage('\ndebug mode init');
       osuApi
         .getUser({ u: this.player.osuUsername })
         .then((user) => {
@@ -57,7 +57,7 @@ class sessionObject {
             parseFloat(this.userObjectStartOfSession.counts.plays) - 2;
         })
         .catch((err) => {
-          globalInstances.logMessage(" - " + err);
+          globalInstances.logMessage(' - ' + err);
         });
     }
   }
@@ -65,7 +65,7 @@ class sessionObject {
   async addNewPlayAPI(scoreOfRecentPlay) {
     // console.log("Adding new play via API");
     this.playObjects.push(
-      new playObjectv2("", "", "", "", "", scoreOfRecentPlay, "", "")
+      new playObjectv2('', '', '', '', '', scoreOfRecentPlay, '', '')
     );
   }
 
@@ -75,9 +75,9 @@ class sessionObject {
       scoreOfRecentPlay.beatmap.beatmapset_id
     );
     const bpm = data.bpm;
-    let mods = "";
+    let mods = '';
     if (scoreOfRecentPlay.mods.length > 0) {
-      mods = "+";
+      mods = '+';
       for (let i = 0; i < scoreOfRecentPlay.mods.length; i++) {
         mods = mods + scoreOfRecentPlay.mods[i];
       }
@@ -85,8 +85,8 @@ class sessionObject {
     const acc_percent = scoreOfRecentPlay.accuracy * 100;
     let combo = scoreOfRecentPlay.max_combo;
     const nmiss = scoreOfRecentPlay.statistics.count_miss;
-    if (mods.startsWith("+")) {
-      mods = ojsama.modbits.from_string(mods.slice(1) || "");
+    if (mods.startsWith('+')) {
+      mods = ojsama.modbits.from_string(mods.slice(1) || '');
     }
     const map = await fetchAndParseBeatmap(scoreOfRecentPlay.beatmap.id);
     try {
@@ -113,7 +113,7 @@ class sessionObject {
       );
     } catch (error) {
       globalInstances.logMessage(
-        "Err: Problem occured when going to add a play from the web - ",
+        'Err: Problem occured when going to add a play from the web - ',
         error
       );
     }
@@ -121,9 +121,9 @@ class sessionObject {
 
   async endSession() {
     globalInstances.logMessage(
-      "Attempting to end session for: " +
+      'Attempting to end session for: ' +
         (await UserCache.getOsuUser(this.player.osuUsername)) +
-        "\n"
+        '\n'
     );
 
     //checks to see if there are real plays in session
@@ -141,7 +141,7 @@ class sessionObject {
     if (!isTweetable) {
       const isTweetableResponse =
         this.player.osuUsername +
-        " - This session has no plays with a background or only has one play";
+        ' - This session has no plays with a background or only has one play';
       globalInstances.logMessage(isTweetableResponse);
       return;
     }
@@ -153,8 +153,8 @@ class sessionObject {
     const currentTimeForDB = new Date();
     currentTime.setHours(currentTime.getHours() - 6); //setting to central time
     const date = currentTime
-      .toLocaleString("en-US", { timeZone: "America/Chicago" })
-      .split(",")[0];
+      .toLocaleString('en-US', { timeZone: 'America/Chicago' })
+      .split(',')[0];
 
     let sessionTotalSeconds = 0;
     if (this.isDebug) {
@@ -173,9 +173,9 @@ class sessionObject {
     ) {
       const sessionDurationResponse =
         this.player.osuUsername +
-        " - This session is not long enough: " +
+        ' - This session is not long enough: ' +
         sessionTotalSeconds +
-        "\n";
+        '\n';
       globalInstances.logMessage(sessionDurationResponse);
       return;
     }
@@ -205,7 +205,7 @@ class sessionObject {
     const fDifLevel =
       sanitizeAndParse(this.userObjectEndOfSession.level) -
       sanitizeAndParse(this.userObjectStartOfSession.level);
-    const difLevel = formatDifference(fDifLevel * 100, 0, "%");
+    const difLevel = formatDifference(fDifLevel * 100, 0, '%');
 
     const fDifRankedScore =
       sanitizeAndParse(this.userObjectEndOfSession.scores.ranked) -
@@ -215,7 +215,7 @@ class sessionObject {
     const fDifAcc =
       sanitizeAndParse(this.userObjectEndOfSession.accuracy) -
       sanitizeAndParse(this.userObjectStartOfSession.accuracy);
-    const difAcc = formatDifference(fDifAcc, 2, "%");
+    const difAcc = formatDifference(fDifAcc, 2, '%');
 
     const fDifPP =
       sanitizeAndParse(this.userObjectEndOfSession.pp.raw) -
@@ -264,11 +264,11 @@ class sessionObject {
     };
 
     globalInstances.logMessage(
-      "Calling DB session query for: " +
+      'Calling DB session query for: ' +
         this.player.osuUsername +
-        " - " +
+        ' - ' +
         util.inspect(sqlSessionValues) +
-        "\n"
+        '\n'
     );
 
     await db.insertSession(sqlSessionValues);
@@ -306,7 +306,7 @@ class sessionObject {
         $difficulty: play.stars.toFixed(2),
         $playAccuracy: play.accuracy,
         $rank: play.rank,
-        $mods: play.mods.join(", "),
+        $mods: play.mods.join(', '),
         $counts300: play.countsObject.count_300,
         $counts100: play.countsObject.count_100,
         $counts50: play.countsObject.count_50,
@@ -332,11 +332,11 @@ class sessionObject {
       // this.cs = map.cs;
 
       globalInstances.logMessage(
-        "Calling DB play query for: " +
+        'Calling DB play query for: ' +
           this.player.osuUsername +
-          " - " +
+          ' - ' +
           util.inspect(sqlPlayValues) +
-          "\n"
+          '\n'
       );
 
       await db.insertPlay(sqlPlayValues);
@@ -360,22 +360,22 @@ class sessionObject {
       }
     );
 
-    globalInstances.logMessage("\nTrying to tweet...");
+    globalInstances.logMessage('\nTrying to tweet...');
 
     const media = await Promise.all(
       reportImages.map(async (image, idx, arr) => {
         let buffer = await image.getBufferAsync(jimp.MIME_PNG);
         globalInstances.logMessage(`Posting image ${idx + 1}/${arr.length}`);
-        return T.post("media/upload", {
-          media_data: buffer.toString("base64"),
+        return T.post('media/upload', {
+          media_data: buffer.toString('base64'),
         }).then(async (data) => {
-          if ("__fake__" in data) {
+          if ('__fake__' in data) {
             // running w/o tweets
             let osuUsername = await UserCache.getOsuUser(
               this.player.osuUsername
             );
             await image.writeAsync(
-              `./out/${osuUsername.replace(/[^A-Za-z0-9_-]/, "")}.${idx}.png`
+              `./out/${osuUsername.replace(/[^A-Za-z0-9_-]/, '')}.${idx}.png`
             );
           }
           return data;
@@ -391,23 +391,23 @@ class sessionObject {
         this.sessionID
       );
     } else {
-      globalInstances.logMessage("no images exist...? lol");
+      globalInstances.logMessage('no images exist...? lol');
     }
   }
 
   async tweetReport(twitterUsername, osuUsername, id, sessionID) {
     const tweet = {
-      status: "." + twitterUsername + " just finished an osu! session: ",
+      status: '.' + twitterUsername + ' just finished an osu! session: ',
       media_ids: [id],
     };
-    return T.post("statuses/update", tweet)
+    return T.post('statuses/update', tweet)
       .then(async (data) => {
         globalInstances.logMessage(
           `Updating session with tweet ID for ${osuUsername} (${data.data.id_str})`
         );
         await db.updateSession(data.data.id_str, sessionID);
         globalInstances.logMessage(
-          " ---------------------------------------------------------------------------------A tweet was tweeted"
+          ' ---------------------------------------------------------------------------------A tweet was tweeted'
         );
       })
       .catch((err) => {
