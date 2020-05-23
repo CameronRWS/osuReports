@@ -80,7 +80,8 @@ class playerObject {
     }
     if (this.sessionObject === undefined) {
       console.log("Creating new session for: " + osuUsername);
-      this.sessionObject = new sessionObject(this, false);
+      this.sessionObject = new sessionObject(this);
+      await this.sessionObject.initialize();
       return this.handleScoreWithSession(score);
     }
     if (this.isNewPlay(score)) {
@@ -114,13 +115,13 @@ class playerObject {
       globalInstances.isSessionEnding = true;
       try {
         await this.sessionObject.endSession();
+        this.sessionObject = undefined;
+        await sessionStore.deleteSession(this);
       } catch (err) {
         globalInstances.logMessage(
           "Critical Error: Problem occured when ending session - " + err + "\n"
         );
       }
-      this.sessionObject = undefined;
-      await sessionStore.deleteSession(this);
       globalInstances.isSessionEnding = false;
     }
   }
@@ -148,7 +149,8 @@ class playerObject {
       var html = $("#json-extras").html();
       var data = JSON.parse(html);
       scoreOfRecentPlay = data.scoresBest;
-      this.sessionObject = new sessionObject(this, true);
+      this.sessionObject = new sessionObject(this);
+      await this.sessionObject.initializeDebug();
       // add more if necessary
       for (let i = 0; i < 6; i++) {
         if (i < 5) {
