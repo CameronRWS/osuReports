@@ -1,12 +1,12 @@
-var osuApi = require("./src/osuApi");
-var T = require("./src/twitterInstance");
-const db = require("./src/db");
-var globalInstances = require("./src/globalInstances");
+var osuApi = require('./src/osuApi');
+var T = require('./src/twitterInstance');
+const db = require('./src/db');
+var globalInstances = require('./src/globalInstances');
 
 updateFollowingList();
 
 async function updateFollowingList() {
-  var friendsList = await getFriends("osureports");
+  var friendsList = await getFriends('osureports');
   var playersList = await getWhitelistedUsers();
 
   // var friendsList = ["penz_"];
@@ -35,7 +35,7 @@ async function updateFollowingList() {
 async function unfollowTwitterUsers(peopleToUnfollow) {
   return new Promise(async (resolve, reject) => {
     for (var person of peopleToUnfollow) {
-      await T.post("friendships/destroy", {
+      await T.post('friendships/destroy', {
         screen_name: person,
       });
     }
@@ -44,24 +44,22 @@ async function unfollowTwitterUsers(peopleToUnfollow) {
 }
 
 async function followTwitterUsers(peopleToFollow) {
-  return new Promise(async (resolve, reject) => {
-    for (var person of peopleToFollow) {
-      await T.post("friendships/create", {
-        screen_name: person,
-      });
-    }
-    resolve();
-  });
+  for (var person of peopleToFollow) {
+    await T.post('friendships/create', {
+      screen_name: person,
+    });
+  }
 }
 
 async function getWhitelistedUsers() {
   return new Promise(async (resolve, reject) => {
     var players = [];
     await db.all(
-      "SELECT osuUsername, twitterUsername FROM playersTable",
+      'SELECT osuUsername, twitterUsername FROM playersTable',
       async (err, rows) => {
+        if (err !== null) reject(err);
         for (var i = 0; i < rows.length; i++) {
-          players.push(rows[i].twitterUsername.replace("@", ""));
+          players.push(rows[i].twitterUsername.replace('@', ''));
         }
         resolve(players);
       }
@@ -75,7 +73,7 @@ async function getFriends(username) {
   let friends = [];
   return new Promise(async (resolve, reject) => {
     do {
-      const { data } = await T.get("friends/list", {
+      const { data } = await T.get('friends/list', {
         screen_name: username,
         cursor: nextCursor,
         count: 200,
@@ -85,7 +83,7 @@ async function getFriends(username) {
       for (let user of data.users) {
         friends.push(user.screen_name);
       }
-    } while (nextCursor != "0" && oldCursor != nextCursor);
+    } while (nextCursor != '0' && oldCursor != nextCursor);
     resolve(friends);
   });
 }
