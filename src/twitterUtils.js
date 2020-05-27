@@ -1,12 +1,35 @@
-var osuApi = require('./src/osuApi');
-var T = require('./src/twitterInstance');
-const db = require('./src/db');
-var globalInstances = require('./src/globalInstances');
+var osuApi = require("./osuApi");
+var T = require("./twitterInstance");
+const db = require("./db");
+var globalInstances = require("./globalInstances");
+const { startCase } = require("lodash");
 
-updateFollowingList();
+const twitterUtils = {
+  async isTwitterUserActive(user) {
+    return new Promise(async (resolve, reject) => {
+      await T.get("users/lookup", { screen_name: user })
+        .then((data) => {
+          console.log("data");
+          console.log(data);
+          resolve(true);
+        })
+        .catch((err) => {
+          console.log("err");
+          if (err.message === "No user matches for specified terms.") {
+            resolve(false);
+          } else {
+            //may have reached the limit to amount of requests in the future (300 per 15 min)
+            resolve(true);
+          }
+        });
+    });
+  },
+};
+
+//updateFollowingList();
 
 async function updateFollowingList() {
-  var friendsList = await getFriends('osureports');
+  var friendsList = await getFriends("osureports");
   var playersList = await getWhitelistedUsers();
 
   // var friendsList = ["penz_"];
@@ -35,7 +58,7 @@ async function updateFollowingList() {
 async function unfollowTwitterUsers(peopleToUnfollow) {
   return new Promise(async (resolve, reject) => {
     for (var person of peopleToUnfollow) {
-      await T.post('friendships/destroy', {
+      await T.post("friendships/destroy", {
         screen_name: person,
       });
     }
@@ -45,7 +68,7 @@ async function unfollowTwitterUsers(peopleToUnfollow) {
 
 async function followTwitterUsers(peopleToFollow) {
   for (var person of peopleToFollow) {
-    await T.post('friendships/create', {
+    await T.post("friendships/create", {
       screen_name: person,
     });
   }
@@ -55,11 +78,11 @@ async function getWhitelistedUsers() {
   return new Promise(async (resolve, reject) => {
     var players = [];
     await db.all(
-      'SELECT osuUsername, twitterUsername FROM playersTable',
+      "SELECT osuUsername, twitterUsername FROM playersTable",
       async (err, rows) => {
         if (err !== null) reject(err);
         for (var i = 0; i < rows.length; i++) {
-          players.push(rows[i].twitterUsername.replace('@', ''));
+          players.push(rows[i].twitterUsername.replace("@", ""));
         }
         resolve(players);
       }
@@ -73,7 +96,7 @@ async function getFriends(username) {
   let friends = [];
   return new Promise(async (resolve, reject) => {
     do {
-      const { data } = await T.get('friends/list', {
+      const { data } = await T.get("friends/list", {
         screen_name: username,
         cursor: nextCursor,
         count: 200,
@@ -83,7 +106,9 @@ async function getFriends(username) {
       for (let user of data.users) {
         friends.push(user.screen_name);
       }
-    } while (nextCursor != '0' && oldCursor != nextCursor);
+    } while (nextCursor != "0" && oldCursor != nextCursor);
     resolve(friends);
   });
 }
+
+module.exports = twitterUtils;
