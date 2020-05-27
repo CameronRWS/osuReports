@@ -5,6 +5,7 @@ const globalInstances = require("./globalInstances");
 const jimp = require("jimp");
 const util = require("util");
 var UserCache = require("./userCache");
+const twitterUtils = require("./twitterUtils");
 
 const db = require("./db");
 const ReportGenerator = require("./reportGenerator");
@@ -404,19 +405,46 @@ class sessionObject {
       status: "." + twitterUsername + " just finished an osu! session: ",
       media_ids: [id],
     };
-    return T.post("statuses/update", tweet)
-      .then(async (data) => {
+    if (
+      await twitterUtils.isTwitterUserActive(
+        this.player.twitterUsername.replace("@", "")
+      )
+    ) {
+      return T.post("statuses/update", tweet)
+        .then(async (data) => {
+          globalInstances.logMessage(
+            `Updating session with tweet ID for ${osuUsername} (${data.data.id_str})`
+          );
+          await db.updateSession(data.data.id_str, sessionID);
+          globalInstances.logMessage(
+            " ---------------------------------------------------------------------------------A tweet was tweeted"
+          );
+        })
+        .catch((err) => {
+          globalInstances.logMessage(err);
+        });
+    } else {
+      return new Promise(async (resolve, reject) => {
+        let strId = "<inactive twitter user>";
         globalInstances.logMessage(
-          `Updating session with tweet ID for ${osuUsername} (${data.data.id_str})`
+          `Updating session with tweet ID for ${osuUsername} (${strId})`
         );
-        await db.updateSession(data.data.id_str, sessionID);
+        await db.updateSession(strId, sessionID);
         globalInstances.logMessage(
-          " ---------------------------------------------------------------------------------A tweet was tweeted"
+          `Removing ${osuUsername} ${twitterUsername} from whitelist due to the username not existing`
         );
-      })
-      .catch((err) => {
-        globalInstances.logMessage(err);
+        for (var i = 0; i < globalInstances.playerObjects.length; i++) {
+          if (
+            globalInstances.playerObjects[i].twitterUsername == twitterUsername
+          ) {
+            globalInstances.playerObjects.splice(i, 1);
+          }
+        }
+        await db.deletePlayer(twitterUsername);
+
+        resolve();
       });
+    }
   }
 }
 
