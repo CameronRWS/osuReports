@@ -132,7 +132,7 @@ class sessionObject {
     //checks to see if there are real plays in session
     let isTweetable = filteredPlays
       .map((p) => p.background !== null)
-      .reduce((one, t) => one || t);
+      .reduce((one, t) => one || t, false);
 
     if (!isTweetable || filteredPlays.length === 1) {
       const isTweetableResponse =
