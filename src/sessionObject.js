@@ -127,21 +127,14 @@ class sessionObject {
     );
 
     // filter Fs
-    this.playObjects = this.playObjects.filter((p) => p.rank !== "F");
+    const filteredPlays = this.playObjects.filter((p) => p.rank !== "F");
 
     //checks to see if there are real plays in session
-    let isTweetable = false;
-    for (let i = 0; i < this.playObjects.length; i++) {
-      if (this.playObjects[i].background !== undefined) {
-        isTweetable = true;
-        break;
-      }
-    }
-    //change 0 to 1
-    if (isTweetable && this.playObjects.length === 1) {
-      isTweetable = false;
-    }
-    if (!isTweetable) {
+    let isTweetable = filteredPlays
+      .map((p) => p.background !== null)
+      .reduce((one, t) => one || t);
+
+    if (!isTweetable || filteredPlays.length === 1) {
       const isTweetableResponse =
         this.player.osuUsername +
         " - This session has no plays with a background or only has one play";
@@ -230,10 +223,11 @@ class sessionObject {
       sanitizeAndParse(this.userObjectStartOfSession.counts.plays);
     const difPlayCount = formatDifference(fDifPlayCount);
 
-    for (let i = 0; i < this.playObjects.length; i++) {
-      if (this.playObjects[i].background == undefined) {
-        this.playObjects.splice(i, 1);
-        i--;
+    let removed = 0;
+    for (const [i, play] of this.playObjects.entries()) {
+      if (play.background === undefined) {
+        this.playObjects.splice(i - removed, 1);
+        removed++;
       }
     }
 
@@ -347,7 +341,7 @@ class sessionObject {
     //db stuff end
 
     let reportImages = await ReportGenerator.generateReports(
-      this.playObjects,
+      filteredPlays,
       this.player,
       this.userObjectEndOfSession,
       sessionDuration,
