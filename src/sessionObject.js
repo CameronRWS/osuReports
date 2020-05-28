@@ -221,7 +221,9 @@ class sessionObject {
     const fDifPlayCount =
       sanitizeAndParse(this.userObjectEndOfSession.counts.plays) -
       sanitizeAndParse(this.userObjectStartOfSession.counts.plays);
-    const difPlayCount = formatDifference(fDifPlayCount);
+    const difPlayCount = formatDifference(
+      Math.max(fDifPlayCount, this.playObjects.length)
+    );
 
     let removed = 0;
     for (const [i, play] of this.playObjects.entries()) {
