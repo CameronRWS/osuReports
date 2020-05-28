@@ -64,7 +64,10 @@ function sanitizeAndParse(numberString) {
       ]
     /g - "g" flag means match as many times as it occurs
   */
-  return parseFloat(("" + numberString).replace(/[^\d.\-+]/g, ""));
+  if (typeof numberString === "number") return numberString;
+  if (typeof numberString !== "string")
+    throw new Error("expected a number or a string");
+  return parseFloat(numberString.replace(/[^\d.\-+]/g, ""));
 }
 
 function secondsToDHMS(seconds) {

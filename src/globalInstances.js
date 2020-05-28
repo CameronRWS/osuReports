@@ -1,6 +1,7 @@
 var fs = require("fs");
-var osuApi = require("./osuApi");
+
 const globalInstances = {
+  /** @type {import('./playerObject')[]} */
   playerObjects: [],
   numberOfSessionsRecorded: 0,
   sessionTimeout: 60,

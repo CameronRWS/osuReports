@@ -82,6 +82,7 @@ class playerObject {
    */
   async handleScore(score, beatmap) {
     const osuUsername = await UserCache.getOsuUser(this.osuUsername);
+
     if (this.sessionObject === undefined) {
       globalInstances.logMessage(`Creating new session for: ${osuUsername}`);
       this.sessionObject = new sessionObject(this);

@@ -2,6 +2,8 @@
  * @typedef {import('node-osu/lib/base/Score')} Score
  * @typedef {import('node-osu/lib/base/Beatmap')} Beatmap
  * @typedef {import('ojsama').beatmap} ojBeatmap
+ * @typedef {import('ojsama').std_diff} std_diff
+ * @typedef {import('ojsama').std_ppv2} std_ppv2
  */
 
 const ojsama = require("ojsama");
@@ -17,8 +19,8 @@ const modsFromBits = (bits) =>
 class playObjectv2 {
   /**
    * @param {Object} options
-   * @param {number} options.stars
-   * @param {number} options.pp
+   * @param {std_diff} options.stars
+   * @param {std_ppv2} options.pp
    * @param {Score} options.score
    * @param {ojBeatmap} options.map
    * @param {string} options.osuUsername
@@ -26,15 +28,15 @@ class playObjectv2 {
    */
   constructor({ stars, pp, score, map, osuUsername, beatmap }) {
     //console.log("Play created: " + scoreOfRecentPlay.beatmapset.title);
-    this.stars = stars;
-    this.pp = pp;
+    this.stars = Math.min(100, stars.total);
+    this.pp = Math.min(10e3, pp.total);
     this.countsObject = score.counts;
     this.title = beatmap.title;
     this.artist = beatmap.artist;
     this.version = beatmap.version;
     this.mods = modsFromBits(score.raw_mods);
-    this.accuracy = (score.accuracy * 100).toFixed(2);
-    this.maxCombo = map.max_combo;
+    this.accuracy = (pp.computed_accuracy.value(/* any */ 0) * 100).toFixed(2);
+    this.maxCombo = map.max_combo();
     this.combo = score.maxCombo;
     this.rank = score.rank;
     // this.background =
