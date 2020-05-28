@@ -42,10 +42,10 @@ class SessionStore {
       );
       for (const [key, session] of sessions) {
         const { player } = session;
-        let inst = globalInstances.playerObjects.find(
+        let playerInst = globalInstances.playerObjects.find(
           (p) => p.twitterUsername === player.twitterUsername
         );
-        if (inst === undefined) {
+        if (playerInst === undefined) {
           globalInstances.logMessage(
             `Warning, have session for ${session.twitterUsername}, who is no longer tracked.`
           );
@@ -53,9 +53,9 @@ class SessionStore {
           continue;
         }
 
-        let curSession = inst.sessionObject;
+        let curSession = playerInst.sessionObject;
         if (!curSession) {
-          curSession = inst.sessionObject = new sessionObject(inst);
+          curSession = playerInst.sessionObject = new sessionObject(playerInst);
         }
 
         for (const key of ["userObjectStartOfSession", "sessionID"]) {

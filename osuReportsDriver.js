@@ -16,7 +16,7 @@ if (!process.env.DEBUG) {
 }
 
 async function test() {
-  setSessionsRecorded();
+  await setSessionsRecorded();
   globalInstances.playerObjects.push(new playerObject("PenZa", "@penz_"));
   await globalInstances.playerObjects[0].createFakeSession();
   globalInstances.logMessage("From test(): Ending session...");
@@ -24,15 +24,24 @@ async function test() {
 }
 
 async function initialize() {
-  setSessionsRecorded();
+  await setSessionsRecorded();
   return db.all(
     "SELECT osuUsername, twitterUsername FROM playersTable",
     async (err, rows) => {
+      if (err !== null) {
+        console.log(
+          "Could not read players from the database! Something is wrong."
+        );
+        return;
+      }
       for (var i = 0; i < rows.length; i++) {
         globalInstances.playerObjects.push(
           new playerObject(rows[i].osuUsername, rows[i].twitterUsername)
         );
       }
+      globalInstances.logMessage(
+        `Tracking ${globalInstances.playerObjects.length} osu! nerds`
+      );
       globalInstances.logMessage("Loading sessions...");
       await sessionStore.loadSessions();
 
@@ -126,7 +135,7 @@ async function getSessionInfoForConsole() {
     for (const play of player.sessionObject.playObjects) {
       countPlayObjects++;
       totalPlays++;
-      if (play.title != null) {
+      if (play.title !== null && play.rank !== "F") {
         output += `       ${play.title} [${play.version}] by: ${play.artist}\n\n`;
         isPlays = true;
       }
@@ -143,14 +152,17 @@ async function getSessionInfoForConsole() {
   globalInstances.logMessage(output);
 }
 
-function setSessionsRecorded() {
-  db.get(
-    "SELECT sessionID FROM sessionsTable ORDER BY sessionID DESC LIMIT 1",
-    (err, row) => {
-      if (err !== null) return;
-      const lastSession = (row && row.sessionID) || 0;
-      globalInstances.logMessage(lastSession + " entries in the db.");
-      globalInstances.numberOfSessionsRecorded = lastSession + 1;
-    }
-  );
+async function setSessionsRecorded() {
+  return new Promise((resolve, reject) => {
+    db.get(
+      "SELECT sessionID FROM sessionsTable ORDER BY sessionID DESC LIMIT 1",
+      (err, row) => {
+        if (err !== null) reject(err);
+        const lastSession = (row && row.sessionID) || 0;
+        globalInstances.logMessage(lastSession + " entries in the db.");
+        globalInstances.numberOfSessionsRecorded = lastSession + 1;
+        resolve();
+      }
+    );
+  });
 }

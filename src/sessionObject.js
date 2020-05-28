@@ -88,16 +88,29 @@ class sessionObject {
         n100: score.counts["100"],
         n50: score.counts["50"],
       });
-      this.playObjects.push(
-        new playObjectv2({
-          stars: Math.min(stars.total, 100),
-          pp: Math.min(pp.total, 10e3),
-          score,
-          map,
-          beatmap,
-          osuUsername: this.player.osuUsername,
-        })
-      );
+      pp.acc;
+
+      const playObj = new playObjectv2({
+        stars,
+        pp,
+        score,
+        map,
+        beatmap,
+        osuUsername: this.player.osuUsername,
+      });
+
+      // keep this list sorted, insert where it's supposed to go
+      let i;
+      for (i = this.playObjects.length; i > 0; i--) {
+        if (score.date.getTime() > this.playObjects[i - 1].date.getTime()) {
+          this.playObjects.splice(i, 0, playObj);
+          break;
+        }
+      }
+      // if we didn't insert, put it at the front
+      if (i === 0) {
+        this.playObjects.unshift(playObj);
+      }
     } catch (error) {
       globalInstances.logMessage(
         "Err: Problem occured when going to add a play - ",
