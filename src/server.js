@@ -156,10 +156,7 @@ function startServer() {
           req.body.twitterUsername.toUpperCase()
         ) {
           canBeWhitelisted = false;
-        } else if (
-          globalInstances.playerObjects[i].osuUsername.toUpperCase() ===
-          req.body.username.toUpperCase()
-        ) {
+        } else if (globalInstances.playerObjects[i].osuUsername === osuUserID) {
           canBeWhitelisted = false;
           cap =
             "Activation failed: \nThe osu! username " +
