@@ -1,4 +1,4 @@
-const axios = require("axios");
+const axios = require("axios").default;
 const cheerio = require("cheerio");
 const ojsama = require("ojsama");
 
@@ -12,8 +12,8 @@ function fetchBeatmapJson(beatmap_set) {
   });
 }
 
-function fetchAndParseBeatmap(beatmap_id) {
-  let map_url = "https://osu.ppy.sh/osu/" + beatmap_id;
+async function fetchAndParseBeatmap(beatmap_id) {
+  let map_url = `https://osu.ppy.sh/osu/${beatmap_id}`;
   return axios.get(map_url).then((response) => {
     let parser = new ojsama.parser();
     parser.feed(response.data);

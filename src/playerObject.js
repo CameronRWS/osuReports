@@ -1,3 +1,8 @@
+/**
+ * @typedef {import('node-osu/lib/base/Score')} Score
+ * @typedef {import('node-osu/lib/base/Beatmap')} Beatmap
+ */
+
 var osuApi = require("./osuApi");
 var globalInstances = require("./globalInstances");
 var sessionObject = require("./sessionObject");
@@ -6,65 +11,63 @@ var cheerio = require("cheerio");
 const sessionStore = require("./sessionStore");
 var UserCache = require("./userCache");
 
-function fetchScoresFromProfile(profileId) {
-  const url = "https://osu.ppy.sh/users/" + profileId + "/osu";
-  return axios.get(url).then((response) => {
-    var $ = cheerio.load(response.data);
-    var html = $("#json-extras").html();
-    return JSON.parse(html);
-  });
-}
-
 // Return the elapsed time between now and the last play, in minutes
 function calculateElapsedTime(lastPlay) {
   let now = new Date();
   return (now.getTime() - lastPlay.getTime()) / 60000;
 }
 
-class NoNewScoresError extends Error {
-  constructor(msg) {
-    super(msg || "no new scores");
-  }
-}
+class AlreadySeen extends Error {}
 
+/**
+ * @class
+ */
 class playerObject {
   constructor(osuUsername, twitterUsername) {
+    /** @type {string} */
     this.osuUsername = osuUsername;
+    /** @type {string} */
     this.twitterUsername = twitterUsername;
+    /** @type {sessionObject | undefined} */
     this.sessionObject;
   }
 
-  async updateSessionObjectv3() {
-    return osuApi
-      .getUserRecent({ u: this.osuUsername })
-      .catch((error) => {
-        /* do nothing because we have no new scores */
-        throw new NoNewScoresError();
-      })
-      .then((scores) => {
-        return osuApi
-          .getBeatmaps({ b: scores[0].beatmapId })
-          .then((beatmaps) => {
-            if (beatmaps.length === 0) {
-              globalInstances.logMessage("beatmap not found");
-              return;
-            }
-            if (beatmaps[0].mode === "Standard") {
-              return this.handleScore(scores[0]);
-            }
-          });
-      })
-      .catch((error) => {
-        if (error instanceof NoNewScoresError) return;
-        console.log(error);
-        globalInstances.logMessage(
-          "updateSessionObjectv3(): Something went wrong: ",
-          error
-        );
-      });
+  async recentScores() {
+    try {
+      const recentScores = await osuApi.getUserRecent({ u: this.osuUsername });
+      return recentScores;
+    } catch (error) {
+      // no new scores
+      return [];
+    }
   }
 
-  async handleScore(score) {
+  async updateSessionObjectv3() {
+    const scores = await this.recentScores();
+    for (const score of scores) {
+      try {
+        //m: 0 is for standard osu! mode
+        const [beatmap] = await osuApi.getBeatmaps({
+          b: score.beatmapId,
+          m: 0,
+        });
+        if (!beatmap) return;
+        this.handleScore(score, beatmap);
+      } catch (err) {
+        if (err instanceof AlreadySeen) break;
+        globalInstances.logMessage(
+          "updateSessionObjectv3(): Something went wrong: ",
+          err
+        );
+      }
+    }
+  }
+
+  /**
+   * @param {Score} score
+   * @param {Beatmap} beatmap
+   */
+  async handleScore(score, beatmap) {
     var mostRecentPlayTime = score.date;
     var minutesElapsed = calculateElapsedTime(mostRecentPlayTime);
     // console.log(
@@ -73,41 +76,23 @@ class playerObject {
     let osuUsername = await UserCache.getOsuUser(this.osuUsername);
     if (minutesElapsed > globalInstances.sessionTimeout) {
       if (this.sessionObject !== undefined) {
-        console.log("Ending session for: " + osuUsername);
+        globalInstances.logMessage("Ending session for: " + osuUsername);
         return this.handleSessionTimeout();
       }
       return;
     }
     if (this.sessionObject === undefined) {
-      console.log("Creating new session for: " + osuUsername);
+      globalInstances.logMessage("Creating new session for: " + osuUsername);
       this.sessionObject = new sessionObject(this);
       await this.sessionObject.initialize();
-      return this.handleScoreWithSession(score);
     }
     if (this.isNewPlay(score)) {
-      console.log("Adding new play for: " + osuUsername);
-      return this.handleScoreWithSession(score);
+      globalInstances.logMessage("Adding new play for: " + osuUsername);
+      this.sessionObject.addNewPlayAPI(score, beatmap);
+      return sessionStore.storeSession(this.sessionObject);
     }
-    // we have no updates, so just exit here
-  }
-
-  async handleScoreWithSession(score) {
-    if (score.rank === "F") {
-      this.sessionObject.addNewPlayAPI(score);
-    } else {
-      const data = await fetchScoresFromProfile(this.osuUsername);
-      const scoreOfRecentPlay = data.scoresRecent[0];
-      globalInstances.logMessage(
-        `Score from API: ${score.score}, score from WEB: ${scoreOfRecentPlay.score}`
-      );
-      if (+score.score === +scoreOfRecentPlay.score) {
-        await this.sessionObject.addNewPlayWEB(scoreOfRecentPlay);
-      } else {
-        this.sessionObject.addNewPlayAPI(score);
-      }
-    }
-
-    return sessionStore.storeSession(this.sessionObject);
+    // we have no updates, so throw the signal error to break out of the scores loop
+    throw new AlreadySeen();
   }
 
   async handleSessionTimeout() {
@@ -119,24 +104,26 @@ class playerObject {
         await sessionStore.deleteSession(this);
       } catch (err) {
         globalInstances.logMessage(
-          "Critical Error: Problem occured when ending session - " + err + "\n"
+          "Critical Error: Problem occured when ending session - ",
+          err
         );
       }
       globalInstances.isSessionEnding = false;
     }
   }
 
+  /**
+   * @param {Score} score
+   */
   isNewPlay(score) {
     // this isn't supposed to happen
     if (!this.sessionObject) return false;
     if (!this.sessionObject.playObjects.length) return true;
 
     let attemptedNewPlayTime = score.date.getTime();
-    let lastPlay = this.sessionObject.playObjects[
-      this.sessionObject.playObjects.length - 1
-    ];
-    let lastRecordedPlayTime = lastPlay.date.getTime();
-    return attemptedNewPlayTime != lastRecordedPlayTime;
+    return !this.sessionObject.playObjects
+      .map((p) => new Date(p.date).getTime())
+      .includes(attemptedNewPlayTime);
   }
 
   async createFakeSession() {
@@ -152,15 +139,15 @@ class playerObject {
       this.sessionObject = new sessionObject(this);
       await this.sessionObject.initializeDebug();
       // add more if necessary
-      for (let i = 0; i < 6; i++) {
-        if (i < 5) {
-          await this.sessionObject.addNewPlayWEB(scoreOfRecentPlay[i]);
-        } else {
-          this.sessionObject.playObjects.push(
-            this.sessionObject.playObjects[i % 5]
-          );
-        }
-      }
+      // for (let i = 0; i < 6; i++) {
+      //   if (i < 5) {
+      //     await this.sessionObject.addNewPlayAPI(scoreOfRecentPlay[i]);
+      //   } else {
+      //     this.sessionObject.playObjects.push(
+      //       this.sessionObject.playObjects[i % 5]
+      //     );
+      //   }
+      // }
     });
   }
 }
