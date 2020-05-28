@@ -1,8 +1,8 @@
 /**
  * @typedef {import('jimp/types/ts3.1/index')} Jimp
  */
-const jimp = require('jimp');
-const resourceGetter = require('./resourceGetter');
+const jimp = require("jimp");
+const resourceGetter = require("./resourceGetter");
 
 const RANK_X_OFFSET = 55;
 const RANK_Y_OFFSET = 40;
@@ -95,8 +95,8 @@ class DrawTools {
   }
 
   async _printDifferenceColor(x, y, offsetText, diff) {
-    const blackFont = await resourceGetter.getFont('ubuntuBBlack32');
-    const fontName = diff.includes('+') ? 'ubuntuBGreen32' : 'ubuntuBRed32';
+    const blackFont = await resourceGetter.getFont("ubuntuBBlack32");
+    const fontName = diff.includes("+") ? "ubuntuBGreen32" : "ubuntuBRed32";
     return this._printOffset(
       fontName,
       x + jimp.measureText(blackFont, offsetText),
@@ -106,6 +106,7 @@ class DrawTools {
   }
 
   async _printRanks(fontName, x, y, rank) {
+    rank = rank.toString();
     const font = await resourceGetter.getFont(fontName);
     return this.image.print(
       font,
