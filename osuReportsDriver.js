@@ -148,8 +148,9 @@ function setSessionsRecorded() {
     "SELECT sessionID FROM sessionsTable ORDER BY sessionID DESC LIMIT 1",
     (err, row) => {
       if (err !== null) return;
-      globalInstances.logMessage(row.sessionID + " entries in the db.");
-      globalInstances.numberOfSessionsRecorded = row.sessionID + 1;
+      const lastSession = (row && row.sessionID) || 0;
+      globalInstances.logMessage(lastSession + " entries in the db.");
+      globalInstances.numberOfSessionsRecorded = lastSession + 1;
     }
   );
 }

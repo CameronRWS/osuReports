@@ -17,7 +17,7 @@ function calculateElapsedTime(lastPlay) {
   return (now.getTime() - lastPlay.getTime()) / 60000;
 }
 
-class AlreadySeen extends Error {}
+class NoMoreScores extends Error {}
 
 /**
  * @class
@@ -44,7 +44,20 @@ class playerObject {
 
   async updateSessionObjectv3() {
     const scores = await this.recentScores();
-    for (const score of scores) {
+    for (const [i, score] of scores.entries()) {
+      if (i === 0) {
+        // check to see if the latest score is out of range
+        const minutesElapsed = calculateElapsedTime(score.date);
+        if (minutesElapsed > globalInstances.sessionTimeout) {
+          if (this.sessionObject !== undefined) {
+            const osuUsername = await UserCache.getOsuUser(this.osuUsername);
+            globalInstances.logMessage(`Ending session for: ${osuUsername}`);
+            return this.handleSessionTimeout();
+          }
+          return;
+        }
+      }
+
       try {
         //m: 0 is for standard osu! mode
         const [beatmap] = await osuApi.getBeatmaps({
@@ -52,9 +65,9 @@ class playerObject {
           m: 0,
         });
         if (!beatmap) return;
-        this.handleScore(score, beatmap);
+        await this.handleScore(score, beatmap);
       } catch (err) {
-        if (err instanceof AlreadySeen) break;
+        if (err instanceof NoMoreScores) break;
         globalInstances.logMessage(
           "updateSessionObjectv3(): Something went wrong: ",
           err
@@ -68,31 +81,21 @@ class playerObject {
    * @param {Beatmap} beatmap
    */
   async handleScore(score, beatmap) {
-    var mostRecentPlayTime = score.date;
-    var minutesElapsed = calculateElapsedTime(mostRecentPlayTime);
-    // console.log(
-    //   "minutesElapsed for " + this.osuUsername + ": " + minutesElapsed
-    // );
-    let osuUsername = await UserCache.getOsuUser(this.osuUsername);
-    if (minutesElapsed > globalInstances.sessionTimeout) {
-      if (this.sessionObject !== undefined) {
-        globalInstances.logMessage("Ending session for: " + osuUsername);
-        return this.handleSessionTimeout();
-      }
-      return;
-    }
+    const osuUsername = await UserCache.getOsuUser(this.osuUsername);
     if (this.sessionObject === undefined) {
-      globalInstances.logMessage("Creating new session for: " + osuUsername);
+      globalInstances.logMessage(`Creating new session for: ${osuUsername}`);
       this.sessionObject = new sessionObject(this);
       await this.sessionObject.initialize();
     }
+
     if (this.isNewPlay(score)) {
-      globalInstances.logMessage("Adding new play for: " + osuUsername);
-      this.sessionObject.addNewPlayAPI(score, beatmap);
+      globalInstances.logMessage(`Adding new play for: ${osuUsername}`);
+      await this.sessionObject.addNewPlay(score, beatmap);
       return sessionStore.storeSession(this.sessionObject);
     }
+
     // we have no updates, so throw the signal error to break out of the scores loop
-    throw new AlreadySeen();
+    throw new NoMoreScores();
   }
 
   async handleSessionTimeout() {
@@ -119,6 +122,11 @@ class playerObject {
     // this isn't supposed to happen
     if (!this.sessionObject) return false;
     if (!this.sessionObject.playObjects.length) return true;
+
+    // since we now look back on scores, let's just stop when they're older than the timeout
+    // stored sessions should catch them if we restarted
+    const age = calculateElapsedTime(score.date);
+    if (age > globalInstances.sessionTimeout) return false;
 
     let attemptedNewPlayTime = score.date.getTime();
     return !this.sessionObject.playObjects

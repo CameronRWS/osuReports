@@ -17,7 +17,6 @@ const ReportGenerator = require("./reportGenerator");
 
 const {
   fetchAndParseBeatmap,
-  fetchBeatmapJson,
   formatDifference,
   sanitizeAndParse,
   secondsToDHMS,
@@ -77,24 +76,22 @@ class sessionObject {
    * @param {Score} score
    * @param {Beatmap} beatmap
    */
-  async addNewPlayAPI(score, beatmap) {
+  async addNewPlay(score, beatmap) {
     const map = await fetchAndParseBeatmap(beatmap.id);
     try {
-      const stars = ojsama.std_diff().calc({ map, mods: score.raw_mods });
-      const accuracy = score.accuracy * 100;
+      const stars = new ojsama.diff().calc({ map, mods: score.raw_mods });
       const pp = ojsama.ppv2({
         stars,
         combo: score.maxCombo,
         nmiss: score.counts.miss,
-        acc_percent: accuracy,
+        n300: score.counts["300"],
+        n100: score.counts["100"],
+        n50: score.counts["50"],
       });
       this.playObjects.push(
         new playObjectv2({
           stars: Math.min(stars.total, 100),
           pp: Math.min(pp.total, 10e3),
-          bpm: beatmap.bpm,
-          combo: score.maxCombo,
-          max_combo: map.max_combo(),
           score,
           map,
           beatmap,
@@ -115,6 +112,9 @@ class sessionObject {
         (await UserCache.getOsuUser(this.player.osuUsername)) +
         "\n"
     );
+
+    // filter Fs
+    this.playObjects = this.playObjects.filter((p) => p.rank !== "F");
 
     //checks to see if there are real plays in session
     let isTweetable = false;
@@ -418,7 +418,6 @@ class sessionObject {
         `Removing ${osuUsername} ${twitterUsername} from whitelist due to the username not existing`
       );
 
-      // @ts-ignore
       for (const [i, player] of globalInstances.playerObjects.entries()) {
         if (player.twitterUsername === twitterUsername) {
           globalInstances.playerObjects.splice(i, 1);

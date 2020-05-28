@@ -14,11 +14,17 @@ function fetchBeatmapJson(beatmap_set) {
 
 async function fetchAndParseBeatmap(beatmap_id) {
   let map_url = `https://osu.ppy.sh/osu/${beatmap_id}`;
-  return axios.get(map_url).then((response) => {
-    let parser = new ojsama.parser();
-    parser.feed(response.data);
-    return parser.map;
-  });
+  return axios
+    .get(map_url)
+    .then((response) => {
+      let parser = new ojsama.parser();
+      parser.feed(response.data);
+      return parser.map;
+    })
+    .catch((err) => {
+      console.log("Could not get map", err.stack);
+      return null;
+    });
 }
 
 function formatDifference(number, nDec, suffix) {

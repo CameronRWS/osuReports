@@ -6,30 +6,25 @@
 
 const ojsama = require("ojsama");
 
+const MODS = Object.keys(ojsama.modbits).filter(
+  (p) => ojsama.modbits.hasOwnProperty(p) && p.length === 2
+);
+const modsFromBits = (bits) =>
+  MODS.filter((mod) => (ojsama.modbits[mod] & bits) > 0).map((mod) =>
+    mod.toUpperCase()
+  );
+
 class playObjectv2 {
   /**
    * @param {Object} options
    * @param {number} options.stars
    * @param {number} options.pp
-   * @param {number} options.bpm
-   * @param {number} options.combo
-   * @param {number} options.max_combo
    * @param {Score} options.score
    * @param {ojBeatmap} options.map
    * @param {string} options.osuUsername
    * @param {Beatmap} options.beatmap
    */
-  constructor({
-    stars,
-    pp,
-    bpm,
-    combo,
-    max_combo,
-    score,
-    map,
-    osuUsername,
-    beatmap,
-  }) {
+  constructor({ stars, pp, score, map, osuUsername, beatmap }) {
     //console.log("Play created: " + scoreOfRecentPlay.beatmapset.title);
     this.stars = stars;
     this.pp = pp;
@@ -37,10 +32,10 @@ class playObjectv2 {
     this.title = beatmap.title;
     this.artist = beatmap.artist;
     this.version = beatmap.version;
-    this.mods = "+" + ojsama.modbits.string(score.raw_mods);
+    this.mods = modsFromBits(score.raw_mods);
     this.accuracy = (score.accuracy * 100).toFixed(2);
-    this.maxCombo = max_combo;
-    this.combo = combo;
+    this.maxCombo = map.max_combo;
+    this.combo = score.maxCombo;
     this.rank = score.rank;
     // this.background =
     //   "https://assets.ppy.sh/beatmaps/1351/covers/cover.jpg?1539845552";
@@ -48,12 +43,12 @@ class playObjectv2 {
     this.date = new Date(score.date);
     this.beatmapid = beatmap.id;
     this.beatmapsetid = beatmap.beatmapSetId;
-    if (score.mods.includes("DT")) {
-      this.duration = (score.beatmap.hit_length * (2 / 3)).toFixed(0);
-      this.bpm = (bpm * 1.5).toFixed(0);
+    if (this.mods.includes("DT")) {
+      this.duration = (beatmap.length.drain * (2 / 3)).toFixed(0);
+      this.bpm = (beatmap.bpm * 1.5).toFixed(0);
     } else {
-      this.duration = score.beatmap.hit_length.toFixed(0);
-      this.bpm = bpm.toFixed(0);
+      this.duration = beatmap.length.drain.toFixed(0);
+      this.bpm = beatmap.bpm.toFixed(0);
     }
     //new stuff 5/20/2020
     this.osuUsername = osuUsername;
