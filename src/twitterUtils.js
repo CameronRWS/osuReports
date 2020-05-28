@@ -9,12 +9,12 @@ const twitterUtils = {
     return new Promise(async (resolve, reject) => {
       await T.get("users/lookup", { screen_name: user })
         .then((data) => {
-          console.log("data");
-          console.log(data);
+          // console.log("data");
+          // console.log(data);
           resolve(true);
         })
         .catch((err) => {
-          console.log("err");
+          // console.log("err");
           if (err.message === "No user matches for specified terms.") {
             resolve(false);
           } else {

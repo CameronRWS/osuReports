@@ -1,4 +1,4 @@
-import { RedisClient as OrigClient } from 'redis';
+import { RedisClient as OrigClient } from "redis";
 
 type LastArg<F> = F extends (cb: infer A) => any
   ? A
@@ -10,10 +10,10 @@ type LastArg<F> = F extends (cb: infer A) => any
   ? A
   : never;
 
-declare module 'redis' {
+declare module "redis" {
   interface RedisClient {
     getAsync(key: string): Promise<string>;
-    setAsync(key: string, value: string): Promise<'OK'>;
+    setAsync(key: string, value: string): Promise<"OK">;
     keysAsync(prefix: string): Promise<string[]>;
     mgetAsync(keys: string[]): Promise<string[]>;
     delAsync(key: string): Promise<number>;

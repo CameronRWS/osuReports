@@ -1,3 +1,8 @@
+/**
+ * @typedef {import('node-osu/lib/base/Score')} Score
+ * @typedef {import('node-osu/lib/base/Beatmap')} Beatmap
+ */
+
 const osuApi = require("./osuApi");
 const ojsama = require("ojsama");
 const playObjectv2 = require("./playObjectv2");
@@ -25,6 +30,7 @@ class sessionObject {
     this.player = player;
     this.userObjectStartOfSession = null;
     this.userObjectEndOfSession = null;
+    /** @type {playObjectv2[]} */
     this.playObjects = [];
     this.sessionID = null;
     this.isDebug = false;
@@ -67,58 +73,37 @@ class sessionObject {
       });
   }
 
-  async addNewPlayAPI(scoreOfRecentPlay) {
-    // console.log("Adding new play via API");
-    this.playObjects.push(
-      new playObjectv2("", "", "", "", "", scoreOfRecentPlay, "", "")
-    );
-  }
-
-  async addNewPlayWEB(scoreOfRecentPlay) {
-    // console.log("adding new play via WEB");
-    const data = await fetchBeatmapJson(
-      scoreOfRecentPlay.beatmap.beatmapset_id
-    );
-    const bpm = data.bpm;
-    let mods = "";
-    if (scoreOfRecentPlay.mods.length > 0) {
-      mods = "+";
-      for (let i = 0; i < scoreOfRecentPlay.mods.length; i++) {
-        mods = mods + scoreOfRecentPlay.mods[i];
-      }
-    }
-    const acc_percent = scoreOfRecentPlay.accuracy * 100;
-    let combo = scoreOfRecentPlay.max_combo;
-    const nmiss = scoreOfRecentPlay.statistics.count_miss;
-    if (mods.startsWith("+")) {
-      mods = ojsama.modbits.from_string(mods.slice(1) || "");
-    }
-    const map = await fetchAndParseBeatmap(scoreOfRecentPlay.beatmap.id);
+  /**
+   * @param {Score} score
+   * @param {Beatmap} beatmap
+   */
+  async addNewPlayAPI(score, beatmap) {
+    const map = await fetchAndParseBeatmap(beatmap.id);
     try {
-      const stars = new ojsama.diff().calc({ map: map, mods: mods });
-      const max_combo = map.max_combo();
+      const stars = ojsama.std_diff().calc({ map, mods: score.raw_mods });
+      const accuracy = score.accuracy * 100;
       const pp = ojsama.ppv2({
         stars,
-        combo,
-        nmiss,
-        acc_percent,
+        combo: score.maxCombo,
+        nmiss: score.counts.miss,
+        acc_percent: accuracy,
       });
-      combo = combo || max_combo;
       this.playObjects.push(
-        new playObjectv2(
-          Math.min(stars.total, 100),
-          Math.min(pp.total, 10e3),
-          bpm,
-          combo,
-          max_combo,
-          scoreOfRecentPlay,
+        new playObjectv2({
+          stars: Math.min(stars.total, 100),
+          pp: Math.min(pp.total, 10e3),
+          bpm: beatmap.bpm,
+          combo: score.maxCombo,
+          max_combo: map.max_combo(),
+          score,
           map,
-          this.player.osuUsername
-        )
+          beatmap,
+          osuUsername: this.player.osuUsername,
+        })
       );
     } catch (error) {
       globalInstances.logMessage(
-        "Err: Problem occured when going to add a play from the web - ",
+        "Err: Problem occured when going to add a play - ",
         error
       );
     }
@@ -312,10 +297,10 @@ class sessionObject {
         $playAccuracy: play.accuracy,
         $rank: play.rank,
         $mods: play.mods.join(", "),
-        $counts300: play.countsObject.count_300,
-        $counts100: play.countsObject.count_100,
-        $counts50: play.countsObject.count_50,
-        $countsMiss: play.countsObject.count_miss,
+        $counts300: play.countsObject["300"],
+        $counts100: play.countsObject["100"],
+        $counts50: play.countsObject["50"],
+        $countsMiss: play.countsObject["miss"],
         $playPP: play.pp.toFixed(2),
         $numSpinners: play.numSpinners,
         $numSliders: play.numSliders,
@@ -424,26 +409,23 @@ class sessionObject {
           globalInstances.logMessage(err);
         });
     } else {
-      return new Promise(async (resolve, reject) => {
-        let strId = "<inactive twitter user>";
-        globalInstances.logMessage(
-          `Updating session with tweet ID for ${osuUsername} (${strId})`
-        );
-        await db.updateSession(strId, sessionID);
-        globalInstances.logMessage(
-          `Removing ${osuUsername} ${twitterUsername} from whitelist due to the username not existing`
-        );
-        for (var i = 0; i < globalInstances.playerObjects.length; i++) {
-          if (
-            globalInstances.playerObjects[i].twitterUsername == twitterUsername
-          ) {
-            globalInstances.playerObjects.splice(i, 1);
-          }
-        }
-        await db.deletePlayer(twitterUsername);
+      let strId = "<inactive twitter user>";
+      globalInstances.logMessage(
+        `Updating session with tweet ID for ${osuUsername} (${strId})`
+      );
+      await db.updateSession(strId, sessionID);
+      globalInstances.logMessage(
+        `Removing ${osuUsername} ${twitterUsername} from whitelist due to the username not existing`
+      );
 
-        resolve();
-      });
+      // @ts-ignore
+      for (const [i, player] of globalInstances.playerObjects.entries()) {
+        if (player.twitterUsername === twitterUsername) {
+          globalInstances.playerObjects.splice(i, 1);
+        }
+      }
+
+      await db.deletePlayer(twitterUsername);
     }
   }
 }
