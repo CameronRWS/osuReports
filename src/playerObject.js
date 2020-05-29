@@ -10,6 +10,7 @@ var axios = require("axios").default;
 var cheerio = require("cheerio");
 const sessionStore = require("./sessionStore");
 var UserCache = require("./userCache");
+const beatmapCache = require("./beatmapCache");
 
 // Return the elapsed time between now and the last play, in minutes
 function calculateElapsedTime(lastPlay) {
@@ -60,10 +61,7 @@ class playerObject {
 
       try {
         //m: 0 is for standard osu! mode
-        const [beatmap] = await osuApi.getBeatmaps({
-          b: score.beatmapId,
-          m: 0,
-        });
+        const beatmap = await beatmapCache.getBeatmapInfo(score.beatmapId);
         if (!beatmap) return;
         await this.handleScore(score, beatmap);
       } catch (err) {
