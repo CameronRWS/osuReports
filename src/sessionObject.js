@@ -131,7 +131,7 @@ class sessionObject {
 
     //checks to see if there are real plays in session
     let isTweetable = filteredPlays
-      .map((p) => p.background !== null)
+      .map((p) => p.background != null)
       .reduce((one, t) => one || t, false);
 
     if (!isTweetable || filteredPlays.length === 1) {
@@ -224,14 +224,6 @@ class sessionObject {
     const difPlayCount = formatDifference(
       Math.max(fDifPlayCount, this.playObjects.length)
     );
-
-    let removed = 0;
-    for (const [i, play] of this.playObjects.entries()) {
-      if (play.background === undefined) {
-        this.playObjects.splice(i - removed, 1);
-        removed++;
-      }
-    }
 
     //db stuff
     this.sessionID = globalInstances.numberOfSessionsRecorded + 1;
@@ -418,7 +410,7 @@ class sessionObject {
           globalInstances.logMessage(err);
         });
     } else {
-      let strId = `<inactive twitter user: ${osuUsername} ${twitterUsername}>`;
+      let strId = "<inactive twitter user>";
       globalInstances.logMessage(
         `Updating session with tweet ID for ${osuUsername} (${strId})`
       );
@@ -430,6 +422,7 @@ class sessionObject {
       for (const [i, player] of globalInstances.playerObjects.entries()) {
         if (player.twitterUsername === twitterUsername) {
           globalInstances.playerObjects.splice(i, 1);
+          break;
         }
       }
 
