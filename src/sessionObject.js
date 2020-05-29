@@ -88,7 +88,6 @@ class sessionObject {
         n100: score.counts["100"],
         n50: score.counts["50"],
       });
-      pp.acc;
 
       const playObj = new playObjectv2({
         stars,

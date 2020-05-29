@@ -1,10 +1,11 @@
-var globalInstances = require("./src/globalInstances");
-var playerObject = require("./src/playerObject");
-var startServer = require("./src/server");
-var fs = require("fs");
+const globalInstances = require("./src/globalInstances");
+const playerObject = require("./src/playerObject");
+const startServer = require("./src/server");
+const fs = require("fs");
 const sessionStore = require("./src/sessionStore");
 const db = require("./src/db");
-var UserCache = require("./src/userCache");
+const UserCache = require("./src/userCache");
+const beatmapCache = require("./src/beatmapCache");
 
 const msPerIteration = 45000;
 
@@ -148,6 +149,9 @@ async function getSessionInfoForConsole() {
   output += `\n   Count of player objects: ${countPlayerObjects}\n`;
   output += `   Count of session objects: ${countSessionObjects}\n`;
   output += `   Count of play objects: ${countPlayObjects}\n`;
+  output += `   Beatmap cache hit ratio is: ${(
+    beatmapCache.getHitRatio() * 100
+  ).toFixed(2)}%`;
   output += "\nx-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x\n";
   globalInstances.logMessage(output);
 }
