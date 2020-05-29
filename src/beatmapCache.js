@@ -18,9 +18,23 @@ const fetchBeatmap = (beatmapId) =>
       return null;
     });
 
+const ts = () => new Date().getTime().toString();
+
 const infoKey = (beatmapId) => `beatmap:${beatmapId}:info`;
 const dataKey = (beatmapId) => `beatmap:${beatmapId}:data`;
 const lruKey = "lru:beatmap";
+
+const lruUpdate = `
+    -- Keys: lruKey
+    -- Args: member maxSize
+    local curSize = redis.call('zcard', KEYS[1])
+    local evicted = nil
+
+    if curSize == ARGV[2] then
+      evicted = redis.call('zpopmin', KEYS[1])
+    end
+
+`;
 
 class BeatmapCache {
   constructor(options) {
@@ -29,35 +43,26 @@ class BeatmapCache {
         redis: {
           host: "localhost",
           port: 6379,
+          showFriendlyErrorStack: true,
         },
         maxSize: 512,
       },
       options
     );
 
-    this.client = new Redis(options);
-    this.setup();
-  }
-
-  async setup() {
-    await this.client.config("SET", "maxmemory", this.options.maxSize);
-    await this.client.config(
-      "SET",
-      "maxmemory-policy",
-      this.options.evictionMode
-    );
-    await this.client.config(
-      "SET",
-      "lfu-log-factor",
-      this.options.lfuLogFactor
-    );
+    this.client = new Redis(options.redis);
   }
 
   async getBeatmapData(beatmapId) {
-    const data = await this.client.getBuffer(dataKey(beatmapId));
-    if (data !== null) {
+    const [[, nch], [, data]] = await this.client
+      .multi()
+      .zadd(lruKey, "XX", "CH", ts(), beatmapId)
+      .exec();
+    if (nch && data !== null) {
       const uncompressed = await gunzipAsync(data);
       return uncompressed;
+    }
+    if (nch) {
     }
 
     const beatmap = await fetchBeatmap(beatmapId);
