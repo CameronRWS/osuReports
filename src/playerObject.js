@@ -12,10 +12,12 @@ const sessionStore = require("./sessionStore");
 var UserCache = require("./userCache");
 const beatmapCache = require("./beatmapCache");
 
+const ONE_MINUTE = 60000;
+
 // Return the elapsed time between now and the last play, in minutes
 function calculateElapsedTime(lastPlay) {
   let now = new Date();
-  return (now.getTime() - lastPlay.getTime()) / 60000;
+  return (now.getTime() - lastPlay.getTime()) / ONE_MINUTE;
 }
 
 class NoMoreScores extends Error {}
@@ -122,15 +124,28 @@ class playerObject {
     if (!this.sessionObject) return false;
     if (!this.sessionObject.playObjects.length) return true;
 
-    // since we now look back on scores, let's just stop when they're older than the timeout
-    // stored sessions should catch them if we restarted
     const age = calculateElapsedTime(score.date);
-    if (age > globalInstances.sessionTimeout) return false;
 
+    // first just check for the existence in the session
     let attemptedNewPlayTime = score.date.getTime();
-    return !this.sessionObject.playObjects
+    const haveSeen = this.sessionObject.playObjects
       .map((p) => new Date(p.date).getTime())
       .includes(attemptedNewPlayTime);
+
+    // handle the common case first, this is a new play
+    if (haveSeen) return false;
+    if (!haveSeen && age <= globalInstances.sessionTimeout) {
+      return true;
+    }
+
+    const deltaEarliest =
+      (this.sessionObject.playObjects[0].date.getTime() -
+        score.date.getTime()) /
+      ONE_MINUTE;
+
+    // if it's less than the timeout before the earliest play, it's part of the
+    // same session
+    return deltaEarliest <= globalInstances.sessionTimeout;
   }
 
   async createFakeSession() {
