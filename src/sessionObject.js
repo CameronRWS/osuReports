@@ -418,7 +418,7 @@ class sessionObject {
           globalInstances.logMessage(err);
         });
     } else {
-      let strId = "<inactive twitter user>";
+      let strId = `<inactive twitter user: ${osuUsername} ${twitterUsername}>`;
       globalInstances.logMessage(
         `Updating session with tweet ID for ${osuUsername} (${strId})`
       );
