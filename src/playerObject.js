@@ -129,7 +129,7 @@ class playerObject {
     // first just check for the existence in the session
     let attemptedNewPlayTime = score.date.getTime();
     const haveSeen = this.sessionObject.playObjects
-      .map((p) => new Date(p.date).getTime())
+      .map((p) => p.date.getTime())
       .includes(attemptedNewPlayTime);
 
     // handle the common case first, this is a new play

@@ -5,7 +5,9 @@ const axios = require("axios").default;
 const { gzip, gunzip } = require("zlib");
 const { promisify } = require("util");
 const osuApi = require("./osuApi");
+const crypto = require("crypto");
 
+const randomBytesAsync = promisify(crypto.randomBytes);
 const gzipAsync = promisify(gzip);
 const gunzipAsync = promisify(gunzip);
 
@@ -19,10 +21,14 @@ const fetchBeatmap = (beatmapId) =>
     });
 
 const ts = () => new Date().getTime().toString();
+const sleepSome = async () => new Promise((resolve) => setTimeout(resolve, 5));
+const getSentinel = async () => (await randomBytesAsync(8)).toString("base64");
 
 const infoKey = (beatmapId) => `beatmap:${beatmapId}:info`;
 const dataKey = (beatmapId) => `beatmap:${beatmapId}:data`;
 const lruKey = "lru:beatmap";
+const lockKey = `${lruKey}:lock`;
+const lockTime = 5000;
 
 // This lua script removes the lowest value in the sorted set and replaces it with
 // the new member when the LRU is full. Otherwise, it just inserts the member.
@@ -67,6 +73,34 @@ class BeatmapCache {
     this.miss = 0;
   }
 
+  async withLock(cb) {
+    const sentinel = await getSentinel();
+
+    // acquire lock
+    while (true) {
+      const val = await this.client.set(
+        lockKey,
+        sentinel,
+        "PX",
+        lockTime,
+        "NX"
+      );
+      if (val === "OK") break;
+      await sleepSome();
+    }
+    try {
+      await cb();
+    } finally {
+      // hopefully we still have the lock
+      if ((await this.client.get(lockKey)) !== sentinel) {
+        throw new Error(
+          "our hold on the lock timed out, we've probably put the LRU in a weird spot"
+        );
+      }
+      await this.client.del(lockKey);
+    }
+  }
+
   async lruUpdate(beatmapId) {
     const evicted = await this.client.lruUpdate(
       lruKey,
@@ -85,14 +119,15 @@ class BeatmapCache {
       .zadd(lruKey, "XX", "CH", ts(), beatmapId)
       .getBuffer(dataKey(beatmapId))
       .exec();
-    if (nch && data !== null) {
-      this.hit++;
-      const uncompressed = await gunzipAsync(data);
-      return uncompressed;
+    if (data !== null) {
+      if (nch) {
+        this.hit++;
+        const uncompressed = await gunzipAsync(data);
+        return uncompressed;
+      }
+      // key missing from LRU but still in redis
+      await this.client.del(dataKey(beatmapId), infoKey(beatmapId));
     }
-    // key missing from LRU but still in redis
-    if (!nch) await this.client.del(dataKey(beatmapId), infoKey(beatmapId));
-
     this.miss++;
 
     const beatmap = await fetchBeatmap(beatmapId);
@@ -100,8 +135,11 @@ class BeatmapCache {
       throw new Error(`no such beatmap exists: ${beatmapId}`);
 
     const compressed = await gzipAsync(beatmap);
-    await this.lruUpdate(beatmapId);
-    await this.client.setBuffer(dataKey(beatmapId), compressed);
+
+    await this.withLock(async () => {
+      await this.lruUpdate(beatmapId);
+      await this.client.setBuffer(dataKey(beatmapId), compressed);
+    });
 
     return beatmap;
   }
@@ -112,12 +150,13 @@ class BeatmapCache {
       .zadd(lruKey, "XX", "CH", ts(), beatmapId)
       .get(infoKey(beatmapId))
       .exec();
-    if (nch && info !== null) {
-      this.hit++;
-      return JSON.parse(info);
+    if (info !== null) {
+      if (nch) {
+        this.hit++;
+        return JSON.parse(info);
+      }
+      await this.client.del(dataKey(beatmapId), infoKey(beatmapId));
     }
-    if (!nch) this.client.del(dataKey(beatmapId), infoKey(beatmapId));
-
     this.miss++;
 
     const [beatmap] = await osuApi.getBeatmaps({
@@ -126,8 +165,11 @@ class BeatmapCache {
     });
     if (!beatmap) throw new Error(`no such beatmap exists: ${beatmapId}`);
 
-    await this.lruUpdate(beatmapId);
-    await this.client.set(infoKey(beatmapId), JSON.stringify(beatmap));
+    await this.withLock(async () => {
+      await this.lruUpdate(beatmapId);
+      await this.client.set(infoKey(beatmapId), JSON.stringify(beatmap));
+    });
+
     return beatmap;
   }
 
