@@ -27,7 +27,7 @@ const getSentinel = async () => (await randomBytesAsync(8)).toString("base64");
 const infoKey = (beatmapId) => `beatmap:${beatmapId}:info`;
 const dataKey = (beatmapId) => `beatmap:${beatmapId}:data`;
 const lruKey = "lru:beatmap";
-const lockKey = `${lruKey}:lock`;
+const lockKey = `lru:lock:beatmap`;
 const lockTime = 5000;
 
 // This lua script removes the lowest value in the sorted set and replaces it with
