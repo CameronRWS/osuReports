@@ -6,6 +6,7 @@ declare module "ioredis" {
       timestamp: string,
       maxSize: number
     ): Promise<string | null>;
+    checkAndDelete(lock: string, sentinel: string): Promise<string>;
   }
 }
 

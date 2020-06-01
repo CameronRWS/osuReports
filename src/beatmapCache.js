@@ -49,6 +49,16 @@ const lruUpdate = `
     return evicted
 `;
 
+const checkAndDelete = `
+    -- Keys: lock
+    -- Args: sentinel
+    if redis.call('get', KEYS[1]) == ARGV[1] then
+      return redis.call('del', KEYS[1])
+    else
+      return 0
+    end
+`;
+
 class BeatmapCache {
   constructor(options) {
     this.options = _.merge(
@@ -67,6 +77,10 @@ class BeatmapCache {
     this.client.defineCommand("lruUpdate", {
       numberOfKeys: 1,
       lua: lruUpdate,
+    });
+    this.client.defineCommand("checkAndDelete", {
+      numberOfKeys: 1,
+      lua: checkAndDelete,
     });
 
     this.hit = 0;
@@ -91,13 +105,8 @@ class BeatmapCache {
     try {
       await cb();
     } finally {
-      // hopefully we still have the lock
-      if ((await this.client.get(lockKey)) !== sentinel) {
-        throw new Error(
-          "our hold on the lock timed out, we've probably put the LRU in a weird spot"
-        );
-      }
-      await this.client.del(lockKey);
+      // we can't do a normal check and delete because of race conditions
+      await this.client.checkAndDelete(lockKey, sentinel);
     }
   }
 
