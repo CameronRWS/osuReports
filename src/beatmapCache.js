@@ -42,6 +42,9 @@ const lruUpdate = `
 
     if curSize == maxSize then
       evicted = redis.call('zpopmin', lruKey)
+      if evicted ~= nil then
+        evicted = evicted[1]
+      end
     end
 
     redis.call('zadd', lruKey, ts, member)
@@ -106,7 +109,8 @@ class BeatmapCache {
       await cb();
     } finally {
       // we can't do a normal check and delete because of race conditions
-      await this.client.checkAndDelete(lockKey, sentinel);
+      const unlocked = await this.client.checkAndDelete(lockKey, sentinel);
+      if (unlocked === "0") throw new Error("we lost the lock somehow");
     }
   }
 
