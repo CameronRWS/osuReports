@@ -16,7 +16,7 @@ const proxy = new Proxy(osuApi, {
     if (!thing || !isFunction(thing)) return thing;
     return (...args) => {
       osuApiCalls.inc();
-      return thing(...args);
+      return thing.bind(target)(...args);
     };
   },
 });
