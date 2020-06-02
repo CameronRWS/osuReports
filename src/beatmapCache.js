@@ -6,6 +6,7 @@ const { gzip, gunzip } = require("zlib");
 const { promisify } = require("util");
 const osuApi = require("./osuApi");
 const crypto = require("crypto");
+const { beatmapCacheStats } = require("./metrics");
 
 const randomBytesAsync = promisify(crypto.randomBytes);
 const gzipAsync = promisify(gzip);
@@ -90,6 +91,16 @@ class BeatmapCache {
     this.miss = 0;
   }
 
+  incHit() {
+    this.hit++;
+    beatmapCacheStats.inc({ type: "hit" }, 1);
+  }
+
+  incMiss() {
+    this.miss++;
+    beatmapCacheStats.inc({ type: "miss" }, 1);
+  }
+
   async withLock(cb) {
     const sentinel = await getSentinel();
 
@@ -123,6 +134,7 @@ class BeatmapCache {
     );
     if (evicted) {
       await this.client.del(dataKey(evicted), infoKey(evicted));
+      beatmapCacheStats.inc({ type: "eviction" });
     }
   }
 
@@ -134,14 +146,14 @@ class BeatmapCache {
       .exec();
     if (data !== null) {
       if (nch) {
-        this.hit++;
+        this.incHit();
         const uncompressed = await gunzipAsync(data);
         return uncompressed;
       }
       // key missing from LRU but still in redis
       await this.client.del(dataKey(beatmapId), infoKey(beatmapId));
     }
-    this.miss++;
+    this.incMiss();
 
     const beatmap = await fetchBeatmap(beatmapId);
     if (beatmap === null)
@@ -165,12 +177,12 @@ class BeatmapCache {
       .exec();
     if (info !== null) {
       if (nch) {
-        this.hit++;
+        this.incHit();
         return JSON.parse(info);
       }
       await this.client.del(dataKey(beatmapId), infoKey(beatmapId));
     }
-    this.miss++;
+    this.incMiss();
 
     const [beatmap] = await osuApi.getBeatmaps({
       b: beatmapId,

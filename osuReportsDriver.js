@@ -7,6 +7,8 @@ const db = require("./src/db");
 const UserCache = require("./src/userCache");
 const beatmapCache = require("./src/beatmapCache");
 
+const { activeSessions, totalUsers, activePlays } = require("./src/metrics");
+
 const msPerIteration = 45000;
 
 if (!process.env.DEBUG) {
@@ -43,13 +45,14 @@ async function initialize() {
       globalInstances.logMessage(
         `Tracking ${globalInstances.playerObjects.length} osu! nerds`
       );
+      totalUsers.set(globalInstances.playerObjects.length);
+
       globalInstances.logMessage("Loading sessions...");
       await sessionStore.loadSessions();
 
       globalInstances.logMessage(
         "From initialize(): Starting to loop through players..."
       );
-      // globalInstances.playerObjects = [new playerObject('PenZa', '@penz_')];
       mainLoop();
     }
   );
@@ -154,6 +157,10 @@ async function getSessionInfoForConsole() {
   ).toFixed(2)}%`;
   output += "\nx-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x\n";
   globalInstances.logMessage(output);
+
+  activeSessions.set(countSessionObjects);
+  activePlays.set(countPlayObjects);
+  totalUsers.set(countPlayerObjects);
 }
 
 async function setSessionsRecorded() {
