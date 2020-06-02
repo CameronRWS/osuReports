@@ -11,6 +11,7 @@ var cheerio = require("cheerio");
 const sessionStore = require("./sessionStore");
 var UserCache = require("./userCache");
 const beatmapCache = require("./beatmapCache");
+const { activeSessions, activePlays } = require("./metrics");
 
 const ONE_MINUTE = 60000;
 
@@ -87,11 +88,13 @@ class playerObject {
       globalInstances.logMessage(`Creating new session for: ${osuUsername}`);
       this.sessionObject = new sessionObject(this);
       await this.sessionObject.initialize();
+      activeSessions.inc();
     }
 
     if (this.isNewPlay(score)) {
       globalInstances.logMessage(`Adding new play for: ${osuUsername}`);
       await this.sessionObject.addNewPlay(score, beatmap);
+      activePlays.inc();
       return sessionStore.storeSession(this.sessionObject);
     }
 
@@ -102,6 +105,7 @@ class playerObject {
   async handleSessionTimeout() {
     if (!globalInstances.isSessionEnding) {
       globalInstances.isSessionEnding = true;
+      const totalPlays = this.sessionObject.playObjects.length;
       try {
         await this.sessionObject.endSession();
         this.sessionObject = undefined;
@@ -111,6 +115,9 @@ class playerObject {
           "Critical Error: Problem occured when ending session - ",
           err
         );
+      } finally {
+        activeSessions.dec();
+        activePlays.dec(totalPlays);
       }
       globalInstances.isSessionEnding = false;
     }
