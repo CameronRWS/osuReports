@@ -21,11 +21,38 @@ services:
     volumes:
       - "redis-data:/data"
 
+  adminer:
+    build: ./adminer
+    restart: unless-stopped
+    ports:
+      - "9000:8080"
+    volumes:
+      - ./data:/data
+    environment:
+      ADMINER_DESIGN: nette
+      DOCKER_HOST_IP: "<docker bridge ip>"
+
+  auth-adminer:
+    image: ajmadsen/jwt-auth-subreq
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      AUDIENCE: ""
+      AUTH_DOMAIN: ajm.cloudflareaccess.com
+
+  auth-grafana:
+    image: ajmadsen/jwt-auth-subreq
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    environment:
+      AUDIENCE: ""
+      AUTH_DOMAIN: ajm.cloudflareaccess.com
+
   prometheus:
     image: prom/prometheus
     restart: unless-stopped
-    ports:
-      - "9090:9090"
     volumes:
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
