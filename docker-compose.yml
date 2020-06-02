@@ -34,20 +34,11 @@ services:
       ADMINER_DESIGN: nette
       DOCKER_HOST_IP: "<docker bridge ip>"
 
-  auth-adminer:
+  auth-admin:
     image: ajmadsen/jwt-auth-subreq
     restart: unless-stopped
     ports:
       - "3001:3000"
-    environment:
-      AUDIENCE: ""
-      AUTH_DOMAIN: ajm.cloudflareaccess.com
-
-  auth-grafana:
-    image: ajmadsen/jwt-auth-subreq
-    restart: unless-stopped
-    ports:
-      - "3002:3000"
     environment:
       AUDIENCE: ""
       AUTH_DOMAIN: ajm.cloudflareaccess.com
