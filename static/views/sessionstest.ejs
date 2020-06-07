@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body>
+    <header>
+        <div class="navbar navbar-dark bg-dark shadow-sm">
+            <div class="container d-flex justify-content-between">
+                <a href="/" class="navbar-brand d-flex align-items-center">
+                    <strong>Signed in as: @<%= user %> %><a href="/" class="btn btn-secondary my-2">Logout</a></li>
+                    </strong>
+                </a>
+            </div>
+        </div>
+    </header>
+</body>
+<style>
+    table {
+        width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+        border: 1px solid black;
+    }
+
+    th {
+        border: 3px solid black;
+        text-align: center;
+    }
+
+    td {
+        border: 1px solid black;
+        text-align: center;
+    }
+
+    tr {
+        border: 1px solid black;
+        text-align: center;
+    }
+</style>
+
+
+
+<main role="main">
+
+    <section class="jumbotron text-center">
+        <div>
+            <h1 class="jumbotron-heading"> All sessions: </h1>
+        </div>
+
+        <br />
+
+        <script>
+            console.log("OK");
+            var session = <%- JSON.stringify(session) %>;
+            var plays = <%- JSON.stringify(plays) %>;
+            console.log(session)
+
+        </script>
+
+        <table style="width: 1">
+            <tr>
+                <th>Row</th>
+                <th>Session ID</th>
+                <th>osu! Username</th>
+                <th>Date</th>
+                <th>Title</th>
+                <th>BG</th>
+            </tr>
+            <% for (var i = 0; i < plays.length; i++) { %>
+            <tr>
+                <td><%= i+1 %></td>
+                <td><%= plays[i].sessionId %></td>
+                <td><%= plays[i].osuUsername %></td>
+                <td><%= plays[i].date %></td>
+                <td><%= plays[i].title %></td>
+                <td><%= plays[i].bg %></td>
+            </tr>
+            <% } %>
+        </table>
+
+        <br />
+
+        <a href="/return" class="btn btn-primary my-2">Back to dashboard</a>
+    </section>
+</main>
+
+<center>
+    <a href="/privacy"><strong>Privacy Policy</a></strong>
+</center>
+
+</html>

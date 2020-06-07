@@ -8,7 +8,7 @@ var UserCache = require("./src/userCache");
 
 const msPerIteration = 45000;
 
-if (!process.env.DEBUG) {
+if (!process.env.DEBUG || true == true) {
   startServer();
   initialize();
 } else {

@@ -96,6 +96,23 @@ function startServer() {
     });
   });
 
+  app.get("/sessionstest", (req, res) => {
+    if (req.user.username == null) {
+      res.render("privacy.ejs", { user: "x" });
+      return;
+    }
+    console.log(`${req.user.username}`);
+    var sessionId = '113'
+    db.get("SELECT * FROM sessionsTable WHERE sessionID LIKE " + sessionId + " LIMIT 1", (err, data) => {
+      var session = data;
+      db.all("SELECT * FROM playsTable WHERE sessionID LIKE " + sessionId, (err, data) => {
+          var plays = data;
+          res.render("sessionstest.ejs", { user: req.user.username, session: session, plays: plays });
+      })
+    });
+
+  });
+
   app.get("/sessions", (req, res) => {
     console.log(req.user.username);
     db.all(
