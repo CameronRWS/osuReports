@@ -67,6 +67,16 @@ services:
       GF_SERVER_ROOT_URL: http://localhost:3000/grafana
       GF_SERVER_SERVE_FROM_SUB_PATH: "true"
 
+  redis-exporter:
+    image: oliver006/redis_exporter
+    environment:
+      REDIS_ADDR: "redis://redis:6379"
+
+  nginx-exporter:
+    image: sophos/nginx-vts-exporter
+    environment:
+      NGINX_STATUS: http://172.19.0.1/status/format/json
+
 volumes:
   redis-data:
   grafana-data:
