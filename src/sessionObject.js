@@ -273,7 +273,7 @@ class sessionObject {
 
     await db.insertSession(sqlSessionValues);
 
-    for (const play of this.playObjects) {
+    for (const play of filteredPlays) {
       const sqlTitle = play.title;
       const sqlVersion = play.version;
       const sqlArtist = play.artist;
