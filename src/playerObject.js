@@ -108,14 +108,15 @@ class playerObject {
       const totalPlays = this.sessionObject.playObjects.length;
       try {
         await this.sessionObject.endSession();
-        this.sessionObject = undefined;
-        await sessionStore.deleteSession(this);
       } catch (err) {
         globalInstances.logMessage(
           "Critical Error: Problem occured when ending session - ",
           err
         );
       } finally {
+        this.sessionObject = undefined;
+        await sessionStore.deleteSession(this);
+
         activeSessions.dec();
         activePlays.dec(totalPlays);
       }
