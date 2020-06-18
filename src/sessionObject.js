@@ -388,7 +388,10 @@ class sessionObject {
 
   async tweetReport(twitterUsername, osuUsername, id, sessionID) {
     const tweet = {
-      status: "." + twitterUsername + " just finished an osu! session: ",
+      status:
+        "." +
+        this.player.twitterUsername.replace("@", "") +
+        " just finished an osu! session: ",
       media_ids: [id],
     };
     if (
