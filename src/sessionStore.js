@@ -12,6 +12,7 @@ class SessionStore {
       {
         host: "localhost",
         port: 6379,
+        showFriendlyErrorStack: true,
       },
       options
     );

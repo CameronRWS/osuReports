@@ -10,6 +10,14 @@ const {
 } = require("url");
 const util = require("util");
 const _ = require("lodash");
+const fs = require("fs");
+const globalInstances = require("./globalInstances");
+const fsPromises = fs.promises;
+
+fsPromises
+  .access("/etc/passwd", fs.constants.R_OK | fs.constants.W_OK)
+  .then(() => console.log("can access"))
+  .catch(() => console.error("cannot access"));
 
 const DEFAULT_BACKGROUND =
   "https://assets.ppy.sh/beatmaps/1084284/covers/cover.jpg?1581740491";
@@ -111,9 +119,26 @@ class ResourceGetter {
   }
 
   async getPlayerCountryFlag(countryFlag) {
-    const key = `countryFlag_${countryFlag}`;
     const url = "./static/images/flags/" + countryFlag + ".png";
-    return this.getAndCacheImage(key, url);
+    const key = `countryFlag_${countryFlag}`;
+    return fsPromises
+      .access(url, fs.constants.F_OK)
+      .then(() => {
+        return this.getAndCacheImage(key, url);
+      })
+      .catch(() => {
+        if (countryFlag !== "__") {
+          globalInstances.logMessage(
+            `Default flag being used since ${countryFlag}.png does not exist.`
+          );
+          return this.getPlayerCountryFlag("__");
+        } else {
+          globalInstances.logMessage(
+            "Error: __.png (default flag) does not exist."
+          );
+          throw new Error();
+        }
+      });
   }
 
   async getAndCacheImage(key, url) {

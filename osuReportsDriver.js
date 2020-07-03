@@ -1,10 +1,13 @@
-var globalInstances = require("./src/globalInstances");
-var playerObject = require("./src/playerObject");
-var startServer = require("./src/server");
-var fs = require("fs");
+const globalInstances = require("./src/globalInstances");
+const playerObject = require("./src/playerObject");
+const startServer = require("./src/server");
+const fs = require("fs");
 const sessionStore = require("./src/sessionStore");
 const db = require("./src/db");
-var UserCache = require("./src/userCache");
+const UserCache = require("./src/userCache");
+const beatmapCache = require("./src/beatmapCache");
+
+const { activeSessions, totalUsers, activePlays } = require("./src/metrics");
 
 const msPerIteration = 45000;
 
@@ -42,13 +45,14 @@ async function initialize() {
       globalInstances.logMessage(
         `Tracking ${globalInstances.playerObjects.length} osu! nerds`
       );
+      totalUsers.set(globalInstances.playerObjects.length);
+
       globalInstances.logMessage("Loading sessions...");
       await sessionStore.loadSessions();
 
       globalInstances.logMessage(
         "From initialize(): Starting to loop through players..."
       );
-      // globalInstances.playerObjects = [new playerObject('PenZa', '@penz_')];
       mainLoop();
     }
   );
@@ -148,8 +152,15 @@ async function getSessionInfoForConsole() {
   output += `\n   Count of player objects: ${countPlayerObjects}\n`;
   output += `   Count of session objects: ${countSessionObjects}\n`;
   output += `   Count of play objects: ${countPlayObjects}\n`;
+  output += `   Beatmap cache hit ratio is: ${(
+    beatmapCache.getHitRatio() * 100
+  ).toFixed(2)}%`;
   output += "\nx-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x\n";
   globalInstances.logMessage(output);
+
+  activeSessions.set(countSessionObjects);
+  activePlays.set(countPlayObjects);
+  totalUsers.set(countPlayerObjects);
 }
 
 async function setSessionsRecorded() {

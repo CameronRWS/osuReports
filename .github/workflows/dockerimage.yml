@@ -2,26 +2,29 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 env:
   IMAGE: ajmadsen/osureports
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && contains(toJson(github.event.commits), '***NO_CI***') == false && contains(toJson(github.event.commits), '[ci skip]') == false && contains(toJson(github.event.commits), '[skip ci]') == false
 
     steps:
-    - uses: actions/checkout@v2
-    - name: login to docker
-      env:
-        DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-      run: echo "$DOCKER_TOKEN" | docker login -u ajmadsen --password-stdin
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag $IMAGE:latest
-    - name: Push the docker image
-      run: docker push $IMAGE:latest
+      - uses: actions/checkout@v2
+
+      - name: login to docker
+        env:
+          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+        run: echo "$DOCKER_TOKEN" | docker login -u ajmadsen --password-stdin
+
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag $IMAGE:latest
+
+      - name: Push the docker image
+        run: docker push $IMAGE:latest
+        if: github.base_ref == ''
