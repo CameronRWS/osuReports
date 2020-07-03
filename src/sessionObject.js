@@ -24,6 +24,13 @@ const {
 
 const T = require("./twitterInstance");
 
+const {
+  sessionDuration: metricSessionDuration,
+  playsPerSession,
+  numberOfTweets,
+  totalUsers,
+} = require("./metrics");
+
 class sessionObject {
   constructor(player) {
     this.player = player;
@@ -88,7 +95,6 @@ class sessionObject {
         n100: score.counts["100"],
         n50: score.counts["50"],
       });
-      pp.acc;
 
       const playObj = new playObjectv2({
         stars,
@@ -161,6 +167,9 @@ class sessionObject {
           this.playObjects[0].date.getTime()) /
         1000;
     }
+
+    metricSessionDuration.observe(sessionTotalSeconds);
+    playsPerSession.observe(this.playObjects.length);
 
     if (
       sessionTotalSeconds < globalInstances.minimalSessionLengthSeconds &&
@@ -264,7 +273,7 @@ class sessionObject {
 
     await db.insertSession(sqlSessionValues);
 
-    for (const play of this.playObjects) {
+    for (const play of filteredPlays) {
       const sqlTitle = play.title;
       const sqlVersion = play.version;
       const sqlArtist = play.artist;
@@ -375,6 +384,8 @@ class sessionObject {
     );
 
     if (media.length > 0) {
+      numberOfTweets.inc();
+
       return this.tweetReport(
         this.player.twitterUsername,
         this.player.osuUsername,
@@ -422,6 +433,7 @@ class sessionObject {
       for (const [i, player] of globalInstances.playerObjects.entries()) {
         if (player.twitterUsername === twitterUsername) {
           globalInstances.playerObjects.splice(i, 1);
+          totalUsers.dec();
           break;
         }
       }

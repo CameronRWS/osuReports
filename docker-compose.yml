@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   osuReports:
@@ -6,7 +6,9 @@ services:
     restart: unless-stopped
     env_file: .env
     ports:
-      - '3000:3000'
+      - "3000:3000"
+    expose:
+      - 9010
     volumes:
       - ./data:/data
     environment:
@@ -19,7 +21,63 @@ services:
     expose:
       - 6379
     volumes:
-      - 'redis-data:/data'
+      - "redis-data:/data"
+
+  adminer:
+    build: ./adminer
+    restart: unless-stopped
+    ports:
+      - "9000:8080"
+    volumes:
+      - ./data:/data
+    environment:
+      ADMINER_DESIGN: nette
+      DOCKER_HOST_IP: "<docker bridge ip>"
+
+  auth-admin:
+    image: ajmadsen/jwt-auth-subreq
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      AUDIENCE: ""
+      AUTH_DOMAIN: ajm.cloudflareaccess.com
+
+  prometheus:
+    image: prom/prometheus
+    restart: unless-stopped
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+      - "--storage.tsdb.retention.time=1y"
+
+  grafana:
+    image: grafana/grafana
+    restart: unless-stopped
+    ports:
+      - "3010:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    environment:
+      GF_SERVER_ROOT_URL: http://localhost:3000/grafana
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+
+  redis-exporter:
+    image: oliver006/redis_exporter
+    environment:
+      REDIS_ADDR: "redis://redis:6379"
+
+  nginx-exporter:
+    image: sophos/nginx-vts-exporter
+    environment:
+      NGINX_STATUS: http://172.19.0.1/status/format/json
 
 volumes:
   redis-data:
+  grafana-data:
+  prometheus-data:
