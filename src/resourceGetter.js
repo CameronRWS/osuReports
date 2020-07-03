@@ -5,7 +5,9 @@
 const jimp = require("jimp");
 const axios = require("axios").default;
 const promisify = require("util").promisify;
-const { URL } = require("url");
+const {
+  URL
+} = require("url");
 const util = require("util");
 const _ = require("lodash");
 
@@ -51,6 +53,7 @@ const INITIAL_IMAGES = {
   modDoubleTime: "./static/images/mods/mod_double-time.png",
   modNoFail: "./static/images/mods/mod_no-fail.png",
   modEasy: "./static/images/mods/mod_easy.png",
+  modHalfTime: "./static/images/mods/mod_half-time.png",
 };
 
 const INITIAL_FONTS = {
@@ -166,7 +169,9 @@ class ResourceGetter {
   async getBackground(url) {
     const parsed = new URL(url);
     const getter = (url) =>
-      axios.get(url, { responseType: "arraybuffer" }).then((data) => {
+      axios.get(url, {
+        responseType: "arraybuffer"
+      }).then((data) => {
         return jimp.read(data.data);
       });
     let isDefault = false;

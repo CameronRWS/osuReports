@@ -4,9 +4,13 @@
  */
 const jimp = require("jimp");
 const resourceGetter = require("./resourceGetter");
-const { DrawTools } = require("./drawTools");
+const {
+  DrawTools
+} = require("./drawTools");
 const globalInstances = require("./globalInstances");
-const { secondsToDHMS } = require("./utils");
+const {
+  secondsToDHMS
+} = require("./utils");
 
 function truncateText(measure, text, maxWidth) {
   if (measure(text) <= maxWidth) return text;
@@ -20,7 +24,10 @@ function truncateText(measure, text, maxWidth) {
 const nTimes = (n) => ({
   next() {
     let value = n;
-    return { value, done: !n || !n-- };
+    return {
+      value,
+      done: !n || !n--
+    };
   },
   [Symbol.iterator]() {
     return this;
@@ -35,7 +42,10 @@ const nTimes = (n) => ({
  */
 const reduce = (iter, cb, memo) => {
   while (true) {
-    let { done, value } = iter.next();
+    let {
+      done,
+      value
+    } = iter.next();
     if (done) break;
     memo = cb(memo, value);
   }
@@ -100,7 +110,10 @@ class PlayImage extends DrawTools {
 
   /** @private */
   async draw() {
-    const { background, isDefault } = await resourceGetter.getBackground(
+    const {
+      background,
+      isDefault
+    } = await resourceGetter.getBackground(
       this.play.background
     );
     if (isDefault) {
@@ -149,7 +162,9 @@ class PlayImage extends DrawTools {
       0,
       title + formatVersion(version),
       680,
-      (err, image, { y }) => {
+      (err, image, {
+        y
+      }) => {
         const measure = (text) => jimp.measureText(white, text);
         const artist = truncateText(measure, this.play.artist, 600);
         image.print(white, 5, y, "  by " + artist, 1000);
@@ -205,8 +220,8 @@ class PlayImage extends DrawTools {
     const maxWidth = 505 - diffWidth;
     let star = await Promise.all(
       new Array(4)
-        .fill(0)
-        .map((_, i) => resourceGetter.getImage("onlineStar", i))
+      .fill(0)
+      .map((_, i) => resourceGetter.getImage("onlineStar", i))
     );
     const starPadding = 1.08;
     const allStarsWidth = stars * star[0].getWidth() * starPadding;
@@ -221,10 +236,10 @@ class PlayImage extends DrawTools {
     let nextX = reduce(
       nTimes(wholeStars),
       (p) =>
-        p.then((x) => {
-          this.image.blit(star[0], x, playStarY + starOffsetY[0]);
-          return x + star[0].getWidth() * starPadding;
-        }),
+      p.then((x) => {
+        this.image.blit(star[0], x, playStarY + starOffsetY[0]);
+        return x + star[0].getWidth() * starPadding;
+      }),
       diffX
     );
 
@@ -236,8 +251,8 @@ class PlayImage extends DrawTools {
           partialStar,
           x,
           playStarY +
-            starOffsetY[partialStarSize + 1] +
-            (partialStar.getHeight() - partialStar.getHeight()) / 2
+          starOffsetY[partialStarSize + 1] +
+          (partialStar.getHeight() - partialStar.getHeight()) / 2
         );
         return x + partialStar.getWidth() * starPadding;
       });
@@ -313,6 +328,7 @@ class PlayImage extends DrawTools {
       HR: "modHardRock",
       NF: "modNoFail",
       EZ: "modEasy",
+      HT: "modHalfTime",
     };
     for (const mod in playModToResource) {
       if (this.play.mods.includes(mod)) {
@@ -375,12 +391,14 @@ class PlayImage extends DrawTools {
     return (font, text) => {
       return (p = p.then(
         (x) =>
-          new Promise((resolve, reject) =>
-            this.image.print(font, x, y, `${text}`, (err, _, { x }) => {
-              if (err) reject(err);
-              resolve(x);
-            })
-          )
+        new Promise((resolve, reject) =>
+          this.image.print(font, x, y, `${text}`, (err, _, {
+            x
+          }) => {
+            if (err) reject(err);
+            resolve(x);
+          })
+        )
       ));
     };
   }
