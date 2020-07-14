@@ -15,7 +15,7 @@ function prepare(self, prop, stmt) {
   return new Promise((resolve, reject) => {
     self.prepare(
       stmt,
-      /** @type {StmtCallback} */ (function (err) {
+      /** @type {StmtCallback} */ (function(err) {
         if (err) reject(err);
 
         // guard against double initialization
@@ -32,11 +32,11 @@ function prepare(self, prop, stmt) {
 }
 
 function runCallback(resolve, reject) {
-  return /** @type {RunResultCallback} */ (function (err) {
+  return /** @type {RunResultCallback} */ (function(err) {
     if (err) reject(err);
     resolve({
       lastID: this.lastID,
-      changes: this.changes,
+      changes: this.changes
     });
   });
 }
@@ -50,6 +50,13 @@ class DB extends sqlite3.Database {
     this._delete_player_stmt = null;
     this._insert_player_stmt = null;
     this._initialized = this.initialize();
+
+    /**
+     * @type {((sql: string) => Promise<any>) &
+    ((sql: string, params: any) => Promise<any>) &
+    ((sql: string, ...params: any[]) => Promise<any>)}
+     */
+    this.getAsync = promisify(this.get).bind(this);
   }
 
   async initialize() {
@@ -86,7 +93,7 @@ class DB extends sqlite3.Database {
         this,
         "_insert_player_stmt",
         "INSERT INTO playersTable VALUES ($osuUsername, $twitterUsername)"
-      ),
+      )
     ]);
   }
 
@@ -147,6 +154,50 @@ class DB extends sqlite3.Database {
         this._insert_play_stmt.run(playObj, runCallback(resolve, reject));
       });
     });
+  }
+
+  async getStats() {
+    await this._initialized;
+
+    return /** @type {Promise<{ players: number, plays: number, sessions: number }>} */ (this
+      .getAsync(`
+      SELECT
+        (SELECT COUNT(*) FROM playersTable) AS players,
+        (SELECT COUNT(*) FROM playsTable) AS plays,
+        (SELECT COUNT(*) FROM sessionsTable) AS sessions
+    `));
+  }
+
+  async getPlayer(twitterUsername) {
+    await this._initialized;
+
+    if (twitterUsername.charAt(0) !== "@") {
+      twitterUsername = "@" + twitterUsername;
+    }
+
+    return (
+      /** @type {Promise<{twitterUsername: string, osuUsername: string} | null>} */ (this.getAsync(
+        `
+      SELECT * 
+      FROM playersTable 
+      WHERE twitterUsername LIKE $twitterUsername
+    `,
+        { $twitterUsername: twitterUsername }
+      ) || null)
+    );
+  }
+
+  async getPlayerStats(osuId) {
+    await this._initialized;
+
+    return /** @type {Promise<{ sessions: number, plays: number }>} */ (this.getAsync(
+      `
+      SELECT
+        (SELECT COUNT(*) FROM sessionsTable WHERE osuUsername = $osuId) AS sessions,
+        (SELECT COUNT(*) FROM playsTable WHERE osuUsername = $osuId) AS plays
+    `,
+      { $osuId: osuId }
+    ));
   }
 }
 
