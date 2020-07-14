@@ -24,7 +24,7 @@ services:
       - "redis-data:/data"
 
   adminer:
-    build: ./adminer
+    build: ./docker/adminer
     restart: unless-stopped
     ports:
       - "9000:8080"
@@ -47,7 +47,7 @@ services:
     image: prom/prometheus
     restart: unless-stopped
     volumes:
-      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./docker/config/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"

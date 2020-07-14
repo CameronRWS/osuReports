@@ -5,19 +5,11 @@
 const jimp = require("jimp");
 const axios = require("axios").default;
 const promisify = require("util").promisify;
-const {
-  URL
-} = require("url");
-const util = require("util");
+const { URL } = require("url");
 const _ = require("lodash");
 const fs = require("fs");
 const globalInstances = require("./globalInstances");
 const fsPromises = fs.promises;
-
-fsPromises
-  .access("/etc/passwd", fs.constants.R_OK | fs.constants.W_OK)
-  .then(() => console.log("can access"))
-  .catch(() => console.error("cannot access"));
 
 const DEFAULT_BACKGROUND =
   "https://assets.ppy.sh/beatmaps/1084284/covers/cover.jpg?1581740491";
@@ -194,11 +186,13 @@ class ResourceGetter {
   async getBackground(url) {
     const parsed = new URL(url);
     const getter = (url) =>
-      axios.get(url, {
-        responseType: "arraybuffer"
-      }).then((data) => {
-        return jimp.read(data.data);
-      });
+      axios
+        .get(url, {
+          responseType: "arraybuffer",
+        })
+        .then((data) => {
+          return jimp.read(data.data);
+        });
     let isDefault = false;
 
     if (parsed.search === "0") {

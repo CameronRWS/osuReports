@@ -1,18 +1,18 @@
 const express = require("express");
 const axios = require("axios").default;
-var playerObject = require("./playerObject");
-var keys = require("./consumerKeys");
+const playerObject = require("./playerObject");
+const keys = require("./consumerKeys");
 const app = express();
 const port = process.env.PORT || 3000;
 const bodyParser = require("body-parser");
-var passport = require("passport");
-var Strategy = require("passport-twitter").Strategy;
-var globalInstances = require("./globalInstances");
-var db = require("./db");
-var T = require("./twitterInstance");
-var UserCache = require("./userCache");
+const passport = require("passport");
+const Strategy = require("passport-twitter").Strategy;
+const globalInstances = require("./globalInstances");
+const db = require("./db");
+const T = require("./twitterInstance");
+const UserCache = require("./userCache");
 
-var session = require("express-session");
+const session = require("express-session");
 
 app.use(express.static("./static"));
 
@@ -24,19 +24,19 @@ passport.use(
       consumerKey: keys.consumer_key || "_this_key_is_undefined",
       consumerSecret: keys.consumer_secret || "_this_key_is_undefined",
       callbackURL:
-        process.env.CALLBACK_URL || "http://localhost:3000/twitter/return",
+        process.env.CALLBACK_URL || "http://localhost:3000/twitter/return"
     },
-    function (token, tokenSecret, profile, callback) {
+    function(token, tokenSecret, profile, callback) {
       return callback(null, profile);
     }
   )
 );
 
-passport.serializeUser(function (user, callback) {
+passport.serializeUser(function(user, callback) {
   callback(null, user);
 });
 
-passport.deserializeUser(function (obj, callback) {
+passport.deserializeUser(function(obj, callback) {
   callback(null, obj);
 });
 
@@ -63,7 +63,7 @@ function startServer() {
             user: " ",
             numOfPlayers: numOfPlayers,
             numOfPlays: numOfPlays,
-            numOfSessions: numOfSessions,
+            numOfSessions: numOfSessions
           });
         });
       });
@@ -117,7 +117,7 @@ function startServer() {
       (err, rows) => {
         res.render("stats.ejs", {
           user: req.user.username,
-          sessionObjectsSQL: rows,
+          sessionObjectsSQL: rows
         });
       }
     );
@@ -132,9 +132,9 @@ function startServer() {
   app.get(
     "/twitter/return",
     passport.authenticate("twitter", {
-      failureRedirect: "/",
+      failureRedirect: "/"
     }),
-    function (req, res) {
+    function(req, res) {
       updatePage(req, res, "");
     }
   );
@@ -177,9 +177,9 @@ function startServer() {
             "." +
             req.body.twitterUsername +
             " has joined osu! Reports. osu! profile linked: https://osu.ppy.sh/users/" +
-            osuUserID,
+            osuUserID
         };
-        T.post("statuses/update", tweet, function (err, data, response) {
+        T.post("statuses/update", tweet, function(err, data, response) {
           if (err) {
             console.log(err);
             cap = "Activation successful!";
@@ -252,7 +252,7 @@ async function updatePage(req, res, cap) {
             cap: cap,
             user: req.user.username,
             statusString: statusString,
-            numberOfSessions: numberOfSessions,
+            numberOfSessions: numberOfSessions
           });
         }
       );
@@ -272,7 +272,7 @@ async function updatePage(req, res, cap) {
       cap: cap,
       user: req.user.username,
       statusString: statusString,
-      numberOfSessions: numberOfSessions,
+      numberOfSessions: numberOfSessions
     });
   }
 }

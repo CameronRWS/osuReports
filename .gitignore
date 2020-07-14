@@ -4,3 +4,5 @@ logs.txt
 src/consumerKeys.js
 /*.png
 /out/**
+.nuxt/
+dist/
