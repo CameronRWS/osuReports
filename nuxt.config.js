@@ -9,8 +9,5 @@ export default {
     "~/src/server/api/twitter.js"
   ],
   modules: ["@nuxt/http"],
-  plugins: ["~/plugins/api"],
-  router: {
-    middleware: "player"
-  }
+  plugins: ["~/plugins/api"]
 };

@@ -1,5 +1,5 @@
 <template>
-  <main role="main">
+  <main role="main" v-if="player">
     <section class="jumbotron text-center">
       <div>
         <h1 v-if="player.osu" class="jumbotron-heading">
