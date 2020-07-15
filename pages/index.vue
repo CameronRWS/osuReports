@@ -12,11 +12,11 @@
           Get reports on your osu! sessions tweeted directly to you!
         </h3>
         <p class="my-4">
-          {{ players }} users whitelisted!
+          {{ stats.players }} users whitelisted!
           <br />
-          {{ plays }} plays and {{ sessions }} sessions recorded!
+          {{ stats.plays }} plays and {{ stats.sessions }} sessions recorded!
         </p>
-        <p>
+        <p v-if="!player">
           <a href="/twitter/login" class="btn btn-primary my-2">
             <strong>Login with twitter</strong>
           </a>
@@ -27,16 +27,11 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
+
 export default {
-  data() {
-    return {
-      players: 0,
-      plays: 0,
-      sessions: 0
-    };
-  },
-  async asyncData(context) {
-    return context.app.$api.getStats();
+  computed: {
+    ...mapState(["stats", "player"])
   }
 };
 </script>

@@ -2,11 +2,8 @@
   <main role="main" v-if="player">
     <section class="jumbotron text-center">
       <div>
-        <h1 v-if="player.osu" class="jumbotron-heading">
-          osu! Reports are currently enabled
-        </h1>
-        <h1 v-else class="jumbotron-heading">
-          osu! Reports are currently disabled
+        <h1 class="jumbotron-heading">
+          osu! Reports are currently {{ player.osu ? "enabled" : "disabled" }}
         </h1>
       </div>
 

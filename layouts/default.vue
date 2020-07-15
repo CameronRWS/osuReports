@@ -3,16 +3,22 @@
     <header>
       <div class="navbar navbar-dark bg-dark shadow-sm">
         <div class="container d-flex justify-content-between">
-          <a href="/" class="navbar-brand d-flex align-items-center">
+          <nuxt-link to="/" class="navbar-brand d-flex align-items-center">
             <strong>osu! Reports</strong>
-          </a>
+          </nuxt-link>
           <div v-if="player">
-            <nuxt-link to="/player" class="navbar-brand align-middle">
-              <strong> Signed in as: @{{ player.twitterUsername }} </strong>
-            </nuxt-link>
-            <button class="btn btn-secondary my-2" @click="logout">
-              Logout
-            </button>
+            <form action="/logout" method="POST">
+              <nuxt-link to="/player" class="navbar-brand align-middle">
+                <strong> Signed in as: @{{ player.twitterUsername }} </strong>
+              </nuxt-link>
+              <button
+                type="submit"
+                class="btn btn-secondary my-2"
+                @click.prevent="logout"
+              >
+                Logout
+              </button>
+            </form>
           </div>
           <a v-else href="/twitter/login" class="btn btn-secondary my-2">
             Login
@@ -20,6 +26,22 @@
         </div>
       </div>
     </header>
+
+    <section
+      v-if="flash && flash.length > 0"
+      class="jumbotron mt-0 mb-n1 py-2 rounded-0"
+    >
+      <div class="container">
+        <div
+          class="alert alert-danger"
+          role="alert"
+          v-for="f in flash"
+          :key="f"
+        >
+          {{ f }}
+        </div>
+      </div>
+    </section>
 
     <nuxt />
 
@@ -43,7 +65,7 @@ footer {
 import { mapState, mapActions } from "vuex";
 export default {
   computed: {
-    ...mapState(["player"])
+    ...mapState(["player", "flash"])
   },
   methods: {
     logout() {
