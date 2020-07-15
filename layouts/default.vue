@@ -6,17 +6,17 @@
           <a href="/" class="navbar-brand d-flex align-items-center">
             <strong>osu! Reports</strong>
           </a>
-          <span v-if="player">
-            <nuxt-link to="/player">
-              <strong class="navbar-brand">
-                Signed in as: @{{ player.twitterUsername }}
-              </strong>
+          <div v-if="player">
+            <nuxt-link to="/player" class="navbar-brand align-middle">
+              <strong> Signed in as: @{{ player.twitterUsername }} </strong>
             </nuxt-link>
-            <a href="/" class="btn btn-secondary my-2">Logout</a>
-          </span>
-          <a v-else href="/twitter/login" class="btn btn-secondary my-2"
-            >Login</a
-          >
+            <button class="btn btn-secondary my-2" @click="logout">
+              Logout
+            </button>
+          </div>
+          <a v-else href="/twitter/login" class="btn btn-secondary my-2">
+            Login
+          </a>
         </div>
       </div>
     </header>
@@ -40,10 +40,18 @@ footer {
 </style>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapActions } from "vuex";
 export default {
   computed: {
     ...mapState(["player"])
+  },
+  methods: {
+    logout() {
+      this.$api
+        .logout()
+        .then(() => this.$store.dispatch("logout"))
+        .then(() => this.$router.push("/"));
+    }
   }
 };
 </script>
