@@ -1,4 +1,5 @@
 import { getPlayerInfo } from "./server/api";
+import apiFactory from "./api.service";
 
 declare module "ioredis" {
   interface Commands {
@@ -20,6 +21,30 @@ type AsyncReturnType<
 declare module "@nuxt/types" {
   interface Context {
     player: AsyncReturnType<typeof getPlayerInfo>;
+  }
+}
+
+declare module "vue/types/vue" {
+  interface Vue {
+    $api: ReturnType<typeof apiFactory>;
+  }
+}
+
+import { Profile } from "passport-twitter";
+import { Response as OrigResponse } from "express";
+
+declare global {
+  namespace Express {
+    interface User extends Profile {}
+    interface Response {
+      flashes: string[];
+      flash: (msg: string) => Response & OrigResponse;
+      clearFlashes: () => Response & OrigResponse;
+    }
+
+    interface Request {
+      flashes: string[];
+    }
   }
 }
 

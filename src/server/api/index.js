@@ -4,6 +4,7 @@ const userCache = require("../../userCache");
 
 const db = require("../../db");
 const globalInstances = require("../../globalInstances");
+const { requireAuth } = require("../utils");
 
 const router = express.Router();
 
@@ -20,30 +21,19 @@ router.get("/stats", (req, res) => {
     });
 });
 
-/** @type {import("express").RequestHandler} */
-async function requireAuth(req, res, next) {
-  if (!req.session || !req.session.passport || !req.session.passport.user) {
-    return res.status(401).json("unauthenticated");
-  }
-  next();
-}
-
 /**
- * @param {import("express").Request} req
+ * @param {string} twitterUsername
  */
-async function getPlayerInfo(req) {
-  const twitterUsername = req.session.passport.user.username;
-
+async function getPlayerInfo(twitterUsername) {
   const player = await db.getPlayer(twitterUsername);
 
   let stats = null;
-  let username = null;
+  let osu = null;
   if (player && player.osuUsername) {
     stats = await db.getPlayerStats(player.osuUsername);
-    username = await userCache.getOsuUser(player.osuUsername);
+    const username = await userCache.getOsuUser(player.osuUsername);
+    osu = { id: player.osuUsername, username };
   }
-
-  const osu = { id: player.osuUsername, username };
 
   return {
     twitterUsername: twitterUsername,
@@ -53,7 +43,7 @@ async function getPlayerInfo(req) {
 }
 
 router.get("/player", requireAuth, (req, res) => {
-  getPlayerInfo(req)
+  getPlayerInfo(req.user.username)
     .then(player => {
       res.json(player);
     })
