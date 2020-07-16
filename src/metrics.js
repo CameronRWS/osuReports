@@ -59,16 +59,14 @@ const osuApiCalls = new client.Counter({
   registers: [registry]
 });
 
-const server = express();
-server.get("/metrics", (req, res) => {
+const app = express();
+app.get("/metrics", (req, res) => {
   res.set("Content-Type", registry.contentType);
   res.end(registry.metrics());
 });
-server.listen(metricsPort);
-console.log(`serving metrics on port ${metricsPort}`);
 
 module.exports = {
-  server,
+  app,
   activeSessions,
   activePlays,
   totalUsers,

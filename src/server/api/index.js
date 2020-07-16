@@ -53,6 +53,16 @@ router.get("/player", requireAuth, (req, res) => {
     });
 });
 
+async function getPlayerSessions(twitterUsername) {
+  return db.getPlayerSessions(`@${twitterUsername}`);
+}
+
+router.get("/player/sessions", requireAuth, (req, res) => {
+  getPlayerSessions(req.user.username).then(sessions =>
+    res.json(sessions || [])
+  );
+});
+
 module.exports = {
   router,
   getStats,

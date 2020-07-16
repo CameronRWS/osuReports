@@ -9,12 +9,21 @@
           twitter is to confirm that you own the twitter account that you may be
           enabling/disabling osu! Reports for. If you have any questions or
           concerns please direct message
-          <a href="https://twitter.com/osureports">@osureports</a>.
+          <twitter-link handle="osureports" />.
         </p>
         <p>
-          <nuxt-link to="/" class="btn btn-primary my-2">Back to home page</nuxt-link>
+          <nuxt-link to="/" class="btn btn-primary my-2"
+            >Back to home page</nuxt-link
+          >
         </p>
       </div>
     </section>
   </main>
 </template>
+
+<script>
+import twitterLink from "~/components/twitter-link.vue";
+export default {
+  components: { twitterLink }
+};
+</script>
