@@ -57,6 +57,13 @@ class DB extends sqlite3.Database {
     ((sql: string, ...params: any[]) => Promise<any>)}
      */
     this.getAsync = promisify(this.get).bind(this);
+
+    /**
+     * @type {((sql: string) => Promise<any[]>) &
+    ((sql: string, params: any)=> Promise<any[]>) &
+    ((sql: string, ...params: any[])=> Promise<any[]>)}
+     */
+    this.allAsync = promisify(this.all).bind(this);
   }
 
   async initialize() {
@@ -198,6 +205,19 @@ class DB extends sqlite3.Database {
     `,
       { $osuId: osuId }
     ));
+  }
+
+  async getPlayerSessions(twitterUsername) {
+    await this._initialized;
+
+    return this.allAsync(
+      `
+      SELECT *
+      FROM sessionsTable
+      WHERE osuUsername = (SELECT osuUsername FROM playersTable WHERE twitterUsername LIKE $twitterUsername)
+    `,
+      { $twitterUsername: twitterUsername }
+    );
   }
 }
 

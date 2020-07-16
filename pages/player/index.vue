@@ -3,7 +3,8 @@
     <section class="jumbotron text-center">
       <div>
         <h1 class="jumbotron-heading">
-          osu! Reports are currently {{ player.osu ? "enabled" : "disabled" }}
+          osu! Reports are currently
+          {{ player.osu ? "enabled" : "disabled" }}
         </h1>
       </div>
 
@@ -12,17 +13,10 @@
       <div v-if="player.osu">
         <strong>You have {{ player.stats.sessions }} recorded sessions.</strong>
 
-        <div v-if="['penz_', 'BelfryPossum'].includes(player.twitterUsername)">
-          <a href="/whitelist" class="btn btn-link my-2">
-            <strong>See list of current users!</strong>
-          </a>
-          <br />
-          <a href="/sessionslist" class="btn btn-link my-2">
-            <strong>See list of sessions!</strong>
-          </a>
-        </div>
-
         <div>
+          <nuxt-link to="/player/stats" class="btn btn-primary my-2">
+            View your osu! Reports Stats
+          </nuxt-link>
           <form action="/action_disable" method="POST">
             <input
               type="hidden"
