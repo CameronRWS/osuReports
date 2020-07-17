@@ -11,6 +11,7 @@ export default {
     yProp: [String, Function],
     xLabel: String,
     yLabel: String,
+    yTicks: { type: Function, required: false, default: value => value },
     reverse: { type: Boolean, required: false, default: false }
   },
   computed: {
@@ -62,9 +63,7 @@ export default {
                 ticks: {
                   reverse: this.reverse,
                   beginAtZero: false,
-                  callback: function(value, index, values) {
-                    return `#${value}`;
-                  }
+                  callback: this.yTicks
                 }
               }
             ]

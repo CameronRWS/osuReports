@@ -3,6 +3,7 @@ const { isArray, isString, all } = require("lodash/fp");
 /** @type {import("express").RequestHandler} */
 async function requireAuth(req, res, next) {
   if (!req.session || !req.session.passport || !req.session.passport.user) {
+    console.log(req.headers);
     if (req.xhr) return res.status(401).json("unauthenticated");
     return res.status(302).redirect("/");
   }
