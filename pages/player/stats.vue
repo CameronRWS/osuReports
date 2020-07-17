@@ -14,6 +14,7 @@
         :xProp="el => new Date(+el['date']).toLocaleDateString()"
         yProp="globalRank"
         yLabel="Global Rank"
+        :yTicks="value => `#${value}`"
         :reverse="true"
       />
       <chart
@@ -42,6 +43,7 @@ import chart from "~/components/chart.vue";
 import twitterLink from "~/components/twitter-link.vue";
 
 export default {
+  middleware: ["authed"],
   components: { chart, twitterLink },
   data() {
     return {
