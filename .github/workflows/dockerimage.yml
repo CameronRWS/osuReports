@@ -8,6 +8,7 @@ on:
 
 env:
   IMAGE: ajmadsen/osureports
+  WEB_IMAGE: ajmadsen/osureports-web
 
 jobs:
   build:
@@ -22,9 +23,12 @@ jobs:
           DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
         run: echo "$DOCKER_TOKEN" | docker login -u ajmadsen --password-stdin
 
-      - name: Build the Docker image
+      - name: Build the worker Docker image
         run: docker build . --file Dockerfile --tag $IMAGE:latest
 
+      - name: Build the web Docker image
+        run: docker build . --file Dockerfile.web --tag $WEB_IMAGE:latest
+
       - name: Push the docker image
-        run: docker push $IMAGE:latest
+        run: docker push $IMAGE:latest && docker push $WEB_IMAGE:latest
         if: github.base_ref == ''

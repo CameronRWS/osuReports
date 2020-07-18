@@ -19,7 +19,8 @@ passport.use(
 );
 
 passport.serializeUser(function(user, callback) {
-  callback(null, user);
+  const { id, username } = user;
+  callback(null, { id, username });
 });
 
 passport.deserializeUser(function(obj, callback) {

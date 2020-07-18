@@ -2,6 +2,8 @@ const express = require("express");
 const session = require("express-session");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const Redis = require("ioredis");
+const RedisStore = require("connect-redis")(session);
 
 const db = require("../db");
 const userCache = require("../userCache");
@@ -10,9 +12,21 @@ const { getPlayerInfo } = require("./api");
 
 const app = express();
 
+const redisClient = new Redis({
+  port: +(process.env.REDIS_PORT || "6379"),
+  host: process.env.REDIS_HOST || "localhost"
+});
+
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(session({ secret: "whatever", resave: true, saveUninitialized: true }));
+app.use(
+  session({
+    store: new RedisStore({ client: redisClient }),
+    secret: process.env.SESSION_SECRET || "tHi$_i$_s3cR3t",
+    resave: true,
+    saveUninitialized: true
+  })
+);
 app.use(flash);
 
 app.post("/logout", (req, res) => {

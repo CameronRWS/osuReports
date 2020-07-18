@@ -8,9 +8,7 @@
           height="300"
           alt="osu Reports Logo"
         />
-        <h3 class="mt-4">
-          Get reports on your osu! sessions tweeted directly to you!
-        </h3>
+        <h3 class="mt-4">Get reports on your osu! sessions tweeted directly to you!</h3>
         <p class="my-4">
           {{ stats.players }} users whitelisted!
           <br />
@@ -32,6 +30,9 @@ import { mapState } from "vuex";
 export default {
   computed: {
     ...mapState(["stats", "player"])
+  },
+  mounted() {
+    console.log(require("../src/consumerKeys"));
   }
 };
 </script>

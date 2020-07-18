@@ -5,6 +5,18 @@ services:
     image: ajmadsen/osureports
     restart: unless-stopped
     env_file: .env
+    expose:
+      - 9010
+    volumes:
+      - ./data:/data
+    environment:
+      DATABASE: /data/osuReports.db
+      REDIS_HOST: redis
+
+  osuReports-web:
+    image: ajmadsen/osureports-web
+    restart: unless-stopped
+    env_file: .env
     ports:
       - "3000:3000"
     expose:

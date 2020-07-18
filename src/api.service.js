@@ -1,6 +1,4 @@
-/**
- * @param {import('@nuxt/http').NuxtHTTPInstance} $http
- */
+/** @param {import('@nuxt/http').NuxtHTTPInstance} $http */
 export default $http => {
   $http.setHeader("x-requested-with", "XMLHttpRequest");
 
