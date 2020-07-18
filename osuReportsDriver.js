@@ -1,6 +1,7 @@
 const globalInstances = require("./src/globalInstances");
 const playerObject = require("./src/playerObject");
 const fs = require("fs");
+const http = require("http");
 const sessionStore = require("./src/sessionStore");
 const db = require("./src/db");
 const UserCache = require("./src/userCache");
@@ -12,6 +13,7 @@ const msPerIteration = 45000;
 
 if (!process.env.DEBUG) {
   initialize();
+  http.createServer(require("./src/metrics").app).listen(9010);
 } else {
   test();
 }
