@@ -11,24 +11,28 @@ env:
   WEB_IMAGE: ajmadsen/osureports-web
 
 jobs:
-  build:
+  build-worker:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && contains(toJson(github.event.commits), '***NO_CI***') == false && contains(toJson(github.event.commits), '[ci skip]') == false && contains(toJson(github.event.commits), '[skip ci]') == false
 
     steps:
       - uses: actions/checkout@v2
+      - uses: whoan/docker-build-with-cache-action@v5
+        with:
+          username: ajmadsen
+          password: "${{ secrets.DOCKER_TOKEN }}"
+          image_name: "${{ env.IMAGE }}"
+          push_image_and_stages: "${{ github.base_ref == '' }}"
 
-      - name: login to docker
-        env:
-          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-        run: echo "$DOCKER_TOKEN" | docker login -u ajmadsen --password-stdin
+  build-web:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && contains(toJson(github.event.commits), '***NO_CI***') == false && contains(toJson(github.event.commits), '[ci skip]') == false && contains(toJson(github.event.commits), '[skip ci]') == false
 
-      - name: Build the worker Docker image
-        run: docker build . --file Dockerfile --tag $IMAGE:latest
-
-      - name: Build the web Docker image
-        run: docker build . --file Dockerfile.web --tag $WEB_IMAGE:latest
-
-      - name: Push the docker image
-        run: docker push $IMAGE:latest && docker push $WEB_IMAGE:latest
-        if: github.base_ref == ''
+    steps:
+      - uses: actions/checkout@v2
+      - uses: whoan/docker-build-with-cache-action@v5
+        with:
+          username: ajmadsen
+          password: "${{ secrets.DOCKER_TOKEN }}"
+          image_name: "${{ env.WEB_IMAGE }}"
+          push_image_and_stages: "${{ github.base_ref == '' }}"
