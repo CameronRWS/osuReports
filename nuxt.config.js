@@ -10,5 +10,11 @@ export default {
     "~/src/server/api/twitter.js"
   ],
   modules: ["@nuxt/http"],
-  plugins: ["~/plugins/api"]
+  plugins: ["~/plugins/api"],
+  publicRuntimeConfig: {
+    baseUrl: ""
+  },
+  privateRuntimeConfig: {
+    baseUrl: "http://localhost:3000"
+  }
 };
