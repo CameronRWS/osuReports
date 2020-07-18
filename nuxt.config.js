@@ -11,10 +11,7 @@ export default {
   ],
   modules: ["@nuxt/http"],
   plugins: ["~/plugins/api"],
-  publicRuntimeConfig: {
-    baseUrl: ""
-  },
-  privateRuntimeConfig: {
-    baseUrl: "http://localhost:3000"
+  http: {
+    browserBaseURL: "/"
   }
 };
