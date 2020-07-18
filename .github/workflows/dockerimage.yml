@@ -35,4 +35,5 @@ jobs:
           username: ajmadsen
           password: "${{ secrets.DOCKER_TOKEN }}"
           image_name: "${{ env.WEB_IMAGE }}"
+          dockerfile: "Dockerfile.web"
           push_image_and_stages: "${{ github.base_ref == '' }}"
