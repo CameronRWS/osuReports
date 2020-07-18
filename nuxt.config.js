@@ -1,6 +1,7 @@
 export default {
   server: {
-    port: 3000
+    port: 3000,
+    host: "0.0.0.0"
   },
   css: ["bootstrap/dist/css/bootstrap.css"],
   serverMiddleware: [

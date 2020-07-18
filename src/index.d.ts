@@ -22,6 +22,10 @@ declare module "@nuxt/types" {
   interface Context {
     player: AsyncReturnType<typeof getPlayerInfo>;
   }
+
+  interface NuxtAppOptions {
+    $api: ReturnType<typeof import("~/src/api.service").default>;
+  }
 }
 
 declare module "vue/types/vue" {

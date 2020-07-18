@@ -1,6 +1,5 @@
 const globalInstances = require("./src/globalInstances");
 const playerObject = require("./src/playerObject");
-const startServer = require("./src/server");
 const fs = require("fs");
 const sessionStore = require("./src/sessionStore");
 const db = require("./src/db");
@@ -12,7 +11,6 @@ const { activeSessions, totalUsers, activePlays } = require("./src/metrics");
 const msPerIteration = 45000;
 
 if (!process.env.DEBUG) {
-  startServer();
   initialize();
 } else {
   test();
@@ -59,7 +57,7 @@ async function initialize() {
 }
 
 async function sleep(delay) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     setTimeout(resolve, delay);
   });
 }
@@ -111,7 +109,7 @@ async function getSessionInfoForConsole() {
   if (numOfOutputs > 2000) {
     //notice the writeFile
     if (!process.env.NO_FILE_LOG) {
-      fs.writeFile("./logs.txt", "CLEARED", (err) => {
+      fs.writeFile("./logs.txt", "CLEARED", err => {
         if (err) throw err;
       });
     }
@@ -124,7 +122,7 @@ async function getSessionInfoForConsole() {
   var output = "";
   output += "\nx-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x\n";
   output += `\nDate: ${currentTime.toLocaleString("en-US", {
-    timeZone: "America/Chicago",
+    timeZone: "America/Chicago"
   })}`;
   for (const player of globalInstances.playerObjects) {
     if (!player.sessionObject) {
