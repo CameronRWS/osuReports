@@ -219,6 +219,19 @@ class DB extends sqlite3.Database {
       { $twitterUsername: twitterUsername }
     );
   }
+
+  async getSessionPlays(sessionId) {
+    await this._initialized;
+
+    return /** @type {Promise<osuReports.Play[]>} */ (this.allAsync(
+      `
+      SELECT *
+      FROM playsTable
+      WHERE sessionId = $sessionId
+      `,
+      { $sessionId: sessionId }
+    ));
+  }
 }
 
 const dbPath = process.env.DATABASE || "osuReports.db";
