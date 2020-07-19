@@ -125,7 +125,7 @@ export default {
       };
     },
     modList() {
-      return this.mods.split(/,\s+/);
+      return this.mods.split(/,\s+/).filter(mod => mod.trim() !== "");
     }
   }
 };
@@ -300,6 +300,7 @@ table {
 
 .mods {
   margin: 0.3em 0;
+  min-height: 1.5em;
 }
 
 .spacer {
