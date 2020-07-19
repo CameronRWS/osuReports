@@ -8,7 +8,9 @@
           height="300"
           alt="osu Reports Logo"
         />
-        <h3 class="mt-4">Get reports on your osu! sessions tweeted directly to you!</h3>
+        <h3 class="mt-4">
+          Get reports on your osu! sessions tweeted directly to you!
+        </h3>
         <p class="my-4">
           {{ stats.players }} users whitelisted!
           <br />
@@ -18,6 +20,11 @@
           <a href="/twitter/login" class="btn btn-primary my-2">
             <strong>Login with twitter</strong>
           </a>
+        </p>
+        <p v-else>
+          <nuxt-link to="/player" class="btn btn-primary my-2">
+            Go to Dashboard
+          </nuxt-link>
         </p>
       </div>
     </section>
