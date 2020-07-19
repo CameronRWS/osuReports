@@ -249,7 +249,6 @@ export default {
 
 .title-artist-group {
   display: inline-block;
-  max-width: 70%;
 }
 
 .column {
