@@ -10,7 +10,7 @@ const msPerIteration = 45000;
 
 if (!process.env.DEBUG || true == true) {
   startServer();
-  initialize();
+  //initialize();
 } else {
   test();
 }
