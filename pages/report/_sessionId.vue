@@ -5,11 +5,7 @@
 </template>
 
 <script>
-import Play from "~/components/play.vue";
 export default {
-  components: {
-    Play
-  },
   data() {
     return {
       plays: []

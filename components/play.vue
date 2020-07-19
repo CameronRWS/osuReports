@@ -6,13 +6,13 @@
           <img alt="bg" style="display: none" :src="bg" @error="missingBg" />
         </div>
       </div>
-      <div class="text-content">
-        <div class="column grow no-basis">
+      <div class="text-content flex-wrap flex-xl-nowrap">
+        <div class="column flex-grow-1 flex-shrink-1 no-basis">
           <div class="title-artist-group">
             <div class="play-title blue-text">{{title}} [{{ version }}]</div>
             <div class="artist white-text">by {{ artist }}</div>
           </div>
-          <div class="song-stats">
+          <div class="song-stats flex-wrap flex-xl-nowrap">
             <table>
               <tbody>
                 <tr>
@@ -50,7 +50,7 @@
                 <tr>
                   <td>Difficulty:</td>
                   <td>
-                    <stars :nStars="difficulty" />
+                    <stars class="align-middle" :nStars="difficulty" />
                     ({{ difficulty }})
                   </td>
                 </tr>
@@ -58,7 +58,7 @@
             </table>
           </div>
         </div>
-        <div class="column">
+        <div class="column ml-auto">
           <div class="play-accuracy gold-text right">{{ (+playAccuracy).toFixed(2) }}%</div>
           <div class="rank">
             <rank :rank="rank" class="right" />
@@ -218,7 +218,7 @@ export default {
   /* width and color */
   -webkit-text-stroke: 0.5px black;
   height: auto;
-  min-width: 30rem;
+  /* min-width: 30rem; */
   line-height: 1.25;
 
   padding: 0.5em;
@@ -299,6 +299,10 @@ table {
 
   font-size: 1.25em;
 
+  td {
+    white-space: nowrap;
+  }
+
   & td:nth-last-of-type(odd) {
     @include white-text();
     vertical-align: bottom;
@@ -339,10 +343,6 @@ table {
 .performance {
   margin-top: -0.1em;
   font-size: 2em;
-}
-
-.grow {
-  flex-grow: 1;
 }
 
 .no-basis {

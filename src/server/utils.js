@@ -27,7 +27,7 @@ async function flash(req, res, next) {
   };
 
   res.clearFlashes = () => {
-    res.clearCookie("flash");
+    if (req.cookies.flash) res.clearCookie("flash");
     res.flashes = [];
     return res;
   };
