@@ -1,12 +1,27 @@
 <template>
   <section>
     <header>
-      <div class="navbar navbar-dark bg-dark shadow-sm">
-        <div class="container d-flex justify-content-between">
-          <nuxt-link to="/" class="navbar-brand d-flex align-items-center">
+      <div class="navbar navbar-dark navbar-expand-md bg-dark shadow-sm">
+        <div class="container-xxl d-flex">
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-toggle="collapse"
+            data-target="#player-collapse"
+            aria-controls="player-collapse"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <nuxt-link to="/" class="navbar-brand d-flex align-items-center ml-2 mr-auto">
             <strong>osu! Reports</strong>
           </nuxt-link>
-          <div v-if="player">
+          <div
+            v-if="player"
+            class="collapse navbar-collapse justify-content-end"
+            id="player-collapse"
+          >
             <form action="/logout" method="POST">
               <nuxt-link to="/player" class="navbar-brand align-middle">
                 <strong>Signed in as: @{{ player.twitterUsername }}</strong>
@@ -44,6 +59,8 @@ footer {
 </style>
 
 <script>
+if (!process || !process.server) require("bootstrap");
+
 import { mapState, mapActions } from "vuex";
 export default {
   computed: {
@@ -60,7 +77,10 @@ export default {
   head() {
     return {
       link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
-      title: "osu! Reports"
+      title: "osu! Reports",
+      meta: [
+        { name: "viewport", content: "width=device-width, initial-scale=1.0" }
+      ]
     };
   }
 };

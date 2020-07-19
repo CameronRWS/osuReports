@@ -1,9 +1,5 @@
 <template>
-  <img
-    src="~static/images/stars/onlinestar.png"
-    :style="{ height }"
-    alt="star"
-  />
+  <img src="~static/images/stars/onlinestar.png" :style="{ height }" alt="star" />
 </template>
 
 <script>
@@ -29,7 +25,6 @@ export default {
 
 <style lang="scss" scoped>
 img {
-  display: inline-block;
   margin-bottom: 0.25em;
 }
 </style>
