@@ -59,7 +59,8 @@ export default {
   },
   head() {
     return {
-      link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }]
+      link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
+      title: "osu! Reports"
     };
   }
 };
