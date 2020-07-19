@@ -1,4 +1,5 @@
 const express = require("express");
+const axios = require("axios").default;
 
 const userCache = require("../../userCache");
 
@@ -67,6 +68,36 @@ router.get("/player/sessions/:sessionId/plays", requireAuth, (req, res) => {
   db.getSessionPlays(req.params.sessionId)
     .then(plays => res.json(plays || []))
     .catch(() => res.status(404).json("session not found"));
+});
+
+router.get("/cover/:beatmapId", requireAuth, (req, res) => {
+  const { beatmapId } = req.params;
+  if (!beatmapId) return res.status(400).end();
+  const coverUrl = `https://assets.ppy.sh/beatmaps/${beatmapId}/covers/cover.jpg`;
+  // if (req.xhr || req.headers["sec-fetch-site"] === "cross-site") {
+  axios
+    .get(coverUrl, { responseType: "arraybuffer" })
+    .then(data => {
+      return res
+        .status(200)
+        .contentType("image/jpeg")
+        .end(data.data);
+    })
+    .catch(err => {
+      return axios
+        .get("https://assets.ppy.sh/beatmaps/1084284/covers/cover.jpg", {
+          responseType: "arraybuffer"
+        })
+        .then(({ data }) =>
+          res
+            .status(200)
+            .contentType("image/jpeg")
+            .end(data)
+        );
+      return res.status(404).end();
+    });
+  // }
+  // return res.status(302).redirect(coverUrl);
 });
 
 module.exports = {
