@@ -2,7 +2,9 @@
   <div class="play">
     <div class="play-container">
       <div class="layer">
-        <div class="image-container" :style="style" />
+        <div class="image-container" :style="style">
+          <img alt="bg" style="display: none" :src="bg" @error="missingBg" />
+        </div>
       </div>
       <div class="text-content">
         <div class="column grow no-basis">
@@ -15,19 +17,19 @@
               <tbody>
                 <tr>
                   <td>Circle Size:</td>
-                  <td>{{ circleSize }}</td>
+                  <td>{{ (+circleSize).toFixed(1) }}</td>
                 </tr>
                 <tr>
                   <td>HP Drain:</td>
-                  <td>{{ healthPoints }}</td>
+                  <td>{{ (+healthPoints).toFixed(1) }}</td>
                 </tr>
                 <tr>
                   <td>Approach Rate:</td>
-                  <td>{{ approachRate }}</td>
+                  <td>{{ (+approachRate).toFixed(1) }}</td>
                 </tr>
                 <tr>
                   <td>Overall Difficulty:</td>
-                  <td>{{ overallDifficulty }}</td>
+                  <td>{{ (+overallDifficulty).toFixed(1) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -57,7 +59,7 @@
           </div>
         </div>
         <div class="column">
-          <div class="play-accuracy gold-text right">{{ playAccuracy }}%</div>
+          <div class="play-accuracy gold-text right">{{ (+playAccuracy).toFixed(2) }}%</div>
           <div class="rank">
             <rank :rank="rank" class="right" />
           </div>
@@ -81,6 +83,11 @@
 import Stars from "~/components/stars.vue";
 import Rank from "~/components/rank.vue";
 import Mod from "~/components/mod.vue";
+
+const DEFAULT_BACKGROUND =
+  "https://assets.ppy.sh/beatmaps/1084284/covers/cover.jpg";
+
+const BG_REGEX = /https:\/\/assets\.ppy\.sh\/beatmaps\/(\d+)\/covers\/cover.jpg/i;
 
 export default {
   components: {
@@ -118,14 +125,31 @@ export default {
     overallDifficulty: Number,
     circleSize: Number
   },
+  data() {
+    return {
+      overrideBg: null
+    };
+  },
   computed: {
+    /** @returns {{backgroundImage: string}} */
     style() {
       return {
-        backgroundImage: `url("${this.bg}")`
+        backgroundImage: `url("${this.overrideBg || this.bg}")`
       };
     },
+    /** @returns {string[]} */
     modList() {
       return this.mods.split(/,\s+/).filter(mod => mod.trim() !== "");
+    },
+    /** @returns {string} */
+    beatmapId() {
+      const match = [...BG_REGEX.exec(this.bg)];
+      return match[1];
+    }
+  },
+  methods: {
+    missingBg() {
+      this.overrideBg = DEFAULT_BACKGROUND;
     }
   }
 };
@@ -194,13 +218,15 @@ export default {
   /* width and color */
   -webkit-text-stroke: 0.5px black;
   height: auto;
-  padding: 20px;
   min-width: 30rem;
   line-height: 1.25;
+
+  padding: 0.5em;
 }
 
 .play-container {
   width: 100%;
+  height: 100%;
   background: linear-gradient(#bbb, #000);
   position: relative;
   border-radius: 0.5em;
