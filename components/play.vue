@@ -6,13 +6,34 @@
           <img alt="bg" style="display: none" :src="bg" @error="missingBg" />
         </div>
       </div>
-      <div class="text-content flex-wrap flex-xl-nowrap">
-        <div class="column flex-grow-1 flex-shrink-1 no-basis">
+      <div class="row text-content flex-wrap flex-xl-nowrap">
+        <div
+          class="col-md-8 col-12 d-flex flex-column justify-content-between align-items-center align-items-md-start"
+        >
           <div class="title-artist-group">
             <div class="play-title blue-text">{{title}} [{{ version }}]</div>
             <div class="artist white-text">by {{ artist }}</div>
           </div>
-          <div class="song-stats flex-wrap flex-xl-nowrap">
+          <div class="d-md-none d-flex my-2 flex-wrap small-play-stats justify-content-center">
+            <div class="play-accuracy gold-text mx-2">{{ (+playAccuracy).toFixed(2) }}%</div>
+            <div class="rank mx-2">
+              <rank :rank="rank" class="align-middle" />
+            </div>
+            <div class="counts white-text my-auto mx-2">
+              <span class="blue-text">{{ counts300 }}</span> /
+              <span class="green-text">{{ counts100 }}</span> /
+              <span class="gold-text">{{ counts50 }}</span> /
+              <span class="red-text">{{ countsMiss }}</span>
+            </div>
+            <div class="performance gold-text mx-2">{{ Math.ceil(parseFloat(playPP)) }}pp</div>
+            <div class="w-100" />
+            <div>
+              <mod v-for="mod in modList" :key="mod" :mod="mod" />
+            </div>
+          </div>
+          <div
+            class="song-stats flex-wrap flex-sm-nowrap align-items-baseline justify-content-around justify-content-md-start"
+          >
             <table>
               <tbody>
                 <tr>
@@ -33,7 +54,7 @@
                 </tr>
               </tbody>
             </table>
-            <table>
+            <table class="ml-md-2 mt-2">
               <tbody>
                 <tr>
                   <td>Combo:</td>
@@ -58,7 +79,7 @@
             </table>
           </div>
         </div>
-        <div class="column ml-auto">
+        <div class="col-md-4 ml-auto d-md-flex flex-column justify-content-between d-none">
           <div class="play-accuracy gold-text right">{{ (+playAccuracy).toFixed(2) }}%</div>
           <div class="rank">
             <rank :rank="rank" class="right" />
@@ -277,25 +298,26 @@ export default {
   display: inline-block;
 }
 
+.small-play-stats {
+  font-size: x-small;
+}
+
 .column {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-content: space-between;
+  flex-wrap: wrap;
 }
 
 .song-stats {
   display: flex;
   flex-direction: row;
-
-  & * + * {
-    margin-left: 1em;
-  }
 }
 
 table {
   border: 0;
   display: block;
-  margin-top: 1em;
 
   font-size: 1.25em;
 
