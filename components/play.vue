@@ -53,7 +53,7 @@
                   <td>Overall Difficulty:</td>
                   <td>{{ (+overallDifficulty).toFixed(1) }}</td>
                 </tr>
-                <tr class="d-table-row d-sm-none pt-2">
+                <!-- <tr class="d-table-row d-sm-none pt-2">
                   <td class="p-2">{{ ' ' }}</td>
                   <td class="p-2">{{ ' ' }}</td>
                 </tr>
@@ -75,10 +75,10 @@
                     <stars class="align-middle" :nStars="difficulty" />
                     ({{ difficulty }})
                   </td>
-                </tr>
+                </tr>-->
               </tbody>
             </table>
-            <table class="ml-md-2 mt-2 d-none d-sm-table">
+            <table class="ml-sm-2 mt-2 d-sm-table">
               <tbody>
                 <tr>
                   <td>Combo:</td>
@@ -375,5 +375,15 @@ table {
 .performance {
   margin-top: -0.1em;
   font-size: 2em;
+}
+
+@media screen and (max-width: 400px) {
+  .play {
+    font-size: 0.7em;
+  }
+
+  table + table {
+    margin-left: 1em;
+  }
 }
 </style>
