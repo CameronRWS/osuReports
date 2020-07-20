@@ -8,13 +8,15 @@
       </div>
       <div class="row text-content flex-wrap flex-xl-nowrap">
         <div
-          class="col-md-8 col-12 d-flex flex-column justify-content-between align-items-center align-items-md-start"
+          class="col-md-8 col-12 col-xl-12 col-xxl-8 d-flex flex-column justify-content-between align-items-center align-items-xl-center align-items-md-start align-items-xxl-start"
         >
           <div class="title-artist-group">
             <div class="play-title blue-text">{{title}} [{{ version }}]</div>
             <div class="artist white-text">by {{ artist }}</div>
           </div>
-          <div class="d-md-none d-flex my-2 flex-wrap small-play-stats justify-content-center">
+          <div
+            class="d-md-none d-flex my-2 flex-wrap small-play-stats justify-content-center d-xl-flex d-xxl-none"
+          >
             <div class="play-accuracy gold-text mx-2">{{ (+playAccuracy).toFixed(2) }}%</div>
             <div class="rank mx-2">
               <rank :rank="rank" class="align-middle" />
@@ -52,9 +54,32 @@
                   <td>Overall Difficulty:</td>
                   <td>{{ (+overallDifficulty).toFixed(1) }}</td>
                 </tr>
+                <tr class="d-table-row d-sm-none pt-2">
+                  <td class="p-2">{{ ' ' }}</td>
+                  <td class="p-2">{{ ' ' }}</td>
+                </tr>
+                <tr class="d-table-row d-sm-none mt-2">
+                  <td>Combo:</td>
+                  <td>{{ combo }} / {{ maxCombo }}</td>
+                </tr>
+                <tr class="d-table-row d-sm-none">
+                  <td>BPM:</td>
+                  <td>{{ bpm }}</td>
+                </tr>
+                <tr class="d-table-row d-sm-none">
+                  <td>Duration:</td>
+                  <td>{{ playDuration }}</td>
+                </tr>
+                <tr class="d-table-row d-sm-none">
+                  <td>Difficulty:</td>
+                  <td>
+                    <stars class="align-middle" :nStars="difficulty" />
+                    ({{ difficulty }})
+                  </td>
+                </tr>
               </tbody>
             </table>
-            <table class="ml-md-2 mt-2">
+            <table class="ml-md-2 mt-2 d-none d-sm-table">
               <tbody>
                 <tr>
                   <td>Combo:</td>
@@ -79,7 +104,9 @@
             </table>
           </div>
         </div>
-        <div class="col-md-4 ml-auto d-md-flex flex-column justify-content-between d-none">
+        <div
+          class="col-md-4 ml-auto d-none d-md-flex d-xl-none d-xxl-flex flex-column justify-content-between"
+        >
           <div class="play-accuracy gold-text right">{{ (+playAccuracy).toFixed(2) }}%</div>
           <div class="rank">
             <rank :rank="rank" class="right" />
@@ -302,14 +329,6 @@ export default {
   font-size: x-small;
 }
 
-.column {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-content: space-between;
-  flex-wrap: wrap;
-}
-
 .song-stats {
   display: flex;
   flex-direction: row;
@@ -320,10 +339,6 @@ table {
   display: block;
 
   font-size: 1.25em;
-
-  td {
-    white-space: nowrap;
-  }
 
   & td:nth-last-of-type(odd) {
     @include white-text();
@@ -354,10 +369,6 @@ table {
   min-height: 1.5em;
 }
 
-.spacer {
-  flex: 1;
-}
-
 .counts {
   font-size: 1.5em;
 }
@@ -365,9 +376,5 @@ table {
 .performance {
   margin-top: -0.1em;
   font-size: 2em;
-}
-
-.no-basis {
-  flex-basis: 0;
 }
 </style>

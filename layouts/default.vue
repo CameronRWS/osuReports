@@ -2,7 +2,7 @@
   <section>
     <header>
       <div class="navbar navbar-dark navbar-expand-md bg-dark shadow-sm">
-        <div class="container-xxl d-flex">
+        <div class="container d-flex">
           <button
             class="navbar-toggler"
             type="button"
@@ -14,7 +14,7 @@
           >
             <span class="navbar-toggler-icon"></span>
           </button>
-          <nuxt-link to="/" class="navbar-brand d-flex align-items-center ml-2 mr-auto">
+          <nuxt-link to="/" class="navbar-brand d-flex align-items-center ml-3 ml-md-0 mr-auto">
             <strong>osu! Reports</strong>
           </nuxt-link>
           <div
