@@ -1,7 +1,9 @@
 <template>
-  <div class="row justify-content-center">
-    <play v-for="play in plays" :key="play.date" v-bind="play" class="col-xl-6 col-12" />
-  </div>
+  <section class="container">
+    <div class="row justify-content-center">
+      <play v-for="play in plays" :key="play.date" v-bind="play" class="col-xl-6 col-12" />
+    </div>
+  </section>
 </template>
 
 <script>
