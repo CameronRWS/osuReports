@@ -202,9 +202,11 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style>
 @import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&display=swap");
+</style>
 
+<style lang="scss" scoped>
 @mixin blue-text {
   background: -webkit-linear-gradient(rgb(112, 212, 255), rgb(0, 191, 255));
   background-clip: text;
