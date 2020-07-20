@@ -14,5 +14,8 @@ export default {
   http: {
     browserBaseURL: "/"
   },
-  components: true
+  components: true,
+  build: {
+    extractCSS: true
+  }
 };
