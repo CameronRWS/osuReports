@@ -15,7 +15,7 @@
             <div class="artist white-text">by {{ artist }}</div>
           </div>
           <div
-            class="d-md-none d-flex my-2 flex-wrap small-play-stats justify-content-center d-xl-flex d-xxl-none"
+            class="d-md-none d-flex my-2 flex-wrap small-play-stats justify-content-center align-items-center d-xl-flex d-xxl-none"
           >
             <div class="play-accuracy gold-text mx-2">{{ (+playAccuracy).toFixed(2) }}%</div>
             <div class="rank mx-2">
@@ -28,9 +28,8 @@
               <span class="red-text">{{ countsMiss }}</span>
             </div>
             <div class="performance gold-text mx-2">{{ Math.ceil(parseFloat(playPP)) }}pp</div>
-            <div class="w-100" />
             <div>
-              <mod v-for="mod in modList" :key="mod" :mod="mod" />
+              <mod v-for="mod in modList" :key="mod" :mod="mod" class="align-middle" />
             </div>
           </div>
           <div
