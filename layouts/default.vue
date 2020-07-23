@@ -64,7 +64,7 @@ if (!process || !process.server) require("bootstrap");
 import { mapState, mapActions } from "vuex";
 export default {
   computed: {
-    ...mapState(["player", "flash"])
+    ...mapState(["player", "flash"]),
   },
   methods: {
     logout() {
@@ -72,16 +72,16 @@ export default {
         .logout()
         .then(() => this.$store.dispatch("logout"))
         .then(() => this.$router.push("/"));
-    }
+    },
   },
   head() {
     return {
       link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
       title: "osu! Reports",
       meta: [
-        { name: "viewport", content: "width=device-width, initial-scale=1.0" }
-      ]
+        { name: "viewport", content: "width=device-width, initial-scale=1.0" },
+      ],
     };
-  }
+  },
 };
 </script>
