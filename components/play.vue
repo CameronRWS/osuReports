@@ -140,7 +140,7 @@ export default {
   components: {
     Stars,
     Rank,
-    Mod
+    Mod,
   },
   props: {
     sessionId: Number,
@@ -170,35 +170,35 @@ export default {
     approachRate: Number,
     healthPoints: Number,
     overallDifficulty: Number,
-    circleSize: Number
+    circleSize: Number,
   },
   data() {
     return {
-      overrideBg: null
+      overrideBg: null,
     };
   },
   computed: {
     /** @returns {{backgroundImage: string}} */
     style() {
       return {
-        backgroundImage: `url("${this.overrideBg || this.bg}")`
+        backgroundImage: `url("${this.overrideBg || this.bg}")`,
       };
     },
     /** @returns {string[]} */
     modList() {
-      return this.mods.split(/,\s+/).filter(mod => mod.trim() !== "");
+      return this.mods.split(/,\s+/).filter((mod) => mod.trim() !== "");
     },
     /** @returns {string} */
     beatmapId() {
       const match = [...BG_REGEX.exec(this.bg)];
       return match[1];
-    }
+    },
   },
   methods: {
     missingBg() {
       this.overrideBg = DEFAULT_BACKGROUND;
-    }
-  }
+    },
+  },
 };
 </script>
 
