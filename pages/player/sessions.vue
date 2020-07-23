@@ -6,14 +6,7 @@
       </div>
       <table style="width:100%">
         <tr>
-          <th>Date</th>
-          <th>Session</th>
-        </tr>
-        <tr v-for="session in sessions" :key="session.sessionId">
-          <th>{{session.date}}</th>
-          <th>
-            <nuxt-link :to="`/report/${session.sessionID}`" class="btn btn-primary my-2">View</nuxt-link>
-          </th>
+          <session v-for="session in sessions" :key="session.sessionID" v-bind="session" />
         </tr>
       </table>
       <nuxt-link to="/player" class="btn btn-primary my-2">Back to dashboard</nuxt-link>
@@ -23,10 +16,10 @@
 
 <script>
 import twitterLink from "~/components/twitter-link.vue";
-
+import session from "~/components/session.vue";
 export default {
   middleware: ["authed"],
-  components: {},
+  components: { session },
   data() {
     return {
       sessions: [],
@@ -39,4 +32,3 @@ export default {
   },
 };
 </script>
-
