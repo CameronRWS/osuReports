@@ -1,6 +1,8 @@
 <template>
   <section class="container">
     <div class="row justify-content-center">
+      <session-top v-bind="session" />
+      <br />
       <play v-for="play in plays" :key="play.date" v-bind="play" class="col-xl-6 col-12" />
     </div>
   </section>
@@ -10,18 +12,19 @@
 export default {
   data() {
     return {
-      plays: []
+      plays: [],
     };
   },
   async asyncData({ params, app: { $api } }) {
     return {
-      plays: await $api.getSessionPlays(params.sessionId)
+      plays: await $api.getSessionPlays(params.sessionId),
+      session: await $api.getSession(params.sessionId),
     };
   },
   validate(ctx) {
     const reportId = ctx.params.sessionId;
     return !!reportId && !/\D/.test(reportId);
-  }
+  },
 };
 </script>
 

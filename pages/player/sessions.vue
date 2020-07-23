@@ -5,7 +5,7 @@
         <h1 class="jumbotron-heading">Your osu! Reports</h1>
       </div>
       <div class="container">
-        <session v-for="session in sessions" :key="session.sessionID" v-bind="session" />
+        <session-row v-for="session in sessions" :key="session.sessionID" v-bind="session" />
         <nuxt-link to="/player" class="btn btn-primary my-2">Back to dashboard</nuxt-link>
       </div>
     </section>
@@ -14,19 +14,19 @@
 
 <script>
 import twitterLink from "~/components/twitter-link.vue";
-import session from "~/components/session.vue";
+import sessionRow from "~/components/session-row.vue";
 export default {
   middleware: ["authed"],
-  components: { session },
+  components: { sessionRow },
   data() {
     return {
-      sessions: []
+      sessions: [],
     };
   },
   async asyncData(ctx) {
     const { $api } = ctx.app;
 
     return { sessions: await $api.getPlayerSessions() };
-  }
+  },
 };
 </script>

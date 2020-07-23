@@ -12,6 +12,8 @@ export default $http => {
     /** @returns {Promise<osuReports.Play[]>} */
     getSessionPlays: async sessionId =>
       $http.$get(`/api/player/sessions/${sessionId}/plays`),
+    getSession: async sessionId =>
+      $http.$get(`/api/player/sessions/${sessionId}`),
     logout: async () => $http.post(`/logout`)
   };
 };
