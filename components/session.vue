@@ -1,15 +1,16 @@
 <template>
   <div class="session">
-    <nuxt-link :to="`/report/${sessionID}`">
-      <div class="session-container">
-        <div class="layer">
-          <div class="image-container">
-            <!-- <img alt="bg" :src="image" /> -->
-          </div>
-          <div class="blue-text">{{date}} - {{sessionDuration}} - {{globalRank}}</div>
-        </div>
+    <div class="session-container">
+      <div class="layer">
+        <div class="image-container"></div>
       </div>
-    </nuxt-link>
+      <div class="row text-content">
+        <nuxt-link
+          class="blue-text"
+          :to="`/report/${sessionID}`"
+        >{{date}} - {{sessionDuration}} - {{globalRank}}</nuxt-link>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -18,13 +19,13 @@
 import image from "~/assets/images/spectrumTriangles.jpg";
 
 export default {
-  data: function () {
+  data: function() {
     return {
-      image: image,
+      image: image
     };
   },
   props: {
-    sessionID: String,
+    sessionID: Number,
     tweetID: String,
     date: String,
     osuUsername: String,
@@ -45,8 +46,8 @@ export default {
     countSS: Number,
     countSPlus: Number,
     countS: Number,
-    countA: Number,
-  },
+    countA: Number
+  }
 };
 </script>
 
@@ -75,6 +76,7 @@ export default {
   line-height: 1.25;
 
   padding: 0.5em;
+  min-height: 4em;
 }
 
 .session-container {
@@ -98,8 +100,22 @@ export default {
   padding: 0.2em;
   height: 100%;
   border-radius: calc(0.5em * 0.75);
-  filter: brightness(50%);
+  /* filter: brightness(50%); */
+  /* do whatever you want to the background here */
+  background: #eee;
   background-size: cover;
   background-repeat: no-repeat;
+}
+
+.text-content {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0.5em;
+
+  &,
+  & * {
+    z-index: 1;
+  }
 }
 </style>
