@@ -9,13 +9,10 @@ export default {
     "~/src/server/api/middleware.js",
     "~/src/server/api/twitter.js"
   ],
-  modules: ["@nuxt/http", "~/modules/bootstrap"],
+  modules: ["@nuxt/http", "~/modules/bootstrap", "~/modules/extractCSS"],
   plugins: ["~/plugins/api"],
   http: {
     browserBaseURL: "/"
   },
-  components: true,
-  build: {
-    extractCSS: true
-  }
+  components: true
 };
