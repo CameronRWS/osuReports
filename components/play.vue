@@ -379,9 +379,13 @@ table {
   font-size: 2em;
 }
 
-@media screen and (max-width: 400px) {
+@media screen and (max-width: 450px) {
   .play {
     font-size: 0.7em;
+  }
+
+  .small-play-stats {
+    font-size: 0.6em;
   }
 
   table + table {
