@@ -69,13 +69,13 @@ router.get("/player/sessions", requireAuth, (req, res) => {
   );
 });
 
-router.get("/player/sessions/:sessionId/plays", requireAuth, (req, res) => {
+router.get("/player/sessions/:sessionId/plays", (req, res) => {
   db.getSessionPlays(req.params.sessionId)
     .then(plays => res.json(plays || []))
     .catch(() => res.status(404).json("session not found"));
 });
 
-router.get("/player/sessions/:sessionId", requireAuth, (req, res) => {
+router.get("/player/sessions/:sessionId", (req, res) => {
   db.getSession(req.params.sessionId)
     .then(session => res.json(session || []))
     .catch(() => res.status(404).json("session not found"));
