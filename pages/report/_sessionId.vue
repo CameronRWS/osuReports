@@ -10,7 +10,7 @@
 
 <script>
 // @ts-ignore
-import imagex from "~/assets/images/osuReportsLogoOptim.png";
+import imagex from "~/assets/images/reportCard.png";
 
 export default {
   async asyncData({ params, app: { $api } }) {
