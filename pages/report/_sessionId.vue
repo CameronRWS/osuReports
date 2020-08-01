@@ -13,12 +13,6 @@
 import imagex from "~/assets/images/osuReportsLogoOptim.png";
 
 export default {
-  data() {
-    return {
-      plays: [],
-      imagex: imagex,
-    };
-  },
   async asyncData({ params, app: { $api } }) {
     return {
       plays: await $api.getSessionPlays(params.sessionId),
@@ -37,7 +31,7 @@ export default {
         {
           hid: "twitterTitle",
           name: "twitter:title",
-          content: "osu! Report for: PenZa",
+          content: "testinggggg",
         },
         {
           hid: "twitterDesc",
