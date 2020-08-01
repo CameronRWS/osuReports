@@ -30,7 +30,7 @@ services:
   osuReports-web-dev:
     image: ajmadsen/osureports-web:dev
     restart: unless-stopped
-    env_file: .env
+    env_file: .env-dev
     ports:
       - "3002:3000"
     expose:
