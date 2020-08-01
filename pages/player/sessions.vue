@@ -73,9 +73,9 @@ th {
     left: -9999px;
   }
 
-  tr {
+  /* tr {
     border: 1px solid #ccc;
-  }
+  } */
 
   td {
     /* Behave  like a "row" */
