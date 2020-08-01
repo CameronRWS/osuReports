@@ -6,13 +6,35 @@
           <img alt="bg" style="display: none" :src="bg" @error="missingBg" />
         </div>
       </div>
-      <div class="text-content">
-        <div class="column grow no-basis">
+      <div class="row text-content flex-wrap flex-xl-nowrap">
+        <div
+          class="col-md-8 col-12 col-xl-12 col-xxl-8 d-flex flex-column justify-content-between align-items-center align-items-xl-center align-items-md-start align-items-xxl-start"
+        >
           <div class="title-artist-group">
             <div class="play-title blue-text">{{title}} [{{ version }}]</div>
             <div class="artist white-text">by {{ artist }}</div>
           </div>
-          <div class="song-stats">
+          <div
+            class="d-md-none d-flex my-2 flex-wrap small-play-stats justify-content-center align-items-center d-xl-flex d-xxl-none"
+          >
+            <div class="play-accuracy gold-text mx-2">{{ (+playAccuracy).toFixed(2) }}%</div>
+            <div class="rank mx-2">
+              <rank :rank="rank" class="align-middle" />
+            </div>
+            <div class="counts white-text my-auto mx-2">
+              <span class="blue-text">{{ counts300 }}</span> /
+              <span class="green-text">{{ counts100 }}</span> /
+              <span class="gold-text">{{ counts50 }}</span> /
+              <span class="red-text">{{ countsMiss }}</span>
+            </div>
+            <div class="performance gold-text mx-2">{{ Math.ceil(parseFloat(playPP)) }}pp</div>
+            <div>
+              <mod v-for="mod in modList" :key="mod" :mod="mod" class="align-middle" />
+            </div>
+          </div>
+          <div
+            class="song-stats flex-wrap flex-sm-nowrap align-items-baseline justify-content-around justify-content-md-start"
+          >
             <table>
               <tbody>
                 <tr>
@@ -31,9 +53,32 @@
                   <td>Overall Difficulty:</td>
                   <td>{{ (+overallDifficulty).toFixed(1) }}</td>
                 </tr>
+                <!-- <tr class="d-table-row d-sm-none pt-2">
+                  <td class="p-2">{{ ' ' }}</td>
+                  <td class="p-2">{{ ' ' }}</td>
+                </tr>
+                <tr class="d-table-row d-sm-none mt-2">
+                  <td>Combo:</td>
+                  <td>{{ combo }} / {{ maxCombo }}</td>
+                </tr>
+                <tr class="d-table-row d-sm-none">
+                  <td>BPM:</td>
+                  <td>{{ bpm }}</td>
+                </tr>
+                <tr class="d-table-row d-sm-none">
+                  <td>Duration:</td>
+                  <td>{{ playDuration }}</td>
+                </tr>
+                <tr class="d-table-row d-sm-none">
+                  <td>Difficulty:</td>
+                  <td>
+                    <stars class="align-middle" :nStars="difficulty" />
+                    ({{ difficulty }})
+                  </td>
+                </tr>-->
               </tbody>
             </table>
-            <table>
+            <table class="ml-sm-2 mt-2 d-sm-table">
               <tbody>
                 <tr>
                   <td>Combo:</td>
@@ -50,7 +95,7 @@
                 <tr>
                   <td>Difficulty:</td>
                   <td>
-                    <stars :nStars="difficulty" />
+                    <stars class="align-middle" :nStars="difficulty" />
                     ({{ difficulty }})
                   </td>
                 </tr>
@@ -58,7 +103,9 @@
             </table>
           </div>
         </div>
-        <div class="column">
+        <div
+          class="col-md-4 ml-auto d-none d-md-flex d-xl-none d-xxl-flex flex-column justify-content-between"
+        >
           <div class="play-accuracy gold-text right">{{ (+playAccuracy).toFixed(2) }}%</div>
           <div class="rank">
             <rank :rank="rank" class="right" />
@@ -93,7 +140,7 @@ export default {
   components: {
     Stars,
     Rank,
-    Mod
+    Mod,
   },
   props: {
     sessionId: Number,
@@ -123,41 +170,43 @@ export default {
     approachRate: Number,
     healthPoints: Number,
     overallDifficulty: Number,
-    circleSize: Number
+    circleSize: Number,
   },
   data() {
     return {
-      overrideBg: null
+      overrideBg: null,
     };
   },
   computed: {
     /** @returns {{backgroundImage: string}} */
     style() {
       return {
-        backgroundImage: `url("${this.overrideBg || this.bg}")`
+        backgroundImage: `url("${this.overrideBg || this.bg}")`,
       };
     },
     /** @returns {string[]} */
     modList() {
-      return this.mods.split(/,\s+/).filter(mod => mod.trim() !== "");
+      return this.mods.split(/,\s+/).filter((mod) => mod.trim() !== "");
     },
     /** @returns {string} */
     beatmapId() {
       const match = [...BG_REGEX.exec(this.bg)];
       return match[1];
-    }
+    },
   },
   methods: {
     missingBg() {
       this.overrideBg = DEFAULT_BACKGROUND;
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style lang="scss" scoped>
+<style>
 @import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&display=swap");
+</style>
 
+<style lang="scss" scoped>
 @mixin blue-text {
   background: -webkit-linear-gradient(rgb(112, 212, 255), rgb(0, 191, 255));
   background-clip: text;
@@ -218,7 +267,7 @@ export default {
   /* width and color */
   -webkit-text-stroke: 0.5px black;
   height: auto;
-  min-width: 30rem;
+  /* min-width: 30rem; */
   line-height: 1.25;
 
   padding: 0.5em;
@@ -277,25 +326,18 @@ export default {
   display: inline-block;
 }
 
-.column {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+.small-play-stats {
+  font-size: x-small;
 }
 
 .song-stats {
   display: flex;
   flex-direction: row;
-
-  & * + * {
-    margin-left: 1em;
-  }
 }
 
 table {
   border: 0;
   display: block;
-  margin-top: 1em;
 
   font-size: 1.25em;
 
@@ -328,10 +370,6 @@ table {
   min-height: 1.5em;
 }
 
-.spacer {
-  flex: 1;
-}
-
 .counts {
   font-size: 1.5em;
 }
@@ -341,11 +379,17 @@ table {
   font-size: 2em;
 }
 
-.grow {
-  flex-grow: 1;
-}
+@media screen and (max-width: 450px) {
+  .play {
+    font-size: 0.7em;
+  }
 
-.no-basis {
-  flex-basis: 0;
+  .small-play-stats {
+    font-size: 0.6em;
+  }
+
+  table + table {
+    margin-left: 1em;
+  }
 }
 </style>

@@ -5,7 +5,9 @@ const userCache = require("../../userCache");
 
 const db = require("../../db");
 const globalInstances = require("../../globalInstances");
-const { requireAuth } = require("../utils");
+const {
+  requireAuth
+} = require("../utils");
 
 const router = express.Router();
 
@@ -33,7 +35,10 @@ async function getPlayerInfo(twitterUsername) {
   if (player && player.osuUsername) {
     stats = await db.getPlayerStats(player.osuUsername);
     const username = await userCache.getOsuUser(player.osuUsername);
-    osu = { id: player.osuUsername, username };
+    osu = {
+      id: player.osuUsername,
+      username
+    };
   }
 
   return {
@@ -64,19 +69,29 @@ router.get("/player/sessions", requireAuth, (req, res) => {
   );
 });
 
-router.get("/player/sessions/:sessionId/plays", requireAuth, (req, res) => {
+router.get("/player/sessions/:sessionId/plays", (req, res) => {
   db.getSessionPlays(req.params.sessionId)
     .then(plays => res.json(plays || []))
     .catch(() => res.status(404).json("session not found"));
 });
 
+router.get("/player/sessions/:sessionId", (req, res) => {
+  db.getSession(req.params.sessionId)
+    .then(session => res.json(session || []))
+    .catch(() => res.status(404).json("session not found"));
+});
+
 router.get("/cover/:beatmapId", requireAuth, (req, res) => {
-  const { beatmapId } = req.params;
+  const {
+    beatmapId
+  } = req.params;
   if (!beatmapId) return res.status(400).end();
   const coverUrl = `https://assets.ppy.sh/beatmaps/${beatmapId}/covers/cover.jpg`;
   // if (req.xhr || req.headers["sec-fetch-site"] === "cross-site") {
   axios
-    .get(coverUrl, { responseType: "arraybuffer" })
+    .get(coverUrl, {
+      responseType: "arraybuffer"
+    })
     .then(data => {
       return res
         .status(200)
@@ -88,11 +103,13 @@ router.get("/cover/:beatmapId", requireAuth, (req, res) => {
         .get("https://assets.ppy.sh/beatmaps/1084284/covers/cover.jpg", {
           responseType: "arraybuffer"
         })
-        .then(({ data }) =>
+        .then(({
+            data
+          }) =>
           res
-            .status(200)
-            .contentType("image/jpeg")
-            .end(data)
+          .status(200)
+          .contentType("image/jpeg")
+          .end(data)
         );
       return res.status(404).end();
     });
