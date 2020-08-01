@@ -1,86 +1,58 @@
 <template>
-  <div class="session">
-    <div class="session-container">
-      <div class="layer">
-        <div class="image-container" :style="style"></div>
-      </div>
-      <div class="row text-content">
-        <table>
-          <tr class="blue-text">
-            <th>Date</th>
-            <th>Duration</th>
-            <th>Global Rank</th>
-            <th>Country Rank</th>
-            <th>Accuracy</th>
-            <th>PP</th>
-            <th>Play Count</th>
-            <th>Level</th>
-          </tr>
-          <tr>
-            <td>{{dateFormat}}</td>
-            <td>{{sessionDuration}}</td>
-            <td>
-              #{{globalRank}}
-              <span
-                v-if="difGlobalRank.includes('+')"
-                class="green-text"
-              >{{difGlobalRank}}</span>
-              <span v-if="difGlobalRank.includes('-')" class="red-text">{{difGlobalRank}}</span>
-            </td>
-            <td>
-              #{{countryRank}}
-              <span
-                v-if="difCountryRank.includes('+')"
-                class="green-text"
-              >{{difCountryRank}}</span>
-              <span v-if="difCountryRank.includes('-')" class="red-text">{{difCountryRank}}</span>
-            </td>
-            <td>
-              {{accuracy}}%
-              <span v-if="difAcc.includes('+')" class="green-text">{{difAcc}}</span>
-              <span v-if="difAcc.includes('-')" class="red-text">{{difAcc}}</span>
-            </td>
-            <td>
-              {{totalPP}}
-              <span v-if="difPP.includes('+')" class="green-text">{{difPP}}</span>
-              <span v-if="difPP.includes('-')" class="red-text">{{difPP}}</span>
-            </td>
-            <td>
-              {{playCount}}
-              <span
-                v-if="difPlayCount.includes('+')"
-                class="green-text"
-              >{{difPlayCount}}</span>
-              <span v-if="difPlayCount.includes('-')" class="red-text">{{difPlayCount}}</span>
-            </td>
-            <td>
-              {{(+level).toFixed(2)}}
-              <span
-                v-if="difLevel.includes('+')"
-                class="green-text"
-              >{{difLevel}}</span>
-              <span v-if="difLevel.includes('-')" class="red-text">{{difLevel}}</span>
-            </td>
-          </tr>
-        </table>
-        <div class="right">
-          <nuxt-link :to="`/report/${sessionID}`" class="btn btn-primary my-2">View</nuxt-link>
-        </div>
-      </div>
-    </div>
-  </div>
+  <tr>
+    <td>{{dateFormat}}</td>
+    <td>{{sessionDuration}}</td>
+    <td>
+      #{{parseFloat(globalRank).toLocaleString("en")}}
+      <span
+        v-if="difGlobalRank.includes('+')"
+        class="green-text"
+      >{{difGlobalRank}}</span>
+      <span v-if="difGlobalRank.includes('-')" class="red-text">{{difGlobalRank}}</span>
+    </td>
+    <td>
+      #{{parseFloat(countryRank).toLocaleString("en")}}
+      <span
+        v-if="difCountryRank.includes('+')"
+        class="green-text"
+      >{{difCountryRank}}</span>
+      <span v-if="difCountryRank.includes('-')" class="red-text">{{difCountryRank}}</span>
+    </td>
+    <td>
+      {{(+accuracy).toFixed(2)}}%
+      <span v-if="difAcc.includes('+')" class="green-text">{{difAcc}}</span>
+      <span v-if="difAcc.includes('-')" class="red-text">{{difAcc}}</span>
+    </td>
+    <td>
+      {{parseFloat(totalPP).toLocaleString("en")}}
+      <span
+        v-if="difPP.includes('+')"
+        class="green-text"
+      >{{difPP}}</span>
+      <span v-if="difPP.includes('-')" class="red-text">{{difPP}}</span>
+    </td>
+    <td>
+      {{parseFloat(playCount).toLocaleString("en")}}
+      <span
+        v-if="difPlayCount.includes('+')"
+        class="green-text"
+      >{{difPlayCount}}</span>
+      <span v-if="difPlayCount.includes('-')" class="red-text">{{difPlayCount}}</span>
+    </td>
+    <td>
+      {{(+level).toFixed(2)}}
+      <span v-if="difLevel.includes('+')" class="green-text">{{difLevel}}</span>
+      <span v-if="difLevel.includes('-')" class="red-text">{{difLevel}}</span>
+    </td>
+    <td>
+      <nuxt-link :to="`/report/${sessionID}`" class="btn btn-primary my-2">View</nuxt-link>
+    </td>
+  </tr>
 </template>
 
 <script>
 // @ts-ignore
-import image from "~/assets/images/spectrumTriangles.jpg";
-
 export default {
-  data: function () {
-    return {
-      image: image,
-    };
-  },
   props: {
     sessionID: Number,
     tweetID: String,
@@ -106,12 +78,6 @@ export default {
     countA: Number,
   },
   computed: {
-    /** @returns {{backgroundImage: string}} */
-    style() {
-      return {
-        backgroundImage: `url("${image}")`,
-      };
-    },
     dateFormat() {
       let date = new Date(this.date);
       let year = date.getFullYear();
@@ -237,13 +203,5 @@ export default {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-}
-
-th {
-  @include blue-text();
-}
-
-td {
-  @include white-text();
 }
 </style>
