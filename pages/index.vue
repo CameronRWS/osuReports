@@ -37,9 +37,6 @@ import { mapState } from "vuex";
 export default {
   computed: {
     ...mapState(["stats", "player"])
-  },
-  mounted() {
-    console.log(require("../src/consumerKeys"));
   }
 };
 </script>
