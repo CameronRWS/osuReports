@@ -9,7 +9,7 @@
           <tr>
             <td class="blue-text">Global Rank:</td>
             <td>
-              #{{globalRank}}
+              #{{parseFloat(globalRank).toLocaleString("en")}}
               <span
                 v-if="difGlobalRank.includes('+')"
                 class="green-text"
@@ -20,7 +20,7 @@
           <tr>
             <td class="blue-text">Country Rank:</td>
             <td>
-              #{{countryRank}}
+              #{{parseFloat(countryRank).toLocaleString("en")}}
               <span
                 v-if="difCountryRank.includes('+')"
                 class="green-text"
@@ -39,15 +39,18 @@
           <tr>
             <td class="blue-text">PP:</td>
             <td>
-              {{totalPP}}
-              <span v-if="difPP.includes('+')" class="green-text">{{difPP}}</span>
+              {{parseFloat(totalPP).toLocaleString("en")}}
+              <span
+                v-if="difPP.includes('+')"
+                class="green-text"
+              >{{difPP}}</span>
               <span v-if="difPP.includes('-')" class="red-text">{{difPP}}</span>
             </td>
           </tr>
           <tr>
             <td class="blue-text">Play Count:</td>
             <td>
-              {{playCount}}
+              {{parseFloat(playCount).toLocaleString("en")}}
               <span
                 v-if="difPlayCount.includes('+')"
                 class="green-text"
