@@ -2,30 +2,30 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [master]
+    branches: [dev]
   pull_request:
-    branches: [master]
+    branches: [dev]
 
 env:
-  IMAGE: ajmadsen/osureports
-  IMAGE_TAG: latest
+  # IMAGE: ajmadsen/osureports
+  # IMAGE_TAG: dev
   WEB_IMAGE: ajmadsen/osureports-web
-  WEB_IMAGE_TAG: latest
+  WEB_IMAGE_TAG: dev
 
 jobs:
-  build-worker:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && contains(toJson(github.event.commits), '***NO_CI***') == false && contains(toJson(github.event.commits), '[ci skip]') == false && contains(toJson(github.event.commits), '[skip ci]') == false
+  # build-worker:
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'push' && contains(toJson(github.event.commits), '***NO_CI***') == false && contains(toJson(github.event.commits), '[ci skip]') == false && contains(toJson(github.event.commits), '[skip ci]') == false
 
-    steps:
-      - uses: actions/checkout@v2
-      - uses: whoan/docker-build-with-cache-action@v5
-        with:
-          username: ajmadsen
-          password: "${{ secrets.DOCKER_TOKEN }}"
-          image_name: "${{ env.IMAGE }}"
-          image_tag: "${{ env.IMAGE_TAG }}"
-          push_image_and_stages: "${{ github.base_ref == '' }}"
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: whoan/docker-build-with-cache-action@v5
+  #       with:
+  #         username: ajmadsen
+  #         password: "${{ secrets.DOCKER_TOKEN }}"
+  #         image_name: "${{ env.IMAGE }}"
+  #         image_tag: "${{ env.IMAGE_TAG }}"
+  #         push_image_and_stages: "${{ github.base_ref == '' }}"
 
   build-web:
     runs-on: ubuntu-latest

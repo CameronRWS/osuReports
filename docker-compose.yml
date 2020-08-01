@@ -27,6 +27,20 @@ services:
       DATABASE: /data/osuReports.db
       REDIS_HOST: redis
 
+  osuReports-web-dev:
+    image: ajmadsen/osureports-web:dev
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "3002:3000"
+    expose:
+      - 9010
+    volumes:
+      - ./data:/data
+    environment:
+      DATABASE: /data/osuReports.db
+      REDIS_HOST: redis
+
   redis:
     image: redis:6.0
     restart: unless-stopped
