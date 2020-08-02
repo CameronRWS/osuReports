@@ -38,7 +38,7 @@ services:
     volumes:
       - ./data:/data
     environment:
-      DATABASE: /data/osuReports.db
+      DATABASE: /data/osuReports-dev.db
       REDIS_HOST: redis
 
   redis:
