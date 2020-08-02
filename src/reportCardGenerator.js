@@ -10,7 +10,7 @@ const Report = require("./report");
 
 class ReportCardGenerator {
   async generateReportCard(sessionId) {
-    const session = (await db.getSession(sessionId))[0];
+    const session = await db.getSession(sessionId);
     if (session === undefined) {
       return null;
     }
@@ -62,13 +62,14 @@ class ReportCardGenerator {
     return user.country;
   }
   dateFormat(passedDate) {
-    let date = new Date(passedDate);
-    let year = date.getFullYear();
-    let month = (1 + date.getMonth()).toString();
-    // month = month.length > 1 ? month : "0" + month;
-    let day = date.getDate().toString();
-    // day = day.length > 1 ? day : "0" + day;
-    return month + "/" + day + "/" + year;
+    let date;
+    //this is because some are in UTC some are epoch
+    if (passedDate.toString().includes("Z")) {
+      date = new Date(passedDate);
+    } else {
+      date = new Date(+passedDate);
+    }
+    return date.toLocaleDateString("US-en");
   }
 }
 
