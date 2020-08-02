@@ -47,9 +47,7 @@ export default {
           hid: "otherTitle",
           property: "og:title",
           // @ts-ignore
-          content: `${
-            this.session.osu.username
-          }'s osu! Report from ${this.dateFormat()}`,
+          content: `${this.session.osu.username}'s osu! Report - ${this.plays.length} play(s)`,
         },
         {
           hid: "otherContent",
@@ -62,15 +60,13 @@ export default {
           hid: "twitterTitle",
           name: "twitter:title",
           // @ts-ignore
-          content: `${
-            this.session.osu.username
-          }'s osu! Report from ${dateFormat()}`,
+          content: `${this.session.osu.username}'s osu! Report - ${this.plays.length} play(s)`,
         },
         {
           hid: "twitterDesc",
           name: "twitter:description",
           // @ts-ignore
-          content: `Click this link to see all ${this.plays.length} play(s) on the official osu! Reports website.`,
+          content: `Click this link to see the full report on the official osu! Reports website.`,
         },
         {
           hid: "twitterImage",
@@ -88,17 +84,6 @@ export default {
   },
   computed: {
     ...mapState(["player"]),
-    dateFormat() {
-      //@ts-ignore
-      let date = this.session.date;
-      //this is because some are in UTC some are epoch
-      if (date.toString().includes("Z")) {
-        date = new Date(date);
-      } else {
-        date = new Date(+date);
-      }
-      return date.toLocaleDateString("US-en");
-    },
   },
 };
 </script>
