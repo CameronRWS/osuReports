@@ -2,6 +2,7 @@
   <section class="container">
     <div class="row justify-content-center">
       <session-top v-bind="session" />
+      <img :src="reportCard" alt="session-top" />
       <br />
       <play v-for="play in plays" :key="play.date" v-bind="play" class="col-xl-6 col-12" />
     </div>
@@ -9,14 +10,12 @@
 </template>
 
 <script>
-// @ts-ignore
-import imagex from "~/assets/images/reportCard.png";
-
 export default {
   async asyncData({ params, app: { $api } }) {
     return {
       plays: await $api.getSessionPlays(params.sessionId),
       session: await $api.getSession(params.sessionId),
+      reportCard: await $api.getSessionReportCard(params.sessionId),
     };
   },
   validate(ctx) {
@@ -31,18 +30,18 @@ export default {
         {
           hid: "twitterTitle",
           name: "twitter:title",
-          content: "testinggggg",
+          content: "osu! Report for <osuUsername>",
         },
         {
           hid: "twitterDesc",
           name: "twitter:description",
           content:
-            "Click this link to be brought to the offical osu! Reports website to view this report!",
+            "Click this link to see all <playsCount> plays on the official osu! Reports website.",
         },
         {
           hid: "twitterImage",
           name: "twitter:image",
-          content: imagex,
+          content: "reportCard",
         },
         {
           hid: "twitterCard",

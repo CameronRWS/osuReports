@@ -59,27 +59,33 @@ export default {
     date: String,
     osuUsername: String,
     sessionDuration: String,
-    globalRank: Number,
+    globalRank: String,
     difGlobalRank: String,
-    countryRank: Number,
+    countryRank: String,
     difCountryRank: String,
-    level: Number,
+    level: String,
     difLevel: String,
-    accuracy: Number,
+    accuracy: String,
     difAcc: String,
-    totalPP: Number,
+    totalPP: String,
     difPP: String,
-    playCount: Number,
+    playCount: String,
     difPlayCount: String,
-    countSSPlus: Number,
-    countSS: Number,
-    countSPlus: Number,
-    countS: Number,
-    countA: Number,
+    countSSPlus: String,
+    countSS: String,
+    countSPlus: String,
+    countS: String,
+    countA: String,
   },
   computed: {
     dateFormat() {
-      let date = new Date(this.date);
+      let date;
+      //this is because some are in UTC some are epoch
+      if (this.date.toString().includes("Z")) {
+        date = new Date(this.date);
+      } else {
+        date = new Date(+this.date);
+      }
       let year = date.getFullYear();
       let month = (1 + date.getMonth()).toString();
       // month = month.length > 1 ? month : "0" + month;

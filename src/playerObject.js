@@ -45,6 +45,14 @@ class playerObject {
       return [];
     }
   }
+  async bestScores() {
+    try {
+      const bestScores = await osuApi.getUserBest({ u: this.osuUsername });
+      return bestScores;
+    } catch (error) {
+      return [];
+    }
+  }
 
   async updateSessionObjectv3() {
     const scores = await this.recentScores();
@@ -137,7 +145,7 @@ class playerObject {
     // first just check for the existence in the session
     let attemptedNewPlayTime = score.date.getTime();
     const haveSeen = this.sessionObject.playObjects
-      .map((p) => p.date.getTime())
+      .map(p => p.date.getTime())
       .includes(attemptedNewPlayTime);
 
     // handle the common case first, this is a new play
@@ -157,28 +165,14 @@ class playerObject {
   }
 
   async createFakeSession() {
-    const url = "https://osu.ppy.sh/users/" + this.osuUsername;
-    var scoreOfRecentPlay;
-    const waitSeconds = (seconds) =>
-      new Promise((resolve) => setTimeout(resolve, seconds * 1000));
-    return axios.get(url).then(async (response) => {
-      var $ = cheerio.load(response.data);
-      var html = $("#json-extras").html();
-      var data = JSON.parse(html);
-      scoreOfRecentPlay = data.scoresBest;
-      this.sessionObject = new sessionObject(this);
-      await this.sessionObject.initializeDebug();
-      // add more if necessary
-      // for (let i = 0; i < 6; i++) {
-      //   if (i < 5) {
-      //     await this.sessionObject.addNewPlayAPI(scoreOfRecentPlay[i]);
-      //   } else {
-      //     this.sessionObject.playObjects.push(
-      //       this.sessionObject.playObjects[i % 5]
-      //     );
-      //   }
-      // }
-    });
+    this.sessionObject = new sessionObject(this);
+    this.sessionObject.initializeDebug();
+    let scores = await this.bestScores();
+    for (let i = 0; i < 2; i++) {
+      const score = scores[i];
+      const beatmap = await beatmapCache.getBeatmapInfo(score.beatmapId);
+      await this.sessionObject.addNewPlay(score, beatmap);
+    }
   }
 }
 

@@ -14,6 +14,8 @@ export default $http => {
       $http.$get(`/api/player/sessions/${sessionId}/plays`),
     getSession: async sessionId =>
       $http.$get(`/api/player/sessions/${sessionId}`),
+    getSessionReportCard: async sessionId =>
+      $http.$get(`/api/player/sessions/${sessionId}/reportCard`),
     logout: async () => $http.post(`/logout`)
   };
 };
