@@ -1,51 +1,55 @@
 <template>
   <tr>
-    <td>{{dateFormat}}</td>
-    <td>{{sessionDuration}}</td>
+    <td>{{ dateFormat }}</td>
+    <td>{{ sessionDuration }}</td>
     <td>
-      #{{parseFloat(globalRank).toLocaleString("en")}}
-      <span
-        v-if="difGlobalRank.includes('+')"
-        class="green-text"
-      >{{difGlobalRank}}</span>
-      <span v-if="difGlobalRank.includes('-')" class="red-text">{{difGlobalRank}}</span>
+      #{{ parseFloat(globalRank).toLocaleString("en") }}
+      <span v-if="difGlobalRank.includes('+')" class="green-text">{{
+        difGlobalRank
+      }}</span>
+      <span v-if="difGlobalRank.includes('-')" class="red-text">{{
+        difGlobalRank
+      }}</span>
     </td>
     <td>
-      #{{parseFloat(countryRank).toLocaleString("en")}}
-      <span
-        v-if="difCountryRank.includes('+')"
-        class="green-text"
-      >{{difCountryRank}}</span>
-      <span v-if="difCountryRank.includes('-')" class="red-text">{{difCountryRank}}</span>
+      #{{ parseFloat(countryRank).toLocaleString("en") }}
+      <span v-if="difCountryRank.includes('+')" class="green-text">{{
+        difCountryRank
+      }}</span>
+      <span v-if="difCountryRank.includes('-')" class="red-text">{{
+        difCountryRank
+      }}</span>
     </td>
     <td>
-      {{(+accuracy).toFixed(2)}}%
-      <span v-if="difAcc.includes('+')" class="green-text">{{difAcc}}</span>
-      <span v-if="difAcc.includes('-')" class="red-text">{{difAcc}}</span>
+      {{ (+accuracy).toFixed(2) }}%
+      <span v-if="difAcc.includes('+')" class="green-text">{{ difAcc }}</span>
+      <span v-if="difAcc.includes('-')" class="red-text">{{ difAcc }}</span>
     </td>
     <td>
-      {{parseFloat(totalPP).toLocaleString("en")}}
-      <span
-        v-if="difPP.includes('+')"
-        class="green-text"
-      >{{difPP}}</span>
-      <span v-if="difPP.includes('-')" class="red-text">{{difPP}}</span>
+      {{ parseFloat(totalPP).toLocaleString("en") }}
+      <span v-if="difPP.includes('+')" class="green-text">{{ difPP }}</span>
+      <span v-if="difPP.includes('-')" class="red-text">{{ difPP }}</span>
     </td>
     <td>
-      {{parseFloat(playCount).toLocaleString("en")}}
-      <span
-        v-if="difPlayCount.includes('+')"
-        class="green-text"
-      >{{difPlayCount}}</span>
-      <span v-if="difPlayCount.includes('-')" class="red-text">{{difPlayCount}}</span>
+      {{ parseFloat(playCount).toLocaleString("en") }}
+      <span v-if="difPlayCount.includes('+')" class="green-text">{{
+        difPlayCount
+      }}</span>
+      <span v-if="difPlayCount.includes('-')" class="red-text">{{
+        difPlayCount
+      }}</span>
     </td>
     <td>
-      {{(+level).toFixed(2)}}
-      <span v-if="difLevel.includes('+')" class="green-text">{{difLevel}}</span>
-      <span v-if="difLevel.includes('-')" class="red-text">{{difLevel}}</span>
+      {{ (+level).toFixed(2) }}
+      <span v-if="difLevel.includes('+')" class="green-text">{{
+        difLevel
+      }}</span>
+      <span v-if="difLevel.includes('-')" class="red-text">{{ difLevel }}</span>
     </td>
     <td>
-      <nuxt-link :to="`/report/${sessionID}`" class="btn btn-primary my-2">View</nuxt-link>
+      <nuxt-link :to="`/report/${sessionID}`" class="btn btn-primary my-2"
+        >View</nuxt-link
+      >
     </td>
   </tr>
 </template>
@@ -75,7 +79,7 @@ export default {
     countSS: String,
     countSPlus: String,
     countS: String,
-    countA: String,
+    countA: String
   },
   computed: {
     dateFormat() {
@@ -86,17 +90,11 @@ export default {
       } else {
         date = new Date(+this.date);
       }
-      let year = date.getFullYear();
-      let month = (1 + date.getMonth()).toString();
-      // month = month.length > 1 ? month : "0" + month;
-      let day = date.getDate().toString();
-      // day = day.length > 1 ? day : "0" + day;
-      return month + "/" + day + "/" + year;
-    },
-  },
+      return date.toLocaleDateString("US-en");
+    }
+  }
 };
 </script>
-
 
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&display=swap");

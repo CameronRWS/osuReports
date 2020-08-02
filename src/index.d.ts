@@ -16,7 +16,7 @@ declare module "ioredis" {
 type UnwrapPromise<P> = P extends Promise<infer T> ? T : never;
 type AsyncReturnType<
   F extends (...args: any[]) => Promise<any>
-  > = UnwrapPromise<ReturnType<F>>;
+> = UnwrapPromise<ReturnType<F>>;
 
 declare module "@nuxt/types" {
   interface Context {
@@ -39,7 +39,7 @@ import { Response as OrigResponse } from "express";
 
 declare global {
   namespace Express {
-    interface User extends Profile { }
+    interface User extends Profile {}
     interface Response {
       flashes: string[];
       flash: (msg: string) => Response & OrigResponse;
@@ -83,28 +83,32 @@ declare global {
       circleSize: number;
     }
     interface Session {
-      sessionID: Number,
-      tweetID: String,
-      date: String,
-      osuUsername: String,
-      sessionDuration: String,
-      globalRank: Number,
-      difGlobalRank: String,
-      countryRank: Number,
-      difCountryRank: String,
-      level: Number,
-      difLevel: String,
-      accuracy: Number,
-      difAcc: String,
-      totalPP: Number,
-      difPP: String,
-      playCount: Number,
-      difPlayCount: String,
-      countSSPlus: Number,
-      countSS: Number,
-      countSPlus: Number,
-      countS: Number,
-      countA: Number,
+      sessionID: Number;
+      tweetID: String;
+      date: String;
+      osuUsername: String;
+      sessionDuration: String;
+      globalRank: Number;
+      difGlobalRank: String;
+      countryRank: Number;
+      difCountryRank: String;
+      level: Number;
+      difLevel: String;
+      accuracy: Number;
+      difAcc: String;
+      totalPP: Number;
+      difPP: String;
+      playCount: Number;
+      difPlayCount: String;
+      countSSPlus: Number;
+      countSS: Number;
+      countSPlus: Number;
+      countS: Number;
+      countA: Number;
+      osu?: {
+        username: string;
+        id: string;
+      };
     }
   }
 }
@@ -114,4 +118,4 @@ declare module "*.png" {
   export = value;
 }
 
-export { };
+export {};
