@@ -36,11 +36,6 @@ class ReportCardCache {
     await this.client.setex(key, USER_CACHE_TIME, reportCardData);
     return reportCardData;
   }
-
-  async updateOsuUser(osuId, osuUsername) {
-    const key = USER_PREFIX + osuId;
-    await this.client.setex(key, USER_CACHE_TIME, osuUsername);
-  }
 }
 
 module.exports = new ReportCardCache({
