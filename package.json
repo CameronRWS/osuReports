@@ -4,15 +4,16 @@
   "description": "",
   "main": "osuReportsDriver.js",
   "scripts": {
-    "dev": "nuxt",
-    "build": "nuxt build",
-    "start": "nuxt start",
+    "dev": "nuxt-ts",
+    "build": "nuxt-ts build",
+    "start": "nuxt-ts start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@nuxt/http": "^0.5.9",
+    "@nuxt/typescript-runtime": "^1.0.0",
     "axios": "^0.19.2",
     "body-parser": "^1.19.0",
     "bootstrap": "^4.5.0",
@@ -42,7 +43,8 @@
     "vuex": "^3.5.1"
   },
   "devDependencies": {
-    "@nuxt/types": "^2.13.3",
+    "@nuxt/types": "^2.14.0",
+    "@nuxt/typescript-build": "^2.0.2",
     "@types/ioredis": "^4.17.2",
     "@types/jquery": "^3.5.0",
     "@types/lodash": "^4.14.157",

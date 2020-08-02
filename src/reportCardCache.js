@@ -32,6 +32,7 @@ class ReportCardCache {
     }
     // not cached
     reportCard = await ReportCardGenerator.generateReportCard(sessionId);
+    if (!reportCard) throw new Error("could not generate report card");
     const reportCardData = await reportCard.getBufferAsync(Jimp.MIME_PNG);
     await this.client.setex(key, USER_CACHE_TIME, reportCardData);
     return reportCardData;

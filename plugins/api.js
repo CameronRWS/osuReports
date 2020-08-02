@@ -1,6 +1,6 @@
 import apiFactory from "~/src/api.service";
 
-export default function({ $http, $config }, inject) {
-  const api = apiFactory($http, $config.baseUrl);
+export default function({ $http }, inject) {
+  const api = apiFactory($http);
   inject("api", api);
 }

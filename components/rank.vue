@@ -2,29 +2,22 @@
   <img :alt="`rank ${rank}`" :src="src" />
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
+
 const ranks = {
-  // @ts-ignore
   XH: require("~/assets/images/ranks/SSPlus.png"),
-  // @ts-ignore
   X: require("~/assets/images/ranks/SS.png"),
-  // @ts-ignore
   SH: require("~/assets/images/ranks/SPlus.png"),
-  // @ts-ignore
   S: require("~/assets/images/ranks/S.png"),
-  // @ts-ignore
   A: require("~/assets/images/ranks/A.png"),
-  // @ts-ignore
   B: require("~/assets/images/ranks/B.png"),
-  // @ts-ignore
   C: require("~/assets/images/ranks/C.png"),
-  // @ts-ignore
   D: require("~/assets/images/ranks/D.png"),
-  // @ts-ignore
   F: require("~/assets/images/ranks/F.png")
 };
 
-export default {
+export default Vue.extend({
   props: {
     rank: {
       type: String,
@@ -32,11 +25,11 @@ export default {
     }
   },
   computed: {
-    src() {
+    src(): string {
       return ranks[this.rank];
     }
   }
-};
+});
 </script>
 
 <style lang="scss" scoped>

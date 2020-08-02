@@ -19,7 +19,9 @@
   </section>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
+import { MetaInfo } from "vue-meta";
 import { mapState } from "vuex";
 
 function getBaseUrl(req) {
@@ -30,13 +32,12 @@ function getBaseUrl(req) {
   return origin.replace(/\/$/, "");
 }
 
-export default {
-  /** @returns {{plays: osuReports.Play[], session?: osuReports.Session, sessionId?: string, baseUrl: string}} */
+export default Vue.extend({
   data() {
     return {
-      plays: [],
-      session: null,
-      sessionId: null,
+      plays: [] as osuReports.Play[],
+      session: null as osuReports.Session | null,
+      sessionId: null as string | null,
       baseUrl: ""
     };
   },
@@ -48,46 +49,40 @@ export default {
       baseUrl: getBaseUrl(req)
     };
   },
-  /** @returns {boolean} */
-  validate(ctx) {
+  validate(ctx): boolean {
     const reportId = ctx.params.sessionId;
     return !!reportId && !/\D/.test(reportId);
   },
-  head() {
+  head(): MetaInfo {
     return {
       title: "osu! Report",
       meta: [
         {
           hid: "otherTitle",
           property: "og:title",
-          // @ts-ignore
-          content: `${this.session.osu.username}'s osu! Report - ${
+          content: `${this.session?.osu?.username}'s osu! Report - ${
             this.plays.length
           } play${this.plays.length === 1 ? "" : "s"}`
         },
         {
           hid: "otherContent",
           name: "og:image",
-          // @ts-ignore
           content: `${this.baseUrl}/api/player/sessions/${this.sessionId}/reportCard.png`
         },
         // hid is used as unique identifier. Do not use `vmid` for it as it will not work
         {
           hid: "twitterTitle",
           name: "twitter:title",
-          // @ts-ignore
-          content: `${this.session.osu.username}'s osu! Report - ${this.plays.length} play(s)`
+          content: `${this.session?.osu?.username}'s osu! Report - ${this.plays.length} play(s)`
         },
         {
           hid: "twitterDesc",
           name: "twitter:description",
-          // @ts-ignore
           content: `Click this link to see the full report on the official osu! Reports website.`
         },
         {
           hid: "twitterImage",
           name: "twitter:image",
-          // @ts-ignore
           content: `${this.baseUrl}/api/player/sessions/${this.sessionId}/reportCard.png`
         },
         {
@@ -101,7 +96,7 @@ export default {
   computed: {
     ...mapState(["player"])
   }
-};
+});
 </script>
 
 <style lang="scss" scoped>

@@ -139,7 +139,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
 import Stars from "~/components/stars.vue";
 import Rank from "~/components/rank.vue";
 import Mod from "~/components/mod.vue";
@@ -149,7 +150,7 @@ const DEFAULT_BACKGROUND =
 
 const BG_REGEX = /https:\/\/assets\.ppy\.sh\/beatmaps\/(\d+)\/covers\/cover.jpg/i;
 
-export default {
+export default Vue.extend({
   components: {
     Stars,
     Rank,
@@ -187,32 +188,29 @@ export default {
   },
   data() {
     return {
-      overrideBg: null
+      overrideBg: null as string | null
     };
   },
   computed: {
-    /** @returns {{backgroundImage: string}} */
-    style() {
+    style(): { backgroundImage: string } {
       return {
         backgroundImage: `url("${this.overrideBg || this.bg}")`
       };
     },
-    /** @returns {string[]} */
-    modList() {
+    modList(): string[] {
       return this.mods.split(/,\s+/).filter(mod => mod.trim() !== "");
     },
-    /** @returns {string} */
-    beatmapId() {
-      const match = [...BG_REGEX.exec(this.bg)];
+    beatmapId(): string {
+      const match = [...(BG_REGEX.exec(this.bg) || [])];
       return match[1];
     }
   },
   methods: {
-    missingBg() {
+    missingBg(): void {
       this.overrideBg = DEFAULT_BACKGROUND;
     }
   }
-};
+});
 </script>
 
 <style>
