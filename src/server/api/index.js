@@ -5,9 +5,8 @@ const userCache = require("../../userCache");
 
 const db = require("../../db");
 const globalInstances = require("../../globalInstances");
-const {
-  requireAuth
-} = require("../utils");
+const { requireAuth } = require("../utils");
+const reportCardCache = require("../../reportCardCache");
 
 const router = express.Router();
 
@@ -27,6 +26,23 @@ router.get("/stats", (req, res) => {
 /**
  * @param {string} twitterUsername
  */
+
+router.get("/player/sessions/:sessionId/reportCard", (req, res) => {
+  getReportCard(req.params.sessionId)
+    .then(image => {
+      res.json(image);
+    })
+    .catch(err => {
+      globalInstances.logMessage("error looking up session", err);
+      res.status(500).json("unable to find session");
+    });
+});
+
+async function getReportCard(sessionId) {
+  let reportCard = await reportCardCache.getReportCard(sessionId);
+  return reportCard;
+}
+
 async function getPlayerInfo(twitterUsername) {
   const player = await db.getPlayer(twitterUsername);
 
@@ -82,9 +98,7 @@ router.get("/player/sessions/:sessionId", (req, res) => {
 });
 
 router.get("/cover/:beatmapId", requireAuth, (req, res) => {
-  const {
-    beatmapId
-  } = req.params;
+  const { beatmapId } = req.params;
   if (!beatmapId) return res.status(400).end();
   const coverUrl = `https://assets.ppy.sh/beatmaps/${beatmapId}/covers/cover.jpg`;
   // if (req.xhr || req.headers["sec-fetch-site"] === "cross-site") {
@@ -103,13 +117,11 @@ router.get("/cover/:beatmapId", requireAuth, (req, res) => {
         .get("https://assets.ppy.sh/beatmaps/1084284/covers/cover.jpg", {
           responseType: "arraybuffer"
         })
-        .then(({
-            data
-          }) =>
+        .then(({ data }) =>
           res
-          .status(200)
-          .contentType("image/jpeg")
-          .end(data)
+            .status(200)
+            .contentType("image/jpeg")
+            .end(data)
         );
       return res.status(404).end();
     });

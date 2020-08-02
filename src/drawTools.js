@@ -61,6 +61,10 @@ class DrawTools {
     ));
   }
 
+  async _cutReportCard() {
+    this.image.resize(950, 498);
+  }
+
   /**
    *
    * @param {Jimp} image
@@ -119,7 +123,7 @@ class DrawTools {
   async _drawCommands(thisCmd, commonArgs, ...cmds) {
     thisCmd = thisCmd.bind(this, ...commonArgs);
     // e.g. thisCmd(a, b, c) === this._printOffset("ubuntuBBlue32", a, b, c)
-    await Promise.all(cmds.map((cmdArgs) => thisCmd(...cmdArgs)));
+    await Promise.all(cmds.map(cmdArgs => thisCmd(...cmdArgs)));
   }
 }
 
@@ -130,5 +134,5 @@ module.exports = {
   GENERAL_X_OFFSET,
   GENERAL_Y_OFFSET,
   LEVEL_BAR_X_OFFSET,
-  LEVEL_BAR_Y_OFFSET,
+  LEVEL_BAR_Y_OFFSET
 };

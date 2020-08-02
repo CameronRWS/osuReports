@@ -16,7 +16,7 @@ function prepare(self, prop, stmt) {
     self.prepare(
       stmt,
       /** @type {StmtCallback} */
-      (function (err) {
+      (function(err) {
         if (err) reject(err);
 
         // guard against double initialization
@@ -33,7 +33,7 @@ function prepare(self, prop, stmt) {
 }
 
 function runCallback(resolve, reject) {
-  return /** @type {RunResultCallback} */ (function (err) {
+  return /** @type {RunResultCallback} */ (function(err) {
     if (err) reject(err);
     resolve({
       lastID: this.lastID,
@@ -73,17 +73,17 @@ class DB extends sqlite3.Database {
         this,
         "_insert_session_stmt",
         "INSERT INTO sessionsTable VALUES ($sessionId, NULL, $date, $osuUsername," +
-        " $sessionDuration, $rank, $difGlobalRank, $countryRank, $difCountryRank," +
-        " $level, $difLevel, $accuracy, $difAccuracy, $pp, $difPP, $plays," +
-        " $difPlays, $ssh, $ss, $sh, $s, $a)"
+          " $sessionDuration, $rank, $difGlobalRank, $countryRank, $difCountryRank," +
+          " $level, $difLevel, $accuracy, $difAccuracy, $pp, $difPP, $plays," +
+          " $difPlays, $ssh, $ss, $sh, $s, $a)"
       ),
       prepare(
         this,
         "_insert_play_stmt",
         "INSERT INTO playsTable VALUES ($sessionId, $osuUsername, $date, $bg, $title, $version, $artist, " +
-        "$combo, $maxCombo, $bpm, $playDuration, $difficulty, $playAccuracy, $rank, $mods, " +
-        "$counts300, $counts100, $counts50, $countsMiss, $playPP, $numSpinners, $numSliders, " +
-        "$numCircles, $numObjects, $approachRate, $healthPoints, $overallDifficulty, $circleSize)"
+          "$combo, $maxCombo, $bpm, $playDuration, $difficulty, $playAccuracy, $rank, $mods, " +
+          "$counts300, $counts100, $counts50, $countsMiss, $playPP, $numSpinners, $numSliders, " +
+          "$numCircles, $numObjects, $approachRate, $healthPoints, $overallDifficulty, $circleSize)"
       ),
 
       prepare(
@@ -110,7 +110,8 @@ class DB extends sqlite3.Database {
       await this._initialized;
 
       this.serialize(() => {
-        this._delete_player_stmt.run({
+        this._delete_player_stmt.run(
+          {
             $twitterUsername: twitterUsername
           },
           runCallback(resolve, reject)
@@ -124,7 +125,8 @@ class DB extends sqlite3.Database {
       await this._initialized;
 
       this.serialize(() => {
-        this._insert_player_stmt.run({
+        this._insert_player_stmt.run(
+          {
             $osuUsername: osuUsername,
             $twitterUsername: twitterUsername
           },
@@ -139,7 +141,8 @@ class DB extends sqlite3.Database {
       await this._initialized;
 
       this.serialize(() => {
-        this._update_session_stmt.run({
+        this._update_session_stmt.run(
+          {
             $tweetId: tweetId,
             $sessionId: sessionId
           },
@@ -195,7 +198,8 @@ class DB extends sqlite3.Database {
       SELECT * 
       FROM playersTable 
       WHERE twitterUsername LIKE $twitterUsername
-    `, {
+    `,
+        {
           $twitterUsername: twitterUsername
         }
       ) || null)
@@ -210,7 +214,8 @@ class DB extends sqlite3.Database {
       SELECT
         (SELECT COUNT(*) FROM sessionsTable WHERE osuUsername = $osuId) AS sessions,
         (SELECT COUNT(*) FROM playsTable WHERE osuUsername = $osuId) AS plays
-    `, {
+    `,
+      {
         $osuId: osuId
       }
     ));
@@ -224,7 +229,8 @@ class DB extends sqlite3.Database {
       SELECT *
       FROM sessionsTable
       WHERE osuUsername = (SELECT osuUsername FROM playersTable WHERE twitterUsername LIKE $twitterUsername)
-    `, {
+    `,
+      {
         $twitterUsername: twitterUsername
       }
     );
@@ -238,20 +244,22 @@ class DB extends sqlite3.Database {
       SELECT *
       FROM playsTable
       WHERE sessionId = $sessionId
-      `, {
+      `,
+      {
         $sessionId: sessionId
       }
     ));
   }
   async getSession(sessionId) {
     await this._initialized;
-
+    //@ts-ignore
     return /** @type {Promise<osuReports.Session>} */ (this.allAsync(
       `
       SELECT *
       FROM sessionsTable
       WHERE sessionId = $sessionId
-      `, {
+      `,
+      {
         $sessionId: sessionId
       }
     ));

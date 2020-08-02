@@ -4,69 +4,14 @@
       <div class="layer">
         <div class="image-container" :style="style"></div>
       </div>
-      <div class="row text-content">
-        <table>
-          <tr>
-            <td class="blue-text">Global Rank:</td>
-            <td>
-              #{{parseFloat(globalRank).toLocaleString("en")}}
-              <span
-                v-if="difGlobalRank.includes('+')"
-                class="green-text"
-              >{{difGlobalRank}}</span>
-              <span v-if="difGlobalRank.includes('-')" class="red-text">{{difGlobalRank}}</span>
-            </td>
-          </tr>
-          <tr>
-            <td class="blue-text">Country Rank:</td>
-            <td>
-              #{{parseFloat(countryRank).toLocaleString("en")}}
-              <span
-                v-if="difCountryRank.includes('+')"
-                class="green-text"
-              >{{difCountryRank}}</span>
-              <span v-if="difCountryRank.includes('-')" class="red-text">{{difCountryRank}}</span>
-            </td>
-          </tr>
-          <tr>
-            <td class="blue-text">Accuracy:</td>
-            <td>
-              {{accuracy}}%
-              <span v-if="difAcc.includes('+')" class="green-text">{{difAcc}}</span>
-              <span v-if="difAcc.includes('-')" class="red-text">{{difAcc}}</span>
-            </td>
-          </tr>
-          <tr>
-            <td class="blue-text">PP:</td>
-            <td>
-              {{parseFloat(totalPP).toLocaleString("en")}}
-              <span
-                v-if="difPP.includes('+')"
-                class="green-text"
-              >{{difPP}}</span>
-              <span v-if="difPP.includes('-')" class="red-text">{{difPP}}</span>
-            </td>
-          </tr>
-          <tr>
-            <td class="blue-text">Play Count:</td>
-            <td>
-              {{parseFloat(playCount).toLocaleString("en")}}
-              <span
-                v-if="difPlayCount.includes('+')"
-                class="green-text"
-              >{{difPlayCount}}</span>
-              <span v-if="difPlayCount.includes('-')" class="red-text">{{difPlayCount}}</span>
-            </td>
-          </tr>
-        </table>
-      </div>
+      <div class="row text-content">ccccccccccccccccccccccccccccccccccccccccccccc</div>
     </div>
   </div>
 </template>
 
 <script>
 // @ts-ignore
-import image from "~/assets/images/spectrumTriangles.jpg";
+import image from "~/assets/images/reportCard.png";
 
 export default {
   data: function () {
@@ -76,27 +21,27 @@ export default {
   },
   props: {
     sessionID: Number,
-    tweetID: String,
-    date: String,
-    osuUsername: String,
-    sessionDuration: String,
-    globalRank: Number,
-    difGlobalRank: String,
-    countryRank: Number,
-    difCountryRank: String,
-    level: Number,
-    difLevel: String,
-    accuracy: Number,
-    difAcc: String,
-    totalPP: Number,
-    difPP: String,
-    playCount: Number,
-    difPlayCount: String,
-    countSSPlus: Number,
-    countSS: Number,
-    countSPlus: Number,
-    countS: Number,
-    countA: Number,
+    // tweetID: String,
+    // date: String,
+    // osuUsername: String,
+    // sessionDuration: String,
+    // globalRank: Number,
+    // difGlobalRank: String,
+    // countryRank: Number,
+    // difCountryRank: String,
+    // level: Number,
+    // difLevel: String,
+    // accuracy: Number,
+    // difAcc: String,
+    // totalPP: Number,
+    // difPP: String,
+    // playCount: Number,
+    // difPlayCount: String,
+    // countSSPlus: Number,
+    // countSS: Number,
+    // countSPlus: Number,
+    // countS: Number,
+    // countA: Number,
   },
   computed: {
     /** @returns {{backgroundImage: string}} */
@@ -104,15 +49,6 @@ export default {
       return {
         backgroundImage: `url("${image}")`,
       };
-    },
-    dateFormat() {
-      let date = new Date(this.date);
-      let year = date.getFullYear();
-      let month = (1 + date.getMonth()).toString();
-      // month = month.length > 1 ? month : "0" + month;
-      let day = date.getDate().toString();
-      // day = day.length > 1 ? day : "0" + day;
-      return month + "/" + day + "/" + year;
     },
   },
 };
