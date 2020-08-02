@@ -7,15 +7,11 @@ const db = require("./src/db");
 const UserCache = require("./src/userCache");
 const beatmapCache = require("./src/beatmapCache");
 
-const {
-  activeSessions,
-  totalUsers,
-  activePlays
-} = require("./src/metrics");
+const { activeSessions, totalUsers, activePlays } = require("./src/metrics");
 
 const msPerIteration = 45000;
 
-if (!process.env.DEBUG) {
+if (!process.env.DEBUG && false == true) {
   initialize();
   http.createServer(require("./src/metrics").app).listen(9010);
 } else {
@@ -24,7 +20,9 @@ if (!process.env.DEBUG) {
 
 async function test() {
   await setSessionsRecorded();
-  globalInstances.playerObjects.push(new playerObject("PenZa", "@path_selector"));
+  globalInstances.playerObjects.push(
+    new playerObject("PenZa", "@path_selector")
+  );
   await globalInstances.playerObjects[0].createFakeSession();
   globalInstances.logMessage("From test(): Ending session...");
   await globalInstances.playerObjects[0].sessionObject.endSession();

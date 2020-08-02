@@ -19,7 +19,7 @@ const {
   fetchAndParseBeatmap,
   formatDifference,
   sanitizeAndParse,
-  secondsToDHMS,
+  secondsToDHMS
 } = require("./utils");
 
 const T = require("./twitterInstance");
@@ -28,7 +28,7 @@ const {
   sessionDuration: metricSessionDuration,
   playsPerSession,
   numberOfTweets,
-  totalUsers,
+  totalUsers
 } = require("./metrics");
 
 class sessionObject {
@@ -48,10 +48,10 @@ class sessionObject {
   async initialize() {
     return osuApi
       .getUser({ u: this.player.osuUsername })
-      .then((user) => {
+      .then(user => {
         this.userObjectStartOfSession = user;
       })
-      .catch((err) => {
+      .catch(err => {
         globalInstances.logMessage(err);
       });
   }
@@ -61,7 +61,7 @@ class sessionObject {
     this.isDebug = true;
     return osuApi
       .getUser({ u: this.player.osuUsername })
-      .then((user) => {
+      .then(user => {
         this.userObjectStartOfSession = user;
         this.userObjectStartOfSession.pp.rank =
           parseFloat(this.userObjectStartOfSession.pp.rank) + 696;
@@ -74,7 +74,7 @@ class sessionObject {
         this.userObjectStartOfSession.counts.plays =
           parseFloat(this.userObjectStartOfSession.counts.plays) - 2;
       })
-      .catch((err) => {
+      .catch(err => {
         globalInstances.logMessage(" - " + err);
       });
   }
@@ -93,7 +93,7 @@ class sessionObject {
         nmiss: score.counts.miss,
         n300: score.counts["300"],
         n100: score.counts["100"],
-        n50: score.counts["50"],
+        n50: score.counts["50"]
       });
 
       const playObj = new playObjectv2({
@@ -102,7 +102,7 @@ class sessionObject {
         score,
         map,
         beatmap,
-        osuUsername: this.player.osuUsername,
+        osuUsername: this.player.osuUsername
       });
 
       // keep this list sorted, insert where it's supposed to go
@@ -133,11 +133,11 @@ class sessionObject {
     );
 
     // filter Fs
-    const filteredPlays = this.playObjects.filter((p) => p.rank !== "F");
+    const filteredPlays = this.playObjects.filter(p => p.rank !== "F");
 
     //checks to see if there are real plays in session
     let isTweetable = filteredPlays
-      .map((p) => p.background != null)
+      .map(p => p.background != null)
       .reduce((one, t) => one || t, false);
 
     if (!isTweetable || filteredPlays.length === 1) {
@@ -188,7 +188,7 @@ class sessionObject {
     const [
       sessionDurationHours,
       sessionDurationMinutes,
-      sessionDurationSeconds,
+      sessionDurationSeconds
     ] = secondsToDHMS(sessionTotalSeconds).slice(1);
 
     const sessionDuration = globalInstances.convertTimeToHMS(
@@ -260,7 +260,7 @@ class sessionObject {
       $ss: this.userObjectEndOfSession.counts.SS,
       $sh: this.userObjectEndOfSession.counts.SH,
       $s: this.userObjectEndOfSession.counts.S,
-      $a: this.userObjectEndOfSession.counts.A,
+      $a: this.userObjectEndOfSession.counts.A
     };
 
     globalInstances.logMessage(
@@ -283,7 +283,7 @@ class sessionObject {
         _,
         songDurationHours,
         songDurationMinutes,
-        songDurationSeconds,
+        songDurationSeconds
       ] = secondsToDHMS(songDurationTotalSeconds);
       const songDuration = globalInstances.convertTimeToHMS(
         songDurationHours,
@@ -319,7 +319,7 @@ class sessionObject {
         $approachRate: play.ar,
         $healthPoints: play.hp,
         $overallDifficulty: play.od,
-        $circleSize: play.cs,
+        $circleSize: play.cs
       };
       // this.osuUsername = osuUsername;
       // this.numSpinners = map.nspinners;
@@ -343,91 +343,44 @@ class sessionObject {
     }
     //db stuff end
 
-    let reportImages = await ReportGenerator.generateReports(
-      filteredPlays,
-      this.player,
-      this.userObjectEndOfSession,
-      sessionDuration,
-      date,
-      {
-        difAcc,
-        difCountryRank,
-        difGlobalRank,
-        difLevel,
-        difPP,
-        difPlayCount,
-        difRankedScore,
-      }
-    );
-
-    globalInstances.logMessage("\nTrying to tweet...");
-
-    const media = await Promise.all(
-      reportImages.map(async (image, idx, arr) => {
-        let buffer = await image.getBufferAsync(jimp.MIME_PNG);
-        globalInstances.logMessage(`Posting image ${idx + 1}/${arr.length}`);
-        return T.post("media/upload", {
-          media_data: buffer.toString("base64"),
-        }).then(async (data) => {
-          if ("__fake__" in data) {
-            // running w/o tweets
-            let osuUsername = await UserCache.getOsuUser(
-              this.player.osuUsername
-            );
-            await image.writeAsync(
-              `./out/${osuUsername.replace(/[^A-Za-z0-9_-]/, "")}.${idx}.png`
-            );
-          }
-          return data;
-        });
-      })
-    );
-
-    if (media.length > 0) {
-      numberOfTweets.inc();
-
-      return this.tweetReport(
-        this.player.twitterUsername,
-        this.player.osuUsername,
-        media.map((image) => image.data.media_id_string),
-        this.sessionID
-      );
-    } else {
-      globalInstances.logMessage("no images exist...? lol");
-    }
+    return this.sendReport(this.player.twitterUsername, this.sessionID);
   }
 
-  async tweetReport(twitterUsername, osuUsername, id, sessionID) {
-    const tweet = {
-      status: "." + twitterUsername + " just finished an osu! session: ",
-      media_ids: [id],
-    };
+  async sendReport(twitterUsername, sessionID) {
     if (
       await twitterUtils.isTwitterUserActive(
         this.player.twitterUsername.replace("@", "")
       )
     ) {
-      return T.post("statuses/update", tweet)
-        .then(async (data) => {
-          globalInstances.logMessage(
-            `Updating session with tweet ID for ${osuUsername} (${data.data.id_str})`
-          );
-          await db.updateSession(data.data.id_str, sessionID);
-          globalInstances.logMessage(
-            " ---------------------------------------------------------------------------------A tweet was tweeted"
-          );
-        })
-        .catch((err) => {
-          globalInstances.logMessage(err);
-        });
+      console.log("well prob available");
+      let reportLink = `dev.osu.report/report/${this.sessionID}`;
+      let intentTweet =
+        "https://twitter.com/intent/tweet?url=" +
+        reportLink +
+        "&via=osuReports&text=Check%20out%20my%20osu%21%20Report:%20&hashtags=osuReports";
+      let dm =
+        "A new osu! Report was generated! You can view it here: " +
+        reportLink +
+        "\n\nShare it with your followers by clicking this link: " +
+        intentTweet;
+      console.log("trying to dm: " + dm);
+      let sent = await twitterUtils.sendDirectMessage(
+        twitterUsername.substring(1),
+        dm
+      );
+      if (sent) {
+        numberOfTweets.inc();
+      } else {
+        console.log("error, likely not dmable");
+      }
     } else {
       let strId = "<inactive twitter user>";
       globalInstances.logMessage(
-        `Updating session with tweet ID for ${osuUsername} (${strId})`
+        `Updating session with tweet ID for ${twitterUsername} (${strId})`
       );
       await db.updateSession(strId, sessionID);
       globalInstances.logMessage(
-        `Removing ${osuUsername} ${twitterUsername} from whitelist due to the username not existing`
+        `Removing ${twitterUsername} from whitelist due to the username not existing`
       );
 
       for (const [i, player] of globalInstances.playerObjects.entries()) {
@@ -437,7 +390,6 @@ class sessionObject {
           break;
         }
       }
-
       await db.deletePlayer(twitterUsername);
     }
   }

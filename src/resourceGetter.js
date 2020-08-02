@@ -18,20 +18,17 @@ const DEFAULT_BACKGROUND =
 const INITIAL_IMAGES = {
   report: "./static/images/rawReports/report1.png",
   circleMask: "./static/masks/circleMask.png",
-  rankSSPlus: [
-    "./static/images/ranks/SSPlus.png",
-    (im) => im.resize(120, 63.6),
-  ],
-  rankSS: ["./static/images/ranks/SS.png", (im) => im.resize(120, 63.6)],
-  rankSPlus: ["./static/images/ranks/SPlus.png", (im) => im.resize(120, 63.6)],
-  rankS: ["./static/images/ranks/S.png", (im) => im.resize(120, 63.6)],
-  rankA: ["./static/images/ranks/A.png", (im) => im.resize(109.2, 63.6)],
-  rankB: ["./static/images/ranks/B.png", (im) => im.resize(95.16, 63.6)],
-  rankC: ["./static/images/ranks/C.png", (im) => im.resize(95.16, 63.6)],
-  rankD: ["./static/images/ranks/D.png", (im) => im.resize(95.16, 63.6)],
+  rankSSPlus: ["./static/images/ranks/SSPlus.png", im => im.resize(120, 63.6)],
+  rankSS: ["./static/images/ranks/SS.png", im => im.resize(120, 63.6)],
+  rankSPlus: ["./static/images/ranks/SPlus.png", im => im.resize(120, 63.6)],
+  rankS: ["./static/images/ranks/S.png", im => im.resize(120, 63.6)],
+  rankA: ["./static/images/ranks/A.png", im => im.resize(109.2, 63.6)],
+  rankB: ["./static/images/ranks/B.png", im => im.resize(95.16, 63.6)],
+  rankC: ["./static/images/ranks/C.png", im => im.resize(95.16, 63.6)],
+  rankD: ["./static/images/ranks/D.png", im => im.resize(95.16, 63.6)],
   osuReportsLogo: [
     "./static/images/osuReportsLogo.png",
-    (im) => im.resize(100, 100),
+    im => im.resize(100, 100)
   ],
   levelBar: "./static/images/levelBar.png",
   hex: "./static/images/hex.png",
@@ -39,10 +36,10 @@ const INITIAL_IMAGES = {
   playShadowMask: "./static/masks/playShadowMask.png",
   onlineStar: [
     "./static/images/stars/onlinestar.png",
-    (im) => im.resize(35, 35),
-    (im) => im.resize(28, 28),
-    (im) => im.resize(20, 20),
-    (im) => im.resize(15, 15),
+    im => im.resize(35, 35),
+    im => im.resize(28, 28),
+    im => im.resize(20, 20),
+    im => im.resize(15, 15)
   ],
   modFlashlight: "./static/images/mods/mod_flashlight.png",
   modHardRock: "./static/images/mods/mod_hard-rock.png",
@@ -53,7 +50,7 @@ const INITIAL_IMAGES = {
   modDoubleTime: "./static/images/mods/mod_double-time.png",
   modNoFail: "./static/images/mods/mod_no-fail.png",
   modEasy: "./static/images/mods/mod_easy.png",
-  modHalfTime: "./static/images/mods/mod_half-time.png",
+  modHalfTime: "./static/images/mods/mod_half-time.png"
 };
 
 const INITIAL_FONTS = {
@@ -70,12 +67,12 @@ const INITIAL_FONTS = {
   ubuntuBGold52: "./static/fonts/ubuntuB_gold_52.fnt",
   ubuntuBYellow32: "./static/fonts/ubuntuB_yellow_32.fnt",
   ubuntuBLightGreen32: "./static/fonts/ubuntuB_lightgreen_32.fnt",
-  ubuntuBLightRed32: "./static/fonts/ubuntuB_lightred_32.fnt",
+  ubuntuBLightRed32: "./static/fonts/ubuntuB_lightred_32.fnt"
 };
 
 class ResourceGetter {
   constructor() {
-    const images = _.mapValues(INITIAL_IMAGES, (resource) => {
+    const images = _.mapValues(INITIAL_IMAGES, resource => {
       let image = jimp.read(resource instanceof Array ? resource[0] : resource);
 
       if (resource instanceof Array) {
@@ -83,10 +80,8 @@ class ResourceGetter {
         if (mutations.length === 1) {
           return image.then(mutations[0]);
         } else {
-          return mutations.map((mut) =>
-            image.then((image) =>
-              promisify(image.clone.bind(image))().then(mut)
-            )
+          return mutations.map(mut =>
+            image.then(image => promisify(image.clone.bind(image))().then(mut))
           );
         }
       } else {
@@ -94,11 +89,11 @@ class ResourceGetter {
       }
     });
 
-    const fonts = _.mapValues(INITIAL_FONTS, (url) => jimp.loadFont(url));
+    const fonts = _.mapValues(INITIAL_FONTS, url => jimp.loadFont(url));
 
     this.cache = {
       images,
-      fonts,
+      fonts
     };
 
     /** @type {LRUCache<Jimp>} */
@@ -107,7 +102,7 @@ class ResourceGetter {
 
   async getPlayerAvatar(userId) {
     const url = "https://a.ppy.sh/" + userId;
-    return jimp.read(url).then((im) => im.resize(256, 256));
+    return jimp.read(url).then(im => im.resize(256, 256));
   }
 
   async getPlayerCountryFlag(countryFlag) {
@@ -166,7 +161,7 @@ class ResourceGetter {
     const key = "_reportTemplate";
     if (key in this.cache.images) {
       const p = /** @type {Promise<Jimp>} */ (this.cache.images[key]);
-      return p.then((im) => im.clone());
+      return p.then(im => im.clone());
     }
 
     const template = (await this.getImage("report")).clone();
@@ -176,7 +171,7 @@ class ResourceGetter {
       template.blit
     ).bind(template)(logo, 840, 10));
     this.cache.images[key] = overlayed;
-    return overlayed.then((im) => promisify(im.clone).bind(im)());
+    return overlayed.then(im => promisify(im.clone).bind(im)());
   }
 
   /**
@@ -185,12 +180,12 @@ class ResourceGetter {
    */
   async getBackground(url) {
     const parsed = new URL(url);
-    const getter = (url) =>
+    const getter = url =>
       axios
         .get(url, {
-          responseType: "arraybuffer",
+          responseType: "arraybuffer"
         })
-        .then((data) => {
+        .then(data => {
           return jimp.read(data.data);
         });
     let isDefault = false;
@@ -203,17 +198,17 @@ class ResourceGetter {
 
     return this.lru
       .get(url, () => getter(url))
-      .then((background) => ({
+      .then(background => ({
         background: background.clone(),
-        isDefault,
+        isDefault
       }))
-      .catch(async (err) => {
+      .catch(async err => {
         if ("response" in err && err.response.status === 404) {
           return this.lru
             .get(DEFAULT_BACKGROUND, () => getter(DEFAULT_BACKGROUND))
-            .then((background) => ({
+            .then(background => ({
               background: background.clone(),
-              isDefault: true,
+              isDefault: true
             }));
         }
         throw err;
