@@ -3,7 +3,7 @@
     <div class="row justify-content-center">
       <a
         :href="`https://osu.ppy.sh/users/${this.session.osu.username}`"
-        class="d-block w-50 h-100"
+        class="d-block w-md-50 h-100"
       >
         <session-top v-bind="session" class="mt-2" />
       </a>
@@ -22,12 +22,21 @@
 <script>
 import { mapState } from "vuex";
 
+function getBaseUrl(req) {
+  const origin = process.server
+    ? `https://${req.headers.host}`
+    : window.location.origin;
+  // remove a trailing slash if it exists
+  return origin.replace(/\/$/, "");
+}
+
 export default {
-  async asyncData({ params, app: { $api } }) {
+  async asyncData({ params, app: { $api }, req }) {
     return {
       plays: await $api.getSessionPlays(params.sessionId),
       session: await $api.getSession(params.sessionId),
-      sessionId: params.sessionId
+      sessionId: params.sessionId,
+      baseUrl: getBaseUrl(req)
     };
   },
   /** @returns {boolean} */
@@ -56,7 +65,7 @@ export default {
           hid: "twitterImage",
           name: "twitter:image",
           // @ts-ignore
-          content: `/api/player/sessions/${this.sessionId}/reportCard.png`
+          content: `${this.baseUrl}/api/player/sessions/${this.sessionId}/reportCard.png`
         },
         {
           hid: "twitterCard",

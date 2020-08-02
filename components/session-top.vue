@@ -1,9 +1,11 @@
 <template>
-  <div class="image-container d-flex justify-content-center">
-    <img
-      :src="`/api/player/sessions/${sessionID}/reportCard.png`"
-      alt="session-top"
-    />
+  <div class="session-top row justify-content-center">
+    <div class="image-container col-12 col-lg-6">
+      <img
+        :src="`/api/player/sessions/${sessionID}/reportCard.png`"
+        alt="session-top"
+      />
+    </div>
   </div>
 </template>
 
@@ -38,6 +40,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@media screen and (max-width: 450px) {
+  .session-top {
+    // hack to make it the same as the play padding
+    font-size: 0.7em;
+  }
+}
+
+.session-top {
+  padding: 0.5em;
+}
+
 .image-container {
   padding: 0.2em;
   height: 100%;

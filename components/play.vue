@@ -11,13 +11,15 @@
           class="col-md-8 col-12 col-xl-12 col-xxl-8 d-flex flex-column justify-content-between align-items-center align-items-xl-center align-items-md-start align-items-xxl-start"
         >
           <div class="title-artist-group">
-            <div class="play-title blue-text">{{title}} [{{ version }}]</div>
+            <div class="play-title blue-text">{{ title }} [{{ version }}]</div>
             <div class="artist white-text">by {{ artist }}</div>
           </div>
           <div
             class="d-md-none d-flex my-2 flex-wrap small-play-stats justify-content-center align-items-center d-xl-flex d-xxl-none"
           >
-            <div class="play-accuracy gold-text mx-2">{{ (+playAccuracy).toFixed(2) }}%</div>
+            <div class="play-accuracy gold-text mx-2">
+              {{ (+playAccuracy).toFixed(2) }}%
+            </div>
             <div class="rank mx-2">
               <rank :rank="rank" class="align-middle" />
             </div>
@@ -27,9 +29,16 @@
               <span class="gold-text">{{ counts50 }}</span> /
               <span class="red-text">{{ countsMiss }}</span>
             </div>
-            <div class="performance gold-text mx-2">{{ Math.ceil(parseFloat(playPP)) }}pp</div>
+            <div class="performance gold-text mx-2">
+              {{ Math.ceil(parseFloat(playPP)) }}pp
+            </div>
             <div>
-              <mod v-for="mod in modList" :key="mod" :mod="mod" class="align-middle" />
+              <mod
+                v-for="mod in modList"
+                :key="mod"
+                :mod="mod"
+                class="align-middle"
+              />
             </div>
           </div>
           <div
@@ -106,7 +115,9 @@
         <div
           class="col-md-4 ml-auto d-none d-md-flex d-xl-none d-xxl-flex flex-column justify-content-between"
         >
-          <div class="play-accuracy gold-text right">{{ (+playAccuracy).toFixed(2) }}%</div>
+          <div class="play-accuracy gold-text right">
+            {{ (+playAccuracy).toFixed(2) }}%
+          </div>
           <div class="rank">
             <rank :rank="rank" class="right" />
           </div>
@@ -119,7 +130,9 @@
             <span class="gold-text">{{ counts50 }}</span> /
             <span class="red-text">{{ countsMiss }}</span>
           </div>
-          <div class="performance right gold-text">{{ Math.ceil(parseFloat(playPP)) }}pp</div>
+          <div class="performance right gold-text">
+            {{ Math.ceil(parseFloat(playPP)) }}pp
+          </div>
         </div>
       </div>
     </div>
@@ -140,7 +153,7 @@ export default {
   components: {
     Stars,
     Rank,
-    Mod,
+    Mod
   },
   props: {
     sessionId: Number,
@@ -170,35 +183,35 @@ export default {
     approachRate: Number,
     healthPoints: Number,
     overallDifficulty: Number,
-    circleSize: Number,
+    circleSize: Number
   },
   data() {
     return {
-      overrideBg: null,
+      overrideBg: null
     };
   },
   computed: {
     /** @returns {{backgroundImage: string}} */
     style() {
       return {
-        backgroundImage: `url("${this.overrideBg || this.bg}")`,
+        backgroundImage: `url("${this.overrideBg || this.bg}")`
       };
     },
     /** @returns {string[]} */
     modList() {
-      return this.mods.split(/,\s+/).filter((mod) => mod.trim() !== "");
+      return this.mods.split(/,\s+/).filter(mod => mod.trim() !== "");
     },
     /** @returns {string} */
     beatmapId() {
       const match = [...BG_REGEX.exec(this.bg)];
       return match[1];
-    },
+    }
   },
   methods: {
     missingBg() {
       this.overrideBg = DEFAULT_BACKGROUND;
-    },
-  },
+    }
+  }
 };
 </script>
 

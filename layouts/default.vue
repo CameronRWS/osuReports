@@ -1,7 +1,10 @@
 <template>
   <section class="root">
     <header>
-      <div class="navbar navbar-dark navbar-expand-md bg-dark shadow-sm">
+      <div
+        ref="nav"
+        class="navbar navbar-dark navbar-expand-md bg-dark shadow-sm"
+      >
         <div class="container d-flex">
           <button
             class="navbar-toggler"
@@ -14,7 +17,10 @@
           >
             <span class="navbar-toggler-icon"></span>
           </button>
-          <nuxt-link to="/" class="navbar-brand d-flex align-items-center ml-3 ml-md-0 mr-auto">
+          <nuxt-link
+            to="/"
+            class="navbar-brand d-flex align-items-center ml-3 ml-md-0 mr-auto"
+          >
             <strong>osu! Reports</strong>
           </nuxt-link>
           <div
@@ -26,17 +32,35 @@
               <nuxt-link to="/player" class="navbar-brand align-middle">
                 <strong>Signed in as: @{{ player.twitterUsername }}</strong>
               </nuxt-link>
-              <button type="submit" class="btn btn-secondary my-2" @click.prevent="logout">Logout</button>
+              <button
+                type="submit"
+                class="btn btn-secondary my-2"
+                @click.prevent="logout"
+              >
+                Logout
+              </button>
             </form>
           </div>
-          <a v-else href="/twitter/login" class="btn btn-secondary my-2">Login</a>
+          <a v-else href="/twitter/login" class="btn btn-secondary my-2"
+            >Login</a
+          >
         </div>
       </div>
     </header>
 
-    <section v-if="flash && flash.length > 0" class="jumbotron mt-0 mb-n1 py-2 rounded-0">
+    <section
+      v-if="flash && flash.length > 0"
+      class="jumbotron mt-0 mb-n1 py-2 rounded-0"
+    >
       <div class="container">
-        <div class="alert alert-danger" role="alert" v-for="f in flash" :key="f">{{ f }}</div>
+        <div
+          class="alert alert-danger"
+          role="alert"
+          v-for="f in flash"
+          :key="f"
+        >
+          {{ f }}
+        </div>
       </div>
     </section>
 
@@ -49,6 +73,12 @@
         </nuxt-link>
       </section>
     </footer>
+    <floating-button
+      v-if="scrollToTopVisible"
+      @click="scrollToTop"
+      aria-label="scroll to top"
+      class="d-block d-xl-none"
+    />
   </section>
 </template>
 
@@ -70,11 +100,17 @@ footer {
 
 <script>
 if (!process || !process.server) require("bootstrap");
+import $ from "jquery";
 
 import { mapState, mapActions } from "vuex";
 export default {
+  data() {
+    return {
+      scrollToTopVisible: false
+    };
+  },
   computed: {
-    ...mapState(["player", "flash"]),
+    ...mapState(["player", "flash"])
   },
   methods: {
     logout() {
@@ -83,18 +119,41 @@ export default {
         .then(() => this.$store.dispatch("logout"))
         .then(() => this.$router.push("/"));
     },
+    scrollToTop() {
+      $("html, body").animate({ scrollTop: 0 }, 800);
+    }
   },
   head() {
     return {
       link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
       title: "osu! Reports",
       meta: [
-        { name: "viewport", content: "width=device-width, initial-scale=1.0" },
+        { name: "viewport", content: "width=device-width, initial-scale=1.0" }
       ],
       htmlAttrs: {
-        class: "bg-light",
-      },
+        class: "bg-light"
+      }
     };
   },
+  mounted() {
+    try {
+      const observer = new IntersectionObserver(
+        entries => {
+          let shouldBeVisible = false;
+          for (const entry of entries) {
+            if (!entry.isIntersecting) {
+              shouldBeVisible = true;
+              break;
+            }
+          }
+          this.scrollToTopVisible = shouldBeVisible;
+        },
+        { threshold: 0 }
+      );
+      observer.observe(this.$refs.nav);
+    } catch (ex) {
+      this.scrollToTopVisible = true;
+    }
+  }
 };
 </script>
