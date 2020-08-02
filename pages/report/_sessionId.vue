@@ -49,7 +49,7 @@ export default {
           // @ts-ignore
           content: `${
             this.session.osu.username
-          }'s osu! Report from ${dateFormat()}`,
+          }'s osu! Report from ${this.dateFormat()}`,
         },
         {
           hid: "otherContent",
