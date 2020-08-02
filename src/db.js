@@ -253,7 +253,7 @@ class DB extends sqlite3.Database {
   async getSession(sessionId) {
     await this._initialized;
     //@ts-ignore
-    return /** @type {Promise<osuReports.Session>} */ (this.allAsync(
+    return /** @type {Promise<osuReports.Session>} */ (this.getAsync(
       `
       SELECT *
       FROM sessionsTable

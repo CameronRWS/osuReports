@@ -2,7 +2,7 @@
   <section class="container">
     <div class="row justify-content-center">
       <a
-        :href="`https://osu.ppy.sh/users/${this.player.osu.username}`"
+        :href="`https://osu.ppy.sh/users/${this.session.osu.username}`"
         class="d-block w-50 h-100"
       >
         <session-top v-bind="session" class="mt-2" />
@@ -43,7 +43,8 @@ export default {
         {
           hid: "twitterTitle",
           name: "twitter:title",
-          content: `osu! Report for ${this.player.osu.username}`
+          // @ts-ignore
+          content: `osu! Report for ${this.session.osu.username}`
         },
         {
           hid: "twitterDesc",

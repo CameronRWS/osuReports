@@ -93,7 +93,16 @@ router.get("/player/sessions/:sessionId/plays", (req, res) => {
 
 router.get("/player/sessions/:sessionId", (req, res) => {
   db.getSession(req.params.sessionId)
-    .then(session => res.json(session || []))
+    .then(async session => {
+      const username = await userCache.getOsuUser(session.osuUsername);
+      return res.json({
+        ...session,
+        osu: {
+          id: session.osuUsername,
+          username
+        }
+      });
+    })
     .catch(() => res.status(404).json("session not found"));
 });
 
