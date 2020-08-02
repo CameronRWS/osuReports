@@ -1,26 +1,17 @@
 <template>
-  <div class="session">
-    <div class="session-container">
-      <div class="layer">
-        <div class="image-container" :style="style"></div>
-      </div>
-      <div class="row text-content">ccccccccccccccccccccccccccccccccccccccccccccc</div>
-    </div>
+  <div class="image-container d-flex justify-content-center">
+    <img
+      :src="`/api/player/sessions/${sessionID}/reportCard.png`"
+      alt="session-top"
+    />
   </div>
 </template>
 
 <script>
 // @ts-ignore
-import image from "~/assets/images/reportCard.png";
-
 export default {
-  data: function () {
-    return {
-      image: image,
-    };
-  },
   props: {
-    sessionID: Number,
+    sessionID: Number
     // tweetID: String,
     // date: String,
     // osuUsername: String,
@@ -42,137 +33,26 @@ export default {
     // countSPlus: Number,
     // countS: Number,
     // countA: Number,
-  },
-  computed: {
-    /** @returns {{backgroundImage: string}} */
-    style() {
-      return {
-        backgroundImage: `url("${image}")`,
-      };
-    },
-  },
+  }
 };
 </script>
 
-
-<style>
-@import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&display=swap");
-</style>
-
 <style lang="scss" scoped>
-@mixin blue-text {
-  background: -webkit-linear-gradient(rgb(112, 212, 255), rgb(0, 191, 255));
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.blue-text {
-  @include blue-text();
-}
-
-@mixin white-text {
-  background: -webkit-linear-gradient(rgb(255, 255, 255), rgb(149, 149, 149));
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.white-text {
-  @include white-text();
-}
-
-@mixin gold-text {
-  background: -webkit-linear-gradient(rgb(255, 217, 0), rgb(175, 134, 0));
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.gold-text {
-  @include gold-text();
-}
-
-@mixin green-text {
-  background: -webkit-linear-gradient(rgb(0, 255, 0), rgb(3, 136, 3));
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.green-text {
-  @include green-text();
-}
-
-@mixin red-text {
-  background: -webkit-linear-gradient(rgb(255, 0, 0), #990000);
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.red-text {
-  @include red-text();
-}
-
-.session {
-  font-family: "Ubuntu", sans-serif;
-  /* width and color */
-  -webkit-text-stroke: 0.5px black;
-  height: auto;
-  /* min-width: 30rem; */
-  line-height: 1.25;
-
-  padding: 0.5em;
-  min-height: 4em;
-}
-
-.session-container {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(#bbb, #000);
-  position: relative;
-  border-radius: 0.5em;
-}
-
-.layer {
-  position: absolute;
-  padding: 0.2em;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-}
-
 .image-container {
   padding: 0.2em;
   height: 100%;
-  border-radius: calc(0.5em * 0.75);
+  border-radius: 0.5em;
   // filter: brightness(50%);
   /* do whatever you want to the background here */
-  background: #eee;
+  background: linear-gradient(#bbb, #000);
   background-size: cover;
   background-repeat: no-repeat;
-}
 
-.text-content {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  padding: 0.5em;
-
-  &,
-  & * {
-    z-index: 1;
+  img {
+    border-radius: calc(0.5em * 0.75);
+    width: 100%;
+    height: auto;
+    display: block;
   }
-}
-
-.right {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-}
-
-th {
-  @include blue-text();
-}
-
-td {
-  @include white-text();
 }
 </style>
