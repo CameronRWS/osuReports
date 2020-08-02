@@ -56,8 +56,8 @@
         <div
           class="alert alert-danger"
           role="alert"
-          v-for="f in flash"
-          :key="f"
+          v-for="(f, idx) in flash"
+          :key="idx"
         >
           {{ f }}
         </div>
