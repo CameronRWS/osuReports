@@ -1,23 +1,36 @@
 <template>
   <section class="container">
     <div class="row justify-content-center">
-      <session-top v-bind="session" />
-      <img :src="reportCard" alt="session-top" />
-      <br />
-      <play v-for="play in plays" :key="play.date" v-bind="play" class="col-xl-6 col-12" />
+      <a
+        :href="`https://osu.ppy.sh/users/${this.player.osu.username}`"
+        class="d-block w-50 h-100"
+      >
+        <session-top v-bind="session" class="mt-2" />
+      </a>
+    </div>
+    <div class="row justify-content-center">
+      <play
+        v-for="play in plays"
+        :key="play.date"
+        v-bind="play"
+        class="col-xl-6 col-12"
+      />
     </div>
   </section>
 </template>
 
 <script>
+import { mapState } from "vuex";
+
 export default {
   async asyncData({ params, app: { $api } }) {
     return {
       plays: await $api.getSessionPlays(params.sessionId),
       session: await $api.getSession(params.sessionId),
-      reportCard: await $api.getSessionReportCard(params.sessionId),
+      sessionId: params.sessionId
     };
   },
+  /** @returns {boolean} */
   validate(ctx) {
     const reportId = ctx.params.sessionId;
     return !!reportId && !/\D/.test(reportId);
@@ -30,27 +43,31 @@ export default {
         {
           hid: "twitterTitle",
           name: "twitter:title",
-          content: "osu! Report for <osuUsername>",
+          content: `osu! Report for ${this.player.osu.username}`
         },
         {
           hid: "twitterDesc",
           name: "twitter:description",
-          content:
-            "Click this link to see all <playsCount> plays on the official osu! Reports website.",
+          // @ts-ignore
+          content: `Click this link to see all ${this.plays.length} plays on the official osu! Reports website.`
         },
         {
           hid: "twitterImage",
           name: "twitter:image",
-          content: "reportCard",
+          // @ts-ignore
+          content: `/api/player/sessions/${this.sessionId}/reportCard.png`
         },
         {
           hid: "twitterCard",
           name: "twitter:card",
-          content: "summary_large_image",
-        },
-      ],
+          content: "summary_large_image"
+        }
+      ]
     };
   },
+  computed: {
+    ...mapState(["player"])
+  }
 };
 </script>
 

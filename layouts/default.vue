@@ -1,5 +1,5 @@
 <template>
-  <section>
+  <section class="root">
     <header>
       <div class="navbar navbar-dark navbar-expand-md bg-dark shadow-sm">
         <div class="container d-flex">
@@ -43,7 +43,7 @@
     <nuxt />
 
     <footer>
-      <section class="center mb-4">
+      <section class="center mt-4 py-4 bg-light">
         <nuxt-link to="/privacy">
           <strong>Privacy Policy</strong>
         </nuxt-link>
@@ -55,6 +55,16 @@
 <style lang="scss" scoped>
 footer {
   text-align: center;
+}
+
+.root {
+  background-image: url("~assets/images/whiteTriangles.png");
+}
+</style>
+
+<style>
+.jumbotron {
+  background: transparent;
 }
 </style>
 
@@ -81,6 +91,9 @@ export default {
       meta: [
         { name: "viewport", content: "width=device-width, initial-scale=1.0" },
       ],
+      htmlAttrs: {
+        class: "bg-light",
+      },
     };
   },
 };

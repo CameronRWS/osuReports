@@ -8,13 +8,11 @@
           height="300"
           alt="osu Reports Logo"
         />
-        <h3 class="mt-4">
-          Get reports on your osu! sessions tweeted directly to you!
-        </h3>
+        <h3 class="mt-4">Get reports on your osu! sessions tweeted directly to you!</h3>
         <p class="my-4">
-          {{ stats.players }} users whitelisted!
+          {{ stats.players }} users registered!
           <br />
-          {{ stats.plays }} plays and {{ stats.sessions }} sessions recorded!
+          {{ stats.plays.toLocaleString("US-en") }} plays and {{ stats.sessions.toLocaleString("US-en") }} sessions recorded!
         </p>
         <p v-if="!player">
           <a href="/twitter/login" class="btn btn-primary my-2">
@@ -22,9 +20,7 @@
           </a>
         </p>
         <p v-else>
-          <nuxt-link to="/player" class="btn btn-primary my-2">
-            Go to Dashboard
-          </nuxt-link>
+          <nuxt-link to="/player" class="btn btn-primary my-2">Go to Dashboard</nuxt-link>
         </p>
       </div>
     </section>
@@ -36,7 +32,7 @@ import { mapState } from "vuex";
 
 export default {
   computed: {
-    ...mapState(["stats", "player"])
-  }
+    ...mapState(["stats", "player"]),
+  },
 };
 </script>

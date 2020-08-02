@@ -1,4 +1,5 @@
 const Redis = require("ioredis");
+const Jimp = require("jimp");
 const _ = require("lodash");
 const ReportCardGenerator = require("./reportCardGenerator");
 
@@ -15,33 +16,25 @@ class ReportCardCache {
       },
       options
     );
-
     this.client = new Redis(options);
   }
 
   async getReportCard(sessionId) {
-    console.log(sessionId + " OKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK");
     const key = USER_PREFIX + sessionId;
-    console.log("OK2");
     let reportCard;
     try {
-      reportCard = await this.client.get(key);
+      reportCard = await this.client.getBuffer(key);
       if (reportCard !== null) {
-        console.log(reportCard);
         return reportCard;
       }
     } catch (ex) {
       console.log(ex);
     }
-
     // not cached
     reportCard = await ReportCardGenerator.generateReportCard(sessionId);
-    console.log("got here");
-    await reportCard.writeAsync(`./out/testingCard.png`);
-    //store by converting to base64 then back?...? bitch wat
-    console.log("got here2");
-    await this.client.setex(key, USER_CACHE_TIME, reportCard);
-    return reportCard;
+    const reportCardData = await reportCard.getBufferAsync(Jimp.MIME_PNG);
+    await this.client.setex(key, USER_CACHE_TIME, reportCardData);
+    return reportCardData;
   }
 
   async updateOsuUser(osuId, osuUsername) {

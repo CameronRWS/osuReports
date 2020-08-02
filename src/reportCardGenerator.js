@@ -33,7 +33,7 @@ class ReportCardGenerator {
         A: session.countA
       },
       country: await this.getCountry(session.osuUsername),
-      level: session.level.replace(/[^.A-Za-z0-9_-]/, ""),
+      level: session.level,
       id: session.osuUsername
     };
 

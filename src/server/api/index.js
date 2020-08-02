@@ -27,10 +27,10 @@ router.get("/stats", (req, res) => {
  * @param {string} twitterUsername
  */
 
-router.get("/player/sessions/:sessionId/reportCard", (req, res) => {
+router.get("/player/sessions/:sessionId/reportCard(.png)?", (req, res) => {
   getReportCard(req.params.sessionId)
     .then(image => {
-      res.json(image);
+      return res.contentType("image/png").send(image);
     })
     .catch(err => {
       globalInstances.logMessage("error looking up session", err);
