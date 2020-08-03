@@ -76,15 +76,29 @@ class Report extends DrawTools {
       ["rankA", 700, 305]
     );
 
-    const { SSH, SS, SH, S, A } = this.user.counts;
+    const {
+      SSH,
+      SS,
+      SH,
+      S,
+      A
+    } = this.user.counts;
+    const {
+      difSSPlus,
+      difSS,
+      difSPlus,
+      difS,
+      difA
+    } = this.delta;
+
     await this._drawCommands(
       this._printRanks,
-      ["ubuntuBBlack24"],
-      [280, 365 + RANK_Y_OFFSET, SSH],
-      [400, 365 + RANK_Y_OFFSET, SS],
-      [520, 365 + RANK_Y_OFFSET, SH],
-      [640, 365 + RANK_Y_OFFSET, S],
-      [760, 365 + RANK_Y_OFFSET, A]
+      [],
+      [280, 363 + RANK_Y_OFFSET, SSH, difSSPlus],
+      [400, 363 + RANK_Y_OFFSET, SS, difSS],
+      [520, 363 + RANK_Y_OFFSET, SH, difSPlus],
+      [640, 363 + RANK_Y_OFFSET, S, difS],
+      [760, 363 + RANK_Y_OFFSET, A, difA]
     );
   }
 
@@ -171,7 +185,9 @@ class Report extends DrawTools {
     //level bar
     const levelBar = await resourceGetter.getImage("levelBar");
 
-    const { difLevel } = this.delta;
+    const {
+      difLevel
+    } = this.delta;
     const fLevel = parseFloat(this.user.level);
     const fProgress = fLevel % 1;
     const percentage = Math.trunc(fProgress * 100).toString() + "%";
@@ -194,15 +210,19 @@ class Report extends DrawTools {
     const spacing = 5;
     const center = 312;
     return this._printCenteredY(
-      "ubuntuBBlack24",
-      734 + LEVEL_BAR_X_OFFSET,
-      center,
-      percentage
-    )
-      .then(({ x }) =>
+        "ubuntuBBlack24",
+        734 + LEVEL_BAR_X_OFFSET,
+        center,
+        percentage
+      )
+      .then(({
+          x
+        }) =>
         this._printCenteredY("ubuntuBGreen24", x + spacing, center, difLevel)
       )
-      .then(({ x }) =>
+      .then(({
+          x
+        }) =>
         this.image.blit(hex, x + spacing, center - hex.getHeight() / 2)
       );
   }

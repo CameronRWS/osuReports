@@ -53,6 +53,11 @@ declare global {
       countSPlus: Number;
       countS: Number;
       countA: Number;
+      difSSPlus: String;
+      difSS: String;
+      difSPlus: String;
+      difS: String;
+      difA: String;
       osu?: {
         username: string;
         id: string;

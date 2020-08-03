@@ -43,7 +43,12 @@ class ReportCardGenerator {
       difAcc: session.difAcc,
       difPP: session.difPP,
       difPlayCount: session.difPlayCount,
-      difLevel: session.difLevel
+      difLevel: session.difLevel,
+      difSSPlus: session.difSSPlus,
+      difSS: session.difSS,
+      difSPlus: session.difSPlus,
+      difS: session.difS,
+      difA: session.difA,
     };
 
     let generator = new Report(
@@ -58,7 +63,9 @@ class ReportCardGenerator {
     return reportCard;
   }
   async getCountry(osuUsername) {
-    let user = await osuApi.getUser({ u: osuUsername });
+    let user = await osuApi.getUser({
+      u: osuUsername
+    });
     return user.country;
   }
   dateFormat(passedDate) {

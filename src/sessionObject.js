@@ -47,7 +47,9 @@ class sessionObject {
    */
   async initialize() {
     return osuApi
-      .getUser({ u: this.player.osuUsername })
+      .getUser({
+        u: this.player.osuUsername
+      })
       .then(user => {
         this.userObjectStartOfSession = user;
       })
@@ -60,7 +62,9 @@ class sessionObject {
     globalInstances.logMessage("\ndebug mode init");
     this.isDebug = true;
     return osuApi
-      .getUser({ u: this.player.osuUsername })
+      .getUser({
+        u: this.player.osuUsername
+      })
       .then(user => {
         this.userObjectStartOfSession = user;
         this.userObjectStartOfSession.pp.rank =
@@ -73,6 +77,8 @@ class sessionObject {
           parseFloat(this.userObjectStartOfSession.pp.raw) - 2.0092;
         this.userObjectStartOfSession.counts.plays =
           parseFloat(this.userObjectStartOfSession.counts.plays) - 2;
+        this.userObjectStartOfSession.counts.A = parseFloat(this.userObjectStartOfSession.counts.A) - 99;
+        this.userObjectStartOfSession.counts.SSH = parseFloat(this.userObjectStartOfSession.counts.SSH) + 100;
       })
       .catch(err => {
         globalInstances.logMessage(" - " + err);
@@ -86,7 +92,10 @@ class sessionObject {
   async addNewPlay(score, beatmap) {
     const map = await fetchAndParseBeatmap(beatmap.id);
     try {
-      const stars = new ojsama.diff().calc({ map, mods: score.raw_mods });
+      const stars = new ojsama.diff().calc({
+        map,
+        mods: score.raw_mods
+      });
       const pp = ojsama.ppv2({
         stars,
         combo: score.maxCombo,
@@ -128,8 +137,8 @@ class sessionObject {
   async endSession() {
     globalInstances.logMessage(
       "Attempting to end session for: " +
-        (await UserCache.getOsuUser(this.player.osuUsername)) +
-        "\n"
+      (await UserCache.getOsuUser(this.player.osuUsername)) +
+      "\n"
     );
 
     // filter Fs
@@ -148,14 +157,18 @@ class sessionObject {
       return;
     }
 
-    const user = await osuApi.getUser({ u: this.player.osuUsername });
+    const user = await osuApi.getUser({
+      u: this.player.osuUsername
+    });
 
     this.userObjectEndOfSession = user;
     const currentTime = new Date();
     const currentTimeForDB = new Date();
     currentTime.setHours(currentTime.getHours() - 6); //setting to central time
     const date = currentTime
-      .toLocaleString("en-US", { timeZone: "America/Chicago" })
+      .toLocaleString("en-US", {
+        timeZone: "America/Chicago"
+      })
       .split(",")[0];
 
     let sessionTotalSeconds = 0;
@@ -234,6 +247,32 @@ class sessionObject {
       Math.max(fDifPlayCount, this.playObjects.length)
     );
 
+    const fDifSSPlus =
+      sanitizeAndParse(this.userObjectEndOfSession.counts.SSH) -
+      sanitizeAndParse(this.userObjectStartOfSession.counts.SSH);
+    const difSSPlus = formatDifference(fDifSSPlus);
+
+    const fDifSS =
+      sanitizeAndParse(this.userObjectEndOfSession.counts.SS) -
+      sanitizeAndParse(this.userObjectStartOfSession.counts.SS);
+    const difSS = formatDifference(fDifSS);
+
+    const fDifSPlus =
+      sanitizeAndParse(this.userObjectEndOfSession.counts.SH) -
+      sanitizeAndParse(this.userObjectStartOfSession.counts.SH);
+    const difSPlus = formatDifference(fDifSPlus);
+
+    const fDifS =
+      sanitizeAndParse(this.userObjectEndOfSession.counts.S) -
+      sanitizeAndParse(this.userObjectStartOfSession.counts.S);
+    const difS = formatDifference(fDifS);
+
+    const fDifA =
+      sanitizeAndParse(this.userObjectEndOfSession.counts.A) -
+      sanitizeAndParse(this.userObjectStartOfSession.counts.A);
+    const difA = formatDifference(fDifA);
+
+
     //db stuff
     this.sessionID = globalInstances.numberOfSessionsRecorded + 1;
     globalInstances.numberOfSessionsRecorded =
@@ -260,15 +299,20 @@ class sessionObject {
       $ss: this.userObjectEndOfSession.counts.SS,
       $sh: this.userObjectEndOfSession.counts.SH,
       $s: this.userObjectEndOfSession.counts.S,
-      $a: this.userObjectEndOfSession.counts.A
+      $a: this.userObjectEndOfSession.counts.A,
+      $difSSH: difSSPlus,
+      $difSS: difSS,
+      $difSH: difSPlus,
+      $difS: difS,
+      $difA: difA,
     };
 
     globalInstances.logMessage(
       "Calling DB session query for: " +
-        this.player.osuUsername +
-        " - " +
-        util.inspect(sqlSessionValues) +
-        "\n"
+      this.player.osuUsername +
+      " - " +
+      util.inspect(sqlSessionValues) +
+      "\n"
     );
 
     await db.insertSession(sqlSessionValues);
@@ -333,10 +377,10 @@ class sessionObject {
 
       globalInstances.logMessage(
         "Calling DB play query for: " +
-          this.player.osuUsername +
-          " - " +
-          util.inspect(sqlPlayValues) +
-          "\n"
+        this.player.osuUsername +
+        " - " +
+        util.inspect(sqlPlayValues) +
+        "\n"
       );
 
       await db.insertPlay(sqlPlayValues);
@@ -360,9 +404,7 @@ class sessionObject {
         "&via=osuReports&text=Check%20out%20my%20osu%21%20Report:%20&hashtags=osuReports";
       let dm =
         "A new osu! Report was generated! You can view it here: " +
-        reportLink +
-        "\n\nShare it with your followers by clicking this link: " +
-        intentTweet;
+        reportLink
       console.log("trying to dm: " + dm);
       let sent = await twitterUtils.sendDirectMessage(
         twitterUsername.substring(1),

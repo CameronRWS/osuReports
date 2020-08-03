@@ -22,7 +22,12 @@ CREATE TABLE IF NOT EXISTS "sessionsTable" (
   "countSS" TEXT,
   "countSPlus" TEXT,
   "countS" TEXT,
-  "countA" TEXT
+  "countA" TEXT,
+  "difSSPlus" TEXT,
+  "difSS" TEXT,
+  "difSPlus" TEXT,
+  "difS" TEXT,
+  "difA" TEXT
 );
 
 CREATE TABLE IF NOT EXISTS "playsTable" (

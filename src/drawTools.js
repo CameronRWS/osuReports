@@ -109,15 +109,36 @@ class DrawTools {
     );
   }
 
-  async _printRanks(fontName, x, y, rank) {
-    rank = rank.toString();
-    const font = await resourceGetter.getFont(fontName);
-    return this.image.print(
-      font,
-      RANK_X_OFFSET + x - jimp.measureText(font, rank) * 0.7,
+  async _printRankCounts(x, y, offsetText, diff) {
+    console.log(`${x} ${y} ${offsetText} ${diff}`)
+    const blackFont = await resourceGetter.getFont("ubuntuBBlack24");
+    const fontName = "ubuntuBBlue24";
+    return this._printOffset(
+      fontName,
+      x + jimp.measureText(blackFont, offsetText),
+      y,
+      diff
+    );
+  }
+
+  async _printRanks(x, y, rank, dif) {
+    console.log(rank)
+    rank = parseInt(rank).toLocaleString("US-en").toString()
+    console.log(rank)
+    const blackFont = await resourceGetter.getFont("ubuntuBBlack24");
+    const blueFont = await resourceGetter.getFont("ubuntuBBlue24");
+    await this.image.print(
+      blackFont,
+      RANK_X_OFFSET + x - (jimp.measureText(blackFont, rank + dif) * 0.6),
       y,
       rank
-    );
+    )
+    return this.image.print(
+      blueFont,
+      RANK_X_OFFSET + x - (jimp.measureText(blackFont, rank + dif) * 0.6) + jimp.measureText(blackFont, rank),
+      y,
+      dif
+    )
   }
 
   async _drawCommands(thisCmd, commonArgs, ...cmds) {
