@@ -94,11 +94,11 @@ class Report extends DrawTools {
     await this._drawCommands(
       this._printRanks,
       [],
-      [280, 363 + RANK_Y_OFFSET, SSH, difSSPlus],
-      [400, 363 + RANK_Y_OFFSET, SS, difSS],
-      [520, 363 + RANK_Y_OFFSET, SH, difSPlus],
-      [640, 363 + RANK_Y_OFFSET, S, difS],
-      [760, 363 + RANK_Y_OFFSET, A, difA]
+      [280, 363 + RANK_Y_OFFSET, SSH, difSSPlus || ""],
+      [400, 363 + RANK_Y_OFFSET, SS, difSS || ""],
+      [520, 363 + RANK_Y_OFFSET, SH, difSPlus || ""],
+      [640, 363 + RANK_Y_OFFSET, S, difS || ""],
+      [760, 363 + RANK_Y_OFFSET, A, difA || ""]
     );
   }
 
