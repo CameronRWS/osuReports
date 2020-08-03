@@ -7,7 +7,13 @@ const db = require("./src/db");
 const UserCache = require("./src/userCache");
 const beatmapCache = require("./src/beatmapCache");
 
-const { activeSessions, totalUsers, activePlays } = require("./src/metrics");
+require("./src/twitterStream");
+
+const {
+  activeSessions,
+  totalUsers,
+  activePlays
+} = require("./src/metrics");
 
 const msPerIteration = 45000;
 
@@ -25,6 +31,7 @@ async function test() {
   );
   await globalInstances.playerObjects[0].createFakeSession();
   globalInstances.logMessage("From test(): Ending session...");
+  // @ts-ignore
   await globalInstances.playerObjects[0].sessionObject.endSession();
 }
 

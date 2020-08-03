@@ -2,19 +2,29 @@ var osuApi = require("./osuApi");
 var T = require("./twitterInstance");
 const db = require("./db");
 var globalInstances = require("./globalInstances");
-const { startCase } = require("lodash");
+const {
+  startCase
+} = require("lodash");
+
+
 
 class twitterUtils {
+  getTwitterInstance() {
+    return T;
+  }
+
   async isTwitterUserActive(user) {
     return new Promise(async (resolve, reject) => {
-      await T.get("users/lookup", { screen_name: user })
+      await T.get("users/lookup", {
+          screen_name: user
+        })
         .then(data => {
-          // console.log("data");
-          // console.log(data);
+          // globalInstances.logMessage("data");
+          // globalInstances.logMessage(data);
           resolve(true);
         })
         .catch(err => {
-          // console.log("err");
+          // globalInstances.logMessage("err");
           if (err.message === "No user matches for specified terms.") {
             resolve(false);
           } else {
@@ -25,7 +35,8 @@ class twitterUtils {
     });
   }
   async updateFollowingList() {
-    var friendsList = await this.getFriends("osureports");
+    globalInstances.logMessage("updating following list");
+    var friendsList = await this.getFriends("osuReports");
     var playersList = await this.getWhitelistedUsers();
 
     // var friendsList = ["penz_"];
@@ -44,19 +55,25 @@ class twitterUtils {
         peopleToFollow.push(player);
       }
     }
-    console.log(peopleToUnfollow);
-    console.log(peopleToFollow);
     // remove comment once you get write access.
-    // await followTwitterUsers(peopleToFollow);
-    // await unfollowTwitterUsers(peopleToFollow);
+    // globalInstances.logMessage(peopleToFollow);
+    // globalInstances.logMessage("-___________-__________-__________-")
+    // globalInstances.logMessage(peopleToUnfollow);
+    await this.followTwitterUsers(peopleToFollow);
+    await this.unfollowTwitterUsers(peopleToUnfollow);
   }
 
   async unfollowTwitterUsers(peopleToUnfollow) {
     return new Promise(async (resolve, reject) => {
       for (var person of peopleToUnfollow) {
-        await T.post("friendships/destroy", {
-          screen_name: person
-        });
+        globalInstances.logMessage("attempting to unfollow: @" + person)
+        try {
+          await T.post("friendships/destroy", {
+            screen_name: person
+          });
+        } catch (err) {
+          globalInstances.logMessage("---- failed to unfollow: @" + person + " because err: " + err.message)
+        }
       }
       resolve();
     });
@@ -64,9 +81,20 @@ class twitterUtils {
 
   async followTwitterUsers(peopleToFollow) {
     for (var person of peopleToFollow) {
-      await T.post("friendships/create", {
-        screen_name: person
-      });
+      globalInstances.logMessage("attempting to follow: @" + person)
+      try {
+        await T.post("friendships/create", {
+          screen_name: person
+        });
+      } catch (err) {
+        globalInstances.logMessage("---- failed to follow: @" + person + " because err: " + err.message)
+        if (err.message.includes("Cannot find specified user.")) {
+          await db.deletePlayer("@" + person);
+          globalInstances.logMessage("deleted user from whitelist")
+        } else if (err.message.includes("You are unable to follow more people at this time.")) {
+          return;
+        }
+      }
     }
   }
 
@@ -92,7 +120,9 @@ class twitterUtils {
     let friends = [];
     return new Promise(async (resolve, reject) => {
       do {
-        const { data } = await T.get("friends/list", {
+        const {
+          data
+        } = await T.get("friends/list", {
           screen_name: username,
           cursor: nextCursor,
           count: 200
@@ -109,14 +139,14 @@ class twitterUtils {
 
   async getUserId(user) {
     return T.get("users/show", {
-      screen_name: user
-    })
+        screen_name: user
+      })
       .then(async data => {
         let id = data.data.id_str;
         return id;
       })
       .catch(err => {
-        console.log(err);
+        globalInstances.logMessage(err);
         return null;
       });
   }
@@ -154,11 +184,27 @@ class twitterUtils {
     };
     T.post("statuses/update", tweet)
       .then(async data => {
-        console.log("sent");
+        globalInstances.logMessage("sent");
       })
       .catch(err => {
-        console.log("error" + err);
+        globalInstances.logMessage("error" + err);
       });
+  }
+
+  async checkIfShouldRetweet(eventMsg) {
+    if (eventMsg.entities.urls.length === 1 && eventMsg.entities.urls[0].display_url.includes("osu.report")) {
+      this.retweet(eventMsg.id_str)
+    } else {
+      globalInstances.logMessage("not retweeted")
+    }
+  }
+
+  async retweet(tweetId) {
+    T.post('statuses/retweet/:id', {
+      id: tweetId
+    }, function (err, data, response) {
+      globalInstances.logMessage("retweeted tweet: " + tweetId)
+    })
   }
 }
 

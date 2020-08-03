@@ -403,7 +403,7 @@ class sessionObject {
         reportLink +
         "&via=osuReports&text=Check%20out%20my%20osu%21%20Report:%20&hashtags=osuReports";
       let dm =
-        "A new osu! Report was generated! You can view it here: " +
+        "A new osu! Report was generated!" +
         reportLink
       console.log("trying to dm: " + dm);
       let sent = await twitterUtils.sendDirectMessage(
