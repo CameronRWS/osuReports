@@ -3,6 +3,7 @@
     <div class="row justify-content-center">
       <a
         :href="`https://osu.ppy.sh/users/${this.session.osu.username}`"
+        target="_blank"
         class="d-block w-md-50 h-100"
       >
         <session-top v-bind="session" class="mt-2" />

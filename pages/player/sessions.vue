@@ -67,7 +67,7 @@ th {
   }
 
   /* Hide table headers (but not display: none;, for accessibility) */
-  thead tr {
+  thead tr th {
     position: absolute;
     top: -9999px;
     left: -9999px;
@@ -80,7 +80,6 @@ th {
   td {
     /* Behave  like a "row" */
     border: none;
-    border-bottom: 1px solid #eee;
     position: relative;
     padding-left: 50%;
   }

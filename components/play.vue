@@ -1,68 +1,60 @@
 <template>
   <div class="play">
-    <div class="play-container">
-      <div class="layer">
-        <div class="image-container" :style="style">
-          <img alt="bg" style="display: none" :src="bg" @error="missingBg" />
+    <a :href="`https://osu.ppy.sh/beatmapsets/${beatmapId}#osu/`" target="_blank">
+      <div class="play-container">
+        <div class="layer">
+          <div class="image-container" :style="style">
+            <img alt="bg" style="display: none" :src="bg" @error="missingBg" />
+          </div>
         </div>
-      </div>
-      <div class="row text-content flex-wrap flex-xl-nowrap">
-        <div
-          class="col-md-8 col-12 col-xl-12 col-xxl-8 d-flex flex-column justify-content-between align-items-center align-items-xl-center align-items-md-start align-items-xxl-start"
-        >
-          <div class="title-artist-group">
-            <div class="play-title blue-text">{{ title }} [{{ version }}]</div>
-            <div class="artist white-text">by {{ artist }}</div>
-          </div>
+        <div class="row text-content flex-wrap flex-xl-nowrap">
           <div
-            class="d-md-none d-flex my-2 flex-wrap small-play-stats justify-content-center align-items-center d-xl-flex d-xxl-none"
+            class="col-md-8 col-12 col-xl-12 col-xxl-8 d-flex flex-column justify-content-between align-items-center align-items-xl-center align-items-md-start align-items-xxl-start"
           >
-            <div class="play-accuracy gold-text mx-2">
-              {{ (+playAccuracy).toFixed(2) }}%
+            <div class="title-artist-group">
+              <div class="play-title blue-text">{{ title }} [{{ version }}]</div>
+              <div class="artist white-text">by {{ artist }}</div>
             </div>
-            <div class="rank mx-2">
-              <rank :rank="rank" class="align-middle" />
+            <div
+              class="d-md-none d-flex my-2 flex-wrap small-play-stats justify-content-center align-items-center d-xl-flex d-xxl-none"
+            >
+              <div class="play-accuracy gold-text mx-2">{{ (+playAccuracy).toFixed(2) }}%</div>
+              <div class="rank mx-2">
+                <rank :rank="rank" class="align-middle" />
+              </div>
+              <div class="counts white-text my-auto mx-2">
+                <span class="blue-text">{{ counts300 }}</span> /
+                <span class="green-text">{{ counts100 }}</span> /
+                <span class="gold-text">{{ counts50 }}</span> /
+                <span class="red-text">{{ countsMiss }}</span>
+              </div>
+              <div class="performance gold-text mx-2">{{ Math.ceil(parseFloat(playPP)) }}pp</div>
+              <div>
+                <mod v-for="mod in modList" :key="mod" :mod="mod" class="align-middle" />
+              </div>
             </div>
-            <div class="counts white-text my-auto mx-2">
-              <span class="blue-text">{{ counts300 }}</span> /
-              <span class="green-text">{{ counts100 }}</span> /
-              <span class="gold-text">{{ counts50 }}</span> /
-              <span class="red-text">{{ countsMiss }}</span>
-            </div>
-            <div class="performance gold-text mx-2">
-              {{ Math.ceil(parseFloat(playPP)) }}pp
-            </div>
-            <div>
-              <mod
-                v-for="mod in modList"
-                :key="mod"
-                :mod="mod"
-                class="align-middle"
-              />
-            </div>
-          </div>
-          <div
-            class="song-stats flex-wrap flex-sm-nowrap align-items-baseline justify-content-around justify-content-md-start"
-          >
-            <table>
-              <tbody>
-                <tr>
-                  <td>Circle Size:</td>
-                  <td>{{ (+circleSize).toFixed(1) }}</td>
-                </tr>
-                <tr>
-                  <td>HP Drain:</td>
-                  <td>{{ (+healthPoints).toFixed(1) }}</td>
-                </tr>
-                <tr>
-                  <td>Approach Rate:</td>
-                  <td>{{ (+approachRate).toFixed(1) }}</td>
-                </tr>
-                <tr>
-                  <td>Overall Difficulty:</td>
-                  <td>{{ (+overallDifficulty).toFixed(1) }}</td>
-                </tr>
-                <!-- <tr class="d-table-row d-sm-none pt-2">
+            <div
+              class="song-stats flex-wrap flex-sm-nowrap align-items-baseline justify-content-around justify-content-md-start"
+            >
+              <table>
+                <tbody>
+                  <tr>
+                    <td>Circle Size:</td>
+                    <td>{{ (+circleSize).toFixed(1) }}</td>
+                  </tr>
+                  <tr>
+                    <td>HP Drain:</td>
+                    <td>{{ (+healthPoints).toFixed(1) }}</td>
+                  </tr>
+                  <tr>
+                    <td>Approach Rate:</td>
+                    <td>{{ (+approachRate).toFixed(1) }}</td>
+                  </tr>
+                  <tr>
+                    <td>Overall Difficulty:</td>
+                    <td>{{ (+overallDifficulty).toFixed(1) }}</td>
+                  </tr>
+                  <!-- <tr class="d-table-row d-sm-none pt-2">
                   <td class="p-2">{{ ' ' }}</td>
                   <td class="p-2">{{ ' ' }}</td>
                 </tr>
@@ -84,58 +76,55 @@
                     <stars class="align-middle" :nStars="difficulty" />
                     ({{ difficulty }})
                   </td>
-                </tr>-->
-              </tbody>
-            </table>
-            <table class="ml-sm-2 mt-2 d-sm-table">
-              <tbody>
-                <tr>
-                  <td>Combo:</td>
-                  <td>{{ combo }} / {{ maxCombo }}</td>
-                </tr>
-                <tr>
-                  <td>BPM:</td>
-                  <td>{{ bpm }}</td>
-                </tr>
-                <tr>
-                  <td>Duration:</td>
-                  <td>{{ playDuration }}</td>
-                </tr>
-                <tr>
-                  <td>Difficulty:</td>
-                  <td>
-                    <stars class="align-middle" :nStars="difficulty" />
-                    ({{ difficulty }})
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                  </tr>-->
+                </tbody>
+              </table>
+              <table class="ml-sm-2 mt-2 d-sm-table">
+                <tbody>
+                  <tr>
+                    <td>Combo:</td>
+                    <td>{{ combo }} / {{ maxCombo }}</td>
+                  </tr>
+                  <tr>
+                    <td>BPM:</td>
+                    <td>{{ bpm }}</td>
+                  </tr>
+                  <tr>
+                    <td>Duration:</td>
+                    <td>{{ playDuration }}</td>
+                  </tr>
+                  <tr>
+                    <td>Difficulty:</td>
+                    <td>
+                      <stars class="align-middle" :nStars="difficulty" />
+                      ({{ difficulty }})
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-        <div
-          class="col-md-4 ml-auto d-none d-md-flex d-xl-none d-xxl-flex flex-column justify-content-between"
-        >
-          <div class="play-accuracy gold-text right">
-            {{ (+playAccuracy).toFixed(2) }}%
-          </div>
-          <div class="rank">
-            <rank :rank="rank" class="right" />
-          </div>
-          <div class="mods right">
-            <mod v-for="mod in modList" :key="mod" :mod="mod" />
-          </div>
-          <div class="counts right white-text">
-            <span class="blue-text">{{ counts300 }}</span> /
-            <span class="green-text">{{ counts100 }}</span> /
-            <span class="gold-text">{{ counts50 }}</span> /
-            <span class="red-text">{{ countsMiss }}</span>
-          </div>
-          <div class="performance right gold-text">
-            {{ Math.ceil(parseFloat(playPP)) }}pp
+          <div
+            class="col-md-4 ml-auto d-none d-md-flex d-xl-none d-xxl-flex flex-column justify-content-between"
+          >
+            <div class="play-accuracy gold-text right">{{ (+playAccuracy).toFixed(2) }}%</div>
+            <div class="rank">
+              <rank :rank="rank" class="right" />
+            </div>
+            <div class="mods right">
+              <mod v-for="mod in modList" :key="mod" :mod="mod" />
+            </div>
+            <div class="counts right white-text">
+              <span class="blue-text">{{ counts300 }}</span> /
+              <span class="green-text">{{ counts100 }}</span> /
+              <span class="gold-text">{{ counts50 }}</span> /
+              <span class="red-text">{{ countsMiss }}</span>
+            </div>
+            <div class="performance right gold-text">{{ Math.ceil(parseFloat(playPP)) }}pp</div>
           </div>
         </div>
       </div>
-    </div>
+    </a>
   </div>
 </template>
 
@@ -154,7 +143,7 @@ export default Vue.extend({
   components: {
     Stars,
     Rank,
-    Mod
+    Mod,
   },
   props: {
     sessionId: Number,
@@ -184,32 +173,32 @@ export default Vue.extend({
     approachRate: Number,
     healthPoints: Number,
     overallDifficulty: Number,
-    circleSize: Number
+    circleSize: Number,
   },
   data() {
     return {
-      overrideBg: null as string | null
+      overrideBg: null as string | null,
     };
   },
   computed: {
     style(): { backgroundImage: string } {
       return {
-        backgroundImage: `url("${this.overrideBg || this.bg}")`
+        backgroundImage: `url("${this.overrideBg || this.bg}")`,
       };
     },
     modList(): string[] {
-      return this.mods.split(/,\s+/).filter(mod => mod.trim() !== "");
+      return this.mods.split(/,\s+/).filter((mod) => mod.trim() !== "");
     },
     beatmapId(): string {
       const match = [...(BG_REGEX.exec(this.bg) || [])];
       return match[1];
-    }
+    },
   },
   methods: {
     missingBg(): void {
       this.overrideBg = DEFAULT_BACKGROUND;
-    }
-  }
+    },
+  },
 });
 </script>
 
@@ -218,6 +207,11 @@ export default Vue.extend({
 </style>
 
 <style lang="scss" scoped>
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
 @mixin blue-text {
   background: -webkit-linear-gradient(rgb(112, 212, 255), rgb(0, 191, 255));
   background-clip: text;
