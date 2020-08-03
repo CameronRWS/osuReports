@@ -122,9 +122,7 @@ class DrawTools {
   }
 
   async _printRanks(x, y, rank, dif) {
-    console.log(rank)
     rank = parseInt(rank).toLocaleString("US-en").toString()
-    console.log(rank)
     const blackFont = await resourceGetter.getFont("ubuntuBBlack24");
     const blueFont = await resourceGetter.getFont("ubuntuBBlue24");
     await this.image.print(
