@@ -47,7 +47,7 @@
       <span v-if="difLevel.includes('-')" class="red-text">{{ difLevel }}</span>
     </td>
     <td>
-      <nuxt-link :to="`/report/${sessionID}`" class="btn btn-primary my-2"
+      <nuxt-link :to="`/report/${sessionID}`" class="my-2 btn btn-primary"
         >View</nuxt-link
       >
     </td>
@@ -95,10 +95,6 @@ export default {
   }
 };
 </script>
-
-<style>
-@import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&display=swap");
-</style>
 
 <style lang="scss" scoped>
 @mixin blue-text {
