@@ -11,7 +11,7 @@
     <chart
       class="p-4 my-4 bg-white rounded shadow"
       :dataPoints="sessions"
-      :xProp="el => new Date(+el['date']).toLocaleDateString()"
+      :xProp="el => formatDate(el['date'])"
       yProp="globalRank"
       yLabel="Global Rank"
       :yTicks="value => `#${value}`"
@@ -20,14 +20,14 @@
     <chart
       class="p-4 my-4 bg-white rounded shadow"
       :dataPoints="sessions"
-      :xProp="el => new Date(+el['date']).toLocaleDateString()"
+      :xProp="el => formatDate(el['date'])"
       yProp="totalPP"
       yLabel="PP"
     />
     <chart
       class="p-4 my-4 bg-white rounded shadow"
       :dataPoints="sessions"
-      :xProp="el => new Date(+el['date']).toLocaleDateString()"
+      :xProp="el => formatDate(el['date'])"
       yProp="accuracy"
       yLabel="Accuracy %"
     />
@@ -38,12 +38,13 @@
   </article>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
 import Chart from "chart.js";
 import chart from "~/components/chart.vue";
 import twitterLink from "~/components/twitter-link.vue";
 
-export default {
+export default Vue.extend({
   middleware: ["authed"],
   components: { chart, twitterLink },
   data() {
@@ -55,8 +56,20 @@ export default {
     const { $api } = ctx.app;
 
     return { sessions: await $api.getPlayerSessions() };
+  },
+  methods: {
+    dateFormat(maybeDate: Date | number | string): string {
+      let date: Date;
+      //this is because some are in UTC some are epoch
+      if (maybeDate.toString().includes("Z")) {
+        date = new Date(maybeDate);
+      } else {
+        date = new Date(+maybeDate);
+      }
+      return date.toLocaleDateString("US-en");
+    }
   }
-};
+});
 </script>
 
 <style lang="scss" scoped>
