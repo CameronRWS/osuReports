@@ -25,5 +25,18 @@ export default {
         autoprefixer: {}
       }
     }
+  },
+  head: {
+    link: [
+      {
+        rel: "stylesheet",
+        href:
+          "https://fonts.googleapis.com/css2?family=Ubuntu+Condensed&family=Ubuntu:wght@400;700&display=swap"
+      },
+      {
+        rel: "favicon",
+        href: "/favicon.ico"
+      }
+    ]
   }
 };
