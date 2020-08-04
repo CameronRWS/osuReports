@@ -13,7 +13,7 @@
           :image="player.profileImage"
         />
       </nuxt-link>
-      <a v-else href="/twitter/login" class="my-2 btn btn-secondary">Login</a>
+      <a v-else href="/twitter/login">Login</a>
       <!-- <div v-if="player && false" class="hidden md:block" id="player-collapse">
         <form action="/logout" method="POST">
           <button

@@ -24,7 +24,11 @@ passport.serializeUser(function(user, callback) {
     username,
     _json: { profile_image_url_https: profileImage }
   } = user;
-  callback(null, { id, username, profileImage });
+  const biggerProfileImage = profileImage.replace(
+    /_normal\.(\w+)$/,
+    "_bigger.$1"
+  );
+  callback(null, { id, username, profileImage: biggerProfileImage });
 });
 
 passport.deserializeUser(function(obj, callback) {
