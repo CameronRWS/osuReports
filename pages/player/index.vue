@@ -1,42 +1,67 @@
 <template>
-  <main role="main" v-if="player">
-    <section class="jumbotron text-center">
-      <div>
+  <article v-if="player">
+    <section class="container p-4 mx-auto bg-white rounded shadow">
+      <h1 class="text-2xl font-semibold">
+        Welcome back, {{ player.twitterUsername }}!
+      </h1>
+      <div class="my-6">
         <h1 class="jumbotron-heading">
           osu! Reports are currently
           {{ player.osu ? "enabled" : "disabled" }}
         </h1>
-      </div>
 
-      <p v-if="player.osu">Assigned osu! username: {{ player.osu.username }}</p>
+        <p v-if="player.osu">
+          Assigned osu! username: {{ player.osu.username }}
+        </p>
+      </div>
 
       <div v-if="player.osu">
         <strong>You have {{ player.stats.sessions }} recorded sessions.</strong>
 
-        <div>
-          <nuxt-link to="/player/stats" class="btn btn-primary my-2">View your osu! Reports Stats</nuxt-link>
-          <nuxt-link to="/player/sessions" class="btn btn-primary my-2">View your osu! Reports</nuxt-link>
-          <form action="/action_disable" method="POST">
-            <input
-              type="hidden"
-              :twitterUsername="`@${player.twitterUsername}`"
-              name="twitterUsername"
-              :value="`@${player.twitterUsername}`"
-            />
-            <button class="btn btn-danger my-2">Disable osu! Reports</button>
+        <div class="flex flex-wrap -ml-2">
+          <nuxt-link
+            to="/player/sessions"
+            class="w-full my-2 ml-2 btn btn-primary md:w-auto md:flex-grow"
+            >View your osu! Reports</nuxt-link
+          >
+          <nuxt-link
+            to="/player/stats"
+            class="w-full my-2 ml-2 bg-orange-500 btn btn-primary md:w-auto md:flex-grow hover:bg-orange-700"
+            >View your osu! Reports Stats</nuxt-link
+          >
+          <form
+            action="/action_disable"
+            method="POST"
+            class="w-full my-2 ml-2 md:w-auto md:flex-grow"
+          >
+            <button class="w-full btn btn-danger">
+              Disable osu! Reports
+            </button>
           </form>
         </div>
       </div>
 
       <div v-else>
-        <form action="/action_enable" method="POST">
-          <input username="osu! username" name="username" placeholder=" osu! username" />
-          <input type="hidden" name="twitterUsername" :value="`@${player.twitterUsername}`" />
-          <button class="btn btn-success my-2">Enable osu! Reports</button>
+        <form
+          action="/action_enable"
+          method="POST"
+          class="flex flex-wrap max-w-lg -ml-2"
+        >
+          <input
+            username="osu! username"
+            name="username"
+            placeholder=" osu! username"
+            class="flex-grow inline-block p-3 my-2 ml-2 bg-gray-300 border border-gray-500 rounded"
+          />
+          <button
+            class="w-full my-2 ml-2 bg-green-600 btn hover:bg-green-800 sm:w-auto"
+          >
+            Enable osu! Reports
+          </button>
         </form>
       </div>
     </section>
-  </main>
+  </article>
 </template>
 
 <script>
@@ -44,7 +69,7 @@ import { mapState } from "vuex";
 export default {
   middleware: ["authed"],
   computed: {
-    ...mapState(["player"]),
-  },
+    ...mapState(["player"])
+  }
 };
 </script>

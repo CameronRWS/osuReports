@@ -43,8 +43,11 @@ async function getReportCard(sessionId) {
   return reportCard;
 }
 
-async function getPlayerInfo(twitterUsername) {
-  const player = await db.getPlayer(twitterUsername);
+async function getPlayerInfo(user) {
+  if (!user) throw new Error("no user");
+
+  const { username, profileImage } = user;
+  const player = await db.getPlayer(username);
 
   let stats = null;
   let osu = null;
@@ -58,14 +61,15 @@ async function getPlayerInfo(twitterUsername) {
   }
 
   return {
-    twitterUsername: twitterUsername,
+    twitterUsername: username,
+    profileImage,
     stats,
     osu
   };
 }
 
 router.get("/player", requireAuth, (req, res) => {
-  getPlayerInfo(req.user.username)
+  getPlayerInfo(req.user)
     .then(player => {
       res.json(player);
     })
@@ -80,7 +84,7 @@ async function getPlayerSessions(twitterUsername) {
 }
 
 router.get("/player/sessions", requireAuth, (req, res) => {
-  getPlayerSessions(req.user.username).then(sessions =>
+  getPlayerSessions(req.user?.username).then(sessions =>
     res.json(sessions || [])
   );
 });

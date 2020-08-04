@@ -1,5 +1,7 @@
 <template>
-  <canvas ref="chart" maintainAspectRatio="true" @click="clicked"></canvas>
+  <div class="relative">
+    <canvas ref="chart" maintainAspectRatio="true" @click="clicked"></canvas>
+  </div>
 </template>
 
 <script>
@@ -56,7 +58,6 @@ export default {
         },
         maintainAspectRatio: true,
         options: {
-          responsive: false,
           scales: {
             yAxes: [
               {

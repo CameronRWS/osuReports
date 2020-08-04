@@ -1,38 +1,29 @@
 <template>
-  <div v-on="$listeners">
-    <svg
-      viewBox="0 0 16 16"
-      class="bi bi-arrow-up-circle-fill"
-      fill="currentColor"
-      xmlns="http://www.w3.org/2000/svg"
+  <div
+    class="fixed bottom-0 left-0 right-0 z-10 flex justify-end w-full p-6 pointer-events-none select-none"
+  >
+    <div
+      v-on="$listeners"
+      class="text-green-500 bg-white rounded-full pointer-events-auto button-container"
     >
-      <path
-        fill-rule="evenodd"
-        d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-10.646.354a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 6.207V11a.5.5 0 0 1-1 0V6.207L5.354 8.354z"
-      />
-    </svg>
+      <svg
+        viewBox="0 0 16 16"
+        class="w-12 h-12 -m-px bi bi-arrow-up-circle-fill"
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-10.646.354a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 6.207V11a.5.5 0 0 1-1 0V6.207L5.354 8.354z"
+        />
+      </svg>
+    </div>
   </div>
 </template>
 
-<style lang="scss" scoped>
-svg {
-  color: rgb(25, 141, 1);
-  width: 3rem;
-  height: 3rem;
-  margin: -0.05rem;
-}
-
-div {
-  display: inline-block;
-  border-radius: 50%;
-  box-shadow: 0 0 0.5rem black;
-  background-color: #ddd;
-  z-index: 10;
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  pointer-events: auto;
-  cursor: pointer;
+<style scoped>
+.button-container {
+  box-shadow: 0 0 5px black;
 
   &:active {
     box-shadow: none;

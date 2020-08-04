@@ -53,18 +53,29 @@ app.post("/action_disable", requireAuth, async (req, res) => {
 app.post("/action_enable", requireAuth, async (req, res) => {
   const { user } = req;
 
-  const osuUsername = req.body.username;
+  const osuUsername = req.body.username || "";
+
+  if (!osuUsername.trim().length) {
+    const err = `osu! username cannot be empty!`;
+    if (req.xhr) {
+      return res.status(400).json({ flash: [err] });
+    }
+    return res
+      .flash(err)
+      .status(302)
+      .redirect("/player");
+  }
+
   const osuId = await userCache.convertOsuUser(osuUsername, "id");
   if (!osuId) {
+    const err = `osu! username not found: ${osuUsername}`;
     if (!req.xhr) {
       return res
-        .flash(`Unknown osu! username ${osuUsername}`)
+        .flash(err)
         .status(302)
         .redirect("/player");
     }
-    return res
-      .status(400)
-      .json({ flash: [`Unknown osu! username ${osuUsername}`] });
+    return res.status(400).json({ flash: [err] });
   }
 
   await db.insertPlayer(osuId, `@${user.username}`);

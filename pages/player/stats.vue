@@ -1,40 +1,41 @@
 <template>
-  <main role="main">
-    <section class="jumbotron text-center">
-      <div>
-        <h1 class="jumbotron-heading">osu! Reports Stats</h1>
-      </div>
+  <article class="container mx-auto">
+    <div class="my-6">
+      <h1 class="text-3xl">osu! Reports Stats</h1>
       <p>
         Have any suggestions for data you would like graphed? Message
         <twitter-link handle="osureports" />.
       </p>
+    </div>
 
-      <chart
-        :dataPoints="sessions"
-        :xProp="el => new Date(+el['date']).toLocaleDateString()"
-        yProp="globalRank"
-        yLabel="Global Rank"
-        :yTicks="value => `#${value}`"
-        :reverse="true"
-      />
-      <chart
-        :dataPoints="sessions"
-        :xProp="el => new Date(+el['date']).toLocaleDateString()"
-        yProp="totalPP"
-        yLabel="PP"
-      />
-      <chart
-        :dataPoints="sessions"
-        :xProp="el => new Date(+el['date']).toLocaleDateString()"
-        yProp="accuracy"
-        yLabel="Accuracy %"
-      />
+    <chart
+      class="p-4 my-4 bg-white rounded shadow"
+      :dataPoints="sessions"
+      :xProp="el => new Date(+el['date']).toLocaleDateString()"
+      yProp="globalRank"
+      yLabel="Global Rank"
+      :yTicks="value => `#${value}`"
+      :reverse="true"
+    />
+    <chart
+      class="p-4 my-4 bg-white rounded shadow"
+      :dataPoints="sessions"
+      :xProp="el => new Date(+el['date']).toLocaleDateString()"
+      yProp="totalPP"
+      yLabel="PP"
+    />
+    <chart
+      class="p-4 my-4 bg-white rounded shadow"
+      :dataPoints="sessions"
+      :xProp="el => new Date(+el['date']).toLocaleDateString()"
+      yProp="accuracy"
+      yLabel="Accuracy %"
+    />
 
-      <nuxt-link to="/player" class="btn btn-primary my-2">
-        Back to dashboard
-      </nuxt-link>
-    </section>
-  </main>
+    <nuxt-link to="/player" class="my-2 btn btn-primary">
+      Back to dashboard
+    </nuxt-link>
+  </article>
 </template>
 
 <script>

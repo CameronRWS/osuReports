@@ -1,0 +1,27 @@
+.btn {
+  @apply inline-block p-3 text-center text-white transition-colors duration-300 ease-in-out border border-transparent rounded appearance-none;
+}
+
+.btn:not(:focus-visible) {
+  @apply outline-none;
+}
+
+.btn:active {
+  @apply transition-none shadow-outline;
+}
+
+.btn-primary {
+  @apply bg-blue-500;
+}
+
+.btn-primary:hover {
+  @apply bg-blue-700;
+}
+
+.btn-danger {
+  @apply bg-red-700;
+}
+
+.btn-danger:hover {
+  @apply bg-red-800;
+}

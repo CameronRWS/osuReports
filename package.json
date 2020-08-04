@@ -26,6 +26,7 @@
     "ejs": "^2.7.4",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
+    "focus-visible": "^5.1.0",
     "ioredis": "^4.17.3",
     "jimp": "^0.10.3",
     "jquery": "^3.5.1",
@@ -39,17 +40,25 @@
     "prom-client": "^12.0.0",
     "sass-loader": "^9.0.2",
     "sqlite3": "^4.2.0",
+    "tailwindcss": "^1.6.1",
+    "tailwindcss-typography": "^3.1.0",
     "twit": "^2.2.11",
     "vuex": "^3.5.1"
   },
   "devDependencies": {
     "@nuxt/types": "^2.14.0",
     "@nuxt/typescript-build": "^2.0.2",
+    "@nuxtjs/tailwindcss": "^2.1.1",
     "@types/ioredis": "^4.17.2",
     "@types/jquery": "^3.5.0",
     "@types/lodash": "^4.14.157",
     "@types/redis": "^2.8.25",
     "@types/sqlite3": "^3.1.6",
+    "autoprefixer": "^9.8.6",
+    "postcss": "^7.0.32",
+    "postcss-focus-visible": "^5.0.0",
+    "postcss-import": "^12.0.1",
+    "postcss-nesting": "^7.0.1",
     "sass": "^1.26.10",
     "typescript": "^3.9.6"
   }

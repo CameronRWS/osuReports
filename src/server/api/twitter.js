@@ -19,8 +19,12 @@ passport.use(
 );
 
 passport.serializeUser(function(user, callback) {
-  const { id, username } = user;
-  callback(null, { id, username });
+  const {
+    id,
+    username,
+    _json: { profile_image_url_https: profileImage }
+  } = user;
+  callback(null, { id, username, profileImage });
 });
 
 passport.deserializeUser(function(obj, callback) {

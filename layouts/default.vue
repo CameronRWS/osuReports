@@ -1,60 +1,13 @@
 <template>
-  <section class="root">
-    <header>
-      <div
-        ref="nav"
-        class="navbar navbar-dark navbar-expand-md bg-dark shadow-sm"
-      >
-        <div class="container d-flex">
-          <button
-            class="navbar-toggler"
-            type="button"
-            data-toggle="collapse"
-            data-target="#player-collapse"
-            aria-controls="player-collapse"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <nuxt-link
-            to="/"
-            class="navbar-brand d-flex align-items-center ml-3 ml-md-0 mr-auto"
-          >
-            <strong>osu! Reports</strong>
-          </nuxt-link>
-          <div
-            v-if="player"
-            class="collapse navbar-collapse justify-content-end"
-            id="player-collapse"
-          >
-            <form action="/logout" method="POST">
-              <nuxt-link to="/player" class="navbar-brand align-middle">
-                <strong>Signed in as: @{{ player.twitterUsername }}</strong>
-              </nuxt-link>
-              <button
-                type="submit"
-                class="btn btn-secondary my-2"
-                @click.prevent="logout"
-              >
-                Logout
-              </button>
-            </form>
-          </div>
-          <a v-else href="/twitter/login" class="btn btn-secondary my-2"
-            >Login</a
-          >
-        </div>
-      </div>
+  <div class="root">
+    <header class="mb-6 bg-gray-900">
+      <navbar ref="nav" :player="player" />
     </header>
 
-    <section
-      v-if="flash && flash.length > 0"
-      class="jumbotron mt-0 mb-n1 py-2 rounded-0"
-    >
-      <div class="container">
+    <aside v-if="flash && flash.length > 0" class="px-6 my-6">
+      <div class="container mx-auto">
         <div
-          class="alert alert-danger"
+          class="p-4 text-red-900 bg-red-300 border border-red-500 rounded"
           role="alert"
           v-for="(f, idx) in flash"
           :key="idx"
@@ -62,44 +15,36 @@
           {{ f }}
         </div>
       </div>
-    </section>
+    </aside>
 
-    <nuxt />
+    <main class="px-6 my-6">
+      <nuxt />
+    </main>
 
-    <footer>
-      <section class="center mt-4 py-4 bg-light">
+    <footer class="flex pb-6 mt-6">
+      <div class="mx-auto">
         <nuxt-link to="/privacy">
           <strong>Privacy Policy</strong>
         </nuxt-link>
-      </section>
+      </div>
     </footer>
+
     <floating-button
       v-if="scrollToTopVisible"
       @click="scrollToTop"
       aria-label="scroll to top"
       class="d-block d-xl-none"
     />
-  </section>
+  </div>
 </template>
 
 <style lang="scss" scoped>
-footer {
-  text-align: center;
-}
-
 .root {
   background-image: url("~assets/images/whiteTriangles.png");
 }
 </style>
 
-<style>
-.jumbotron {
-  background: transparent;
-}
-</style>
-
 <script>
-if (!process || !process.server) require("bootstrap");
 import $ from "jquery";
 
 import { mapState, mapActions } from "vuex";
@@ -150,7 +95,7 @@ export default {
         },
         { threshold: 0 }
       );
-      observer.observe(this.$refs.nav);
+      observer.observe(this.$refs.nav.$el);
     } catch (ex) {
       this.scrollToTopVisible = true;
     }
