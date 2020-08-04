@@ -7,26 +7,24 @@
         osu! Reports
       </nuxt-link>
 
-      <nuxt-link to="/player" class="font-semibold">
+      <nuxt-link v-if="player" to="/player" class="font-semibold">
         <twitter-user
           :user="player.twitterUsername"
           :image="player.profileImage"
         />
       </nuxt-link>
-      <div v-if="player && false" class="hidden md:block" id="player-collapse">
+      <a v-else href="/twitter/login" class="my-2 btn btn-secondary">Login</a>
+      <!-- <div v-if="player && false" class="hidden md:block" id="player-collapse">
         <form action="/logout" method="POST">
-          <!-- <button
+          <button
                 type="submit"
                 class="my-2 btn btn-secondary"
                 @click.prevent="logout"
               >
                 Logout
-              </button> -->
+              </button>
         </form>
-      </div>
-      <a v-else-if="false" href="/twitter/login" class="my-2 btn btn-secondary"
-        >Login</a
-      >
+      </div> -->
     </div>
   </nav>
 </template>
