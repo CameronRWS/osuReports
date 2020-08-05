@@ -7,7 +7,7 @@
             <img alt="bg" style="display: none" :src="bg" @error="missingBg" />
           </div>
         </div>
-        <div class="row text-content flex-wrap flex-xl-nowrap">
+        <div class="flex-wrap row text-content flex-xl-nowrap">
           <div
             class="col-md-8 col-12 col-xl-12 col-xxl-8 d-flex flex-column justify-content-between align-items-center align-items-xl-center align-items-md-start align-items-xxl-start"
           >
@@ -16,25 +16,25 @@
               <div class="artist white-text">by {{ artist }}</div>
             </div>
             <div
-              class="d-md-none d-flex my-2 flex-wrap small-play-stats justify-content-center align-items-center d-xl-flex d-xxl-none"
+              class="flex-wrap my-2 d-md-none d-flex small-play-stats justify-content-center align-items-center d-xl-flex d-xxl-none"
             >
-              <div class="play-accuracy gold-text mx-2">{{ (+playAccuracy).toFixed(2) }}%</div>
-              <div class="rank mx-2">
+              <div class="mx-2 play-accuracy gold-text">{{ (+playAccuracy).toFixed(2) }}%</div>
+              <div class="mx-2 rank">
                 <rank :rank="rank" class="align-middle" />
               </div>
-              <div class="counts white-text my-auto mx-2">
+              <div class="mx-2 my-auto counts white-text">
                 <span class="blue-text">{{ counts300 }}</span> /
                 <span class="green-text">{{ counts100 }}</span> /
                 <span class="gold-text">{{ counts50 }}</span> /
                 <span class="red-text">{{ countsMiss }}</span>
               </div>
-              <div class="performance gold-text mx-2">{{ Math.ceil(parseFloat(playPP)) }}pp</div>
+              <div class="mx-2 performance gold-text">{{ Math.ceil(parseFloat(playPP)) }}pp</div>
               <div>
                 <mod v-for="mod in modList" :key="mod" :mod="mod" class="align-middle" />
               </div>
             </div>
             <div
-              class="song-stats flex-wrap flex-sm-nowrap align-items-baseline justify-content-around justify-content-md-start"
+              class="flex-wrap song-stats flex-sm-nowrap align-items-baseline justify-content-around justify-content-md-start"
             >
               <table>
                 <tbody>
@@ -54,11 +54,11 @@
                     <td>Overall Difficulty:</td>
                     <td>{{ (+overallDifficulty).toFixed(1) }}</td>
                   </tr>
-                  <!-- <tr class="d-table-row d-sm-none pt-2">
+                  <!-- <tr class="pt-2 d-table-row d-sm-none">
                   <td class="p-2">{{ ' ' }}</td>
                   <td class="p-2">{{ ' ' }}</td>
                 </tr>
-                <tr class="d-table-row d-sm-none mt-2">
+                <tr class="mt-2 d-table-row d-sm-none">
                   <td>Combo:</td>
                   <td>{{ combo }} / {{ maxCombo }}</td>
                 </tr>
@@ -79,7 +79,7 @@
                   </tr>-->
                 </tbody>
               </table>
-              <table class="ml-sm-2 mt-2 d-sm-table">
+              <table class="mt-2 ml-sm-2 d-sm-table">
                 <tbody>
                   <tr>
                     <td>Combo:</td>
@@ -105,7 +105,7 @@
             </div>
           </div>
           <div
-            class="col-md-4 ml-auto d-none d-md-flex d-xl-none d-xxl-flex flex-column justify-content-between"
+            class="ml-auto col-md-4 d-none d-md-flex d-xl-none d-xxl-flex flex-column justify-content-between"
           >
             <div class="play-accuracy gold-text right">{{ (+playAccuracy).toFixed(2) }}%</div>
             <div class="rank">
@@ -202,10 +202,6 @@ export default Vue.extend({
 });
 </script>
 
-<style>
-@import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&display=swap");
-</style>
-
 <style lang="scss" scoped>
 a {
   color: inherit;
@@ -269,6 +265,7 @@ a {
 
 .play {
   font-family: "Ubuntu", sans-serif;
+  font-weight: 700;
   /* width and color */
   -webkit-text-stroke: 0.5px black;
   height: auto;

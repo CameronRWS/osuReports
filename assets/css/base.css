@@ -1,7 +1,5 @@
+@import "./fonts.css";
+
 .ubuntu {
   font-family: "Ubuntu", sans-serif;
-}
-
-.ubuntu-condensed {
-  font-family: "Ubuntu Condensed", sans-serif;
 }
