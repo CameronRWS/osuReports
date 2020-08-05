@@ -4,7 +4,7 @@
       <h1 class="text-3xl">osu! Reports Stats</h1>
       <p>
         Have any suggestions for data you would like graphed? Message
-        <twitter-link handle="osureports" />.
+        <twitter-link handle="osuReports" class="underline hover:underline md:no-underline" />.
       </p>
     </div>
 
