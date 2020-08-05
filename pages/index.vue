@@ -1,6 +1,8 @@
 <template>
   <article class="container mx-auto">
-    <logo class="mx-auto mb-8" />
+    <div class="flex mb-8">
+      <logo class="mx-auto" />
+    </div>
 
     <section class="flex flex-wrap justify-center my-6">
       <div class="w-full p-4 bg-white rounded shadow md:w-5/12 lg:w-1/3">
