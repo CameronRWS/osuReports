@@ -32,9 +32,7 @@
       yLabel="Accuracy %"
     />
 
-    <nuxt-link to="/player" class="my-2 btn btn-primary">
-      Back to dashboard
-    </nuxt-link>
+    <nuxt-link to="/player" class="my-2 btn btn-primary">Back to dashboard</nuxt-link>
   </article>
 </template>
 
@@ -49,7 +47,7 @@ export default Vue.extend({
   components: { chart, twitterLink },
   data() {
     return {
-      sessions: []
+      sessions: [],
     };
   },
   async asyncData(ctx) {
@@ -58,7 +56,7 @@ export default Vue.extend({
     return { sessions: await $api.getPlayerSessions() };
   },
   methods: {
-    dateFormat(maybeDate: Date | number | string): string {
+    formatDate(maybeDate: Date | number | string): string {
       let date: Date;
       //this is because some are in UTC some are epoch
       if (maybeDate.toString().includes("Z")) {
@@ -67,8 +65,8 @@ export default Vue.extend({
         date = new Date(+maybeDate);
       }
       return date.toLocaleDateString("US-en");
-    }
-  }
+    },
+  },
 });
 </script>
 
