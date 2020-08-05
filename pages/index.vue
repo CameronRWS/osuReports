@@ -1,8 +1,8 @@
 <template>
-  <article>
-    <logo class="mx-auto mb-6" />
+  <article class="container mx-auto">
+    <logo class="mx-auto mb-8" />
 
-    <section class="flex flex-wrap justify-center">
+    <section class="flex flex-wrap justify-center my-6">
       <div class="w-full p-4 bg-white rounded shadow md:w-5/12 lg:w-1/3">
         <h3 class="text-xl leading-loose">What is osu! Reports?</h3>
         <p>
@@ -11,23 +11,18 @@
           and DM you on Twitter with a summary of your stats once you finish.
           Use the intent link in the DM to tweet and the bot will automatically
           retweet you! Follow us at
-          <twitter-link
-            handle="osuReports"
-            class="underline hover:underline md:no-underline"
-          />.
+          <twitter-link handle="osuReports" class="underline hover:underline md:no-underline" />.
         </p>
       </div>
       <div
-        class="flex flex-col justify-between w-full p-4 mt-4 bg-white rounded shadow md:w-5/12 lg:w-1/3 md:ml-4 md:mt-0"
+        class="flex flex-col justify-between w-full p-4 mt-6 bg-white rounded shadow md:w-5/12 lg:w-1/3 md:ml-6 md:mt-0"
       >
         <div>
           <p>
             Recording {{ stats.plays.toLocaleString("US-en") }} plays across
             {{ stats.sessions.toLocaleString("US-en") }} sessions!
           </p>
-          <p class="mt-2">
-            Join {{ stats.players }} others already recording their plays!
-          </p>
+          <p class="mt-2">Join {{ stats.players }} others already recording their plays!</p>
         </div>
 
         <div v-if="!player" class="mt-2">
@@ -36,9 +31,7 @@
           </a>
         </div>
         <div v-else class="mt-2">
-          <nuxt-link to="/player" class="w-full my-2 btn btn-primary"
-            >Go to Dashboard</nuxt-link
-          >
+          <nuxt-link to="/player" class="w-full my-2 btn btn-primary">Go to Dashboard</nuxt-link>
         </div>
       </div>
     </section>
@@ -50,7 +43,7 @@ import { mapState } from "vuex";
 
 export default {
   computed: {
-    ...mapState(["stats", "player"])
-  }
+    ...mapState(["stats", "player"]),
+  },
 };
 </script>
