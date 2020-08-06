@@ -10,6 +10,8 @@ const userCache = require("../userCache");
 const { requireAuth, flash } = require("./utils");
 const { getPlayerInfo } = require("./api");
 
+const COOKIE_NAME = "connect.sid";
+
 const app = express();
 
 const redisClient = new Redis({
@@ -21,22 +23,30 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(
   session({
+    name: COOKIE_NAME,
     store: new RedisStore({ client: redisClient }),
     secret: process.env.SESSION_SECRET || "tHi$_i$_s3cR3t",
     resave: true,
-    saveUninitialized: true
+    saveUninitialized: false,
+    unset: "destroy",
+    cookie: {
+      sameSite: "lax",
+      httpOnly: true
+    }
   })
 );
 app.use(flash);
 
 app.post("/logout", (req, res) => {
-  if (!req.session) return res.status(401).json("unauthorized");
-  req.session.destroy(() => {
-    if (!req.xhr) {
-      return res.status(302).redirect("/");
-    }
-    return res.status(204).end();
-  });
+  if (!req.session?.passport) return res.status(400).json("not logged in");
+
+  delete req.session;
+  res.clearCookie(COOKIE_NAME);
+
+  if (!req.xhr) {
+    return res.redirect("/");
+  }
+  return res.status(204).send();
 });
 
 app.post("/action_disable", requireAuth, async (req, res) => {

@@ -7,13 +7,11 @@
     <aside v-if="flash && flash.length > 0" class="px-6 my-6">
       <div class="container mx-auto">
         <div
-          class="p-4 text-red-900 bg-red-300 border border-red-500 rounded"
+          class="p-6 text-red-900 bg-red-300 border border-red-500 rounded"
           role="alert"
           v-for="(f, idx) in flash"
           :key="idx"
-        >
-          {{ f }}
-        </div>
+        >{{ f }}</div>
       </div>
     </aside>
 
@@ -51,11 +49,11 @@ import { mapState, mapActions } from "vuex";
 export default {
   data() {
     return {
-      scrollToTopVisible: false
+      scrollToTopVisible: false,
     };
   },
   computed: {
-    ...mapState(["player", "flash"])
+    ...mapState(["player", "flash"]),
   },
   methods: {
     logout() {
@@ -66,24 +64,24 @@ export default {
     },
     scrollToTop() {
       $("html, body").animate({ scrollTop: 0 }, 800);
-    }
+    },
   },
   head() {
     return {
       link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
       title: "osu! Reports",
       meta: [
-        { name: "viewport", content: "width=device-width, initial-scale=1.0" }
+        { name: "viewport", content: "width=device-width, initial-scale=1.0" },
       ],
       htmlAttrs: {
-        class: "bg-light"
-      }
+        class: "bg-light",
+      },
     };
   },
   mounted() {
     try {
       const observer = new IntersectionObserver(
-        entries => {
+        (entries) => {
           let shouldBeVisible = false;
           for (const entry of entries) {
             if (!entry.isIntersecting) {
@@ -99,6 +97,6 @@ export default {
     } catch (ex) {
       this.scrollToTopVisible = true;
     }
-  }
+  },
 };
 </script>
