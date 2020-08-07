@@ -77,8 +77,12 @@ class sessionObject {
           parseFloat(this.userObjectStartOfSession.pp.raw) - 2.0092;
         this.userObjectStartOfSession.counts.plays =
           parseFloat(this.userObjectStartOfSession.counts.plays) - 2;
-        this.userObjectStartOfSession.counts.A = parseFloat(this.userObjectStartOfSession.counts.A) - 99;
-        this.userObjectStartOfSession.counts.SSH = parseFloat(this.userObjectStartOfSession.counts.SSH) + 100;
+        this.userObjectStartOfSession.counts.A =
+          parseFloat(this.userObjectStartOfSession.counts.A) - 99;
+        this.userObjectStartOfSession.counts.SSH =
+          parseFloat(this.userObjectStartOfSession.counts.SSH) + 100;
+        this.userObjectStartOfSession.scores.ranked =
+          parseFloat(this.userObjectStartOfSession.scores.ranked) + 120000;
       })
       .catch(err => {
         globalInstances.logMessage(" - " + err);
@@ -137,8 +141,8 @@ class sessionObject {
   async endSession() {
     globalInstances.logMessage(
       "Attempting to end session for: " +
-      (await UserCache.getOsuUser(this.player.osuUsername)) +
-      "\n"
+        (await UserCache.getOsuUser(this.player.osuUsername)) +
+        "\n"
     );
 
     // filter Fs
@@ -272,7 +276,6 @@ class sessionObject {
       sanitizeAndParse(this.userObjectStartOfSession.counts.A);
     const difA = formatDifference(fDifA);
 
-
     //db stuff
     this.sessionID = globalInstances.numberOfSessionsRecorded + 1;
     globalInstances.numberOfSessionsRecorded =
@@ -305,14 +308,17 @@ class sessionObject {
       $difSH: difSPlus,
       $difS: difS,
       $difA: difA,
+      $rankedScore: this.userObjectEndOfSession.scores.ranked,
+      $difRankedScore: difRankedScore,
+      $secondsPlayed: this.userObjectEndOfSession.secondsPlayed
     };
 
     globalInstances.logMessage(
       "Calling DB session query for: " +
-      this.player.osuUsername +
-      " - " +
-      util.inspect(sqlSessionValues) +
-      "\n"
+        this.player.osuUsername +
+        " - " +
+        util.inspect(sqlSessionValues) +
+        "\n"
     );
 
     await db.insertSession(sqlSessionValues);
@@ -377,10 +383,10 @@ class sessionObject {
 
       globalInstances.logMessage(
         "Calling DB play query for: " +
-        this.player.osuUsername +
-        " - " +
-        util.inspect(sqlPlayValues) +
-        "\n"
+          this.player.osuUsername +
+          " - " +
+          util.inspect(sqlPlayValues) +
+          "\n"
       );
 
       await db.insertPlay(sqlPlayValues);
@@ -402,9 +408,7 @@ class sessionObject {
         "https://twitter.com/intent/tweet?url=" +
         reportLink +
         "&via=osuReports&text=Check%20out%20my%20osu%21%20Report:%20&hashtags=osuReports";
-      let dm =
-        "A new osu! Report was created!" +
-        reportLink
+      let dm = "A new osu! Report was created!" + reportLink;
       console.log("trying to dm: " + dm);
       let sent = await twitterUtils.sendDirectMessage(
         twitterUsername.substring(1),

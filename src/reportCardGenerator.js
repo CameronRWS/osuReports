@@ -34,7 +34,11 @@ class ReportCardGenerator {
       },
       country: await this.getCountry(session.osuUsername),
       level: session.level,
-      id: session.osuUsername
+      id: session.osuUsername,
+      scores: {
+        ranked: session.rankedScore
+      },
+      secondsPlayed: session.secondsPlayed
     };
 
     const delta = {
@@ -49,6 +53,7 @@ class ReportCardGenerator {
       difSPlus: session.difSPlus,
       difS: session.difS,
       difA: session.difA,
+      difRankedScore: session.difRankedScore
     };
 
     let generator = new Report(

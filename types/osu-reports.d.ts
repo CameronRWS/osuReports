@@ -58,6 +58,9 @@ declare global {
       difSPlus: String;
       difS: String;
       difA: String;
+      rankedScore: Number;
+      difRankedScore: String;
+      secondsPlayed: Number;
       osu?: {
         username: string;
         id: string;

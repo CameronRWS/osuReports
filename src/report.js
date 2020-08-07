@@ -4,6 +4,8 @@
 const resourceGetter = require("./resourceGetter");
 let UserCache = require("./userCache");
 
+const { secondsToDHMS } = require("./utils");
+
 const {
   DrawTools,
   GENERAL_X_OFFSET,
@@ -54,6 +56,25 @@ class Report extends DrawTools {
     return parseFloat(this.user.counts.plays).toLocaleString("en");
   }
 
+  get rankedScore() {
+    return parseFloat(this.user.scores.ranked).toLocaleString("en");
+  }
+
+  get timePlayed() {
+    const arrDHMS = secondsToDHMS(this.user.secondsPlayed);
+    let s = "";
+    if (arrDHMS[0] != 0) {
+      s += `${arrDHMS[0]}d `;
+    }
+    if (arrDHMS[1] != 0) {
+      s += `${arrDHMS[1]}h `;
+    }
+    if (arrDHMS[2] != 0) {
+      s += `${arrDHMS[2]}m `;
+    }
+    return s.substring(0, s.length - 1);
+  }
+
   async generate() {
     await this._drawRanks();
     await this._drawAvatar();
@@ -70,35 +91,23 @@ class Report extends DrawTools {
       this._drawRank,
       [],
       ["rankSSPlus", 220, 305],
-      ["rankSS", 340, 305],
-      ["rankSPlus", 460, 305],
-      ["rankS", 580, 305],
-      ["rankA", 700, 305]
+      ["rankSS", 350, 305],
+      ["rankSPlus", 480, 305],
+      ["rankS", 610, 305],
+      ["rankA", 740, 305]
     );
 
-    const {
-      SSH,
-      SS,
-      SH,
-      S,
-      A
-    } = this.user.counts;
-    const {
-      difSSPlus,
-      difSS,
-      difSPlus,
-      difS,
-      difA
-    } = this.delta;
+    const { SSH, SS, SH, S, A } = this.user.counts;
+    const { difSSPlus, difSS, difSPlus, difS, difA } = this.delta;
 
     await this._drawCommands(
       this._printRanks,
       [],
       [280, 363 + RANK_Y_OFFSET, SSH, difSSPlus || ""],
-      [400, 363 + RANK_Y_OFFSET, SS, difSS || ""],
-      [520, 363 + RANK_Y_OFFSET, SH, difSPlus || ""],
-      [640, 363 + RANK_Y_OFFSET, S, difS || ""],
-      [760, 363 + RANK_Y_OFFSET, A, difA || ""]
+      [410, 363 + RANK_Y_OFFSET, SS, difSS || ""],
+      [540, 363 + RANK_Y_OFFSET, SH, difSPlus || ""],
+      [670, 363 + RANK_Y_OFFSET, S, difS || ""],
+      [800, 363 + RANK_Y_OFFSET, A, difA || ""]
     );
   }
 
@@ -123,34 +132,49 @@ class Report extends DrawTools {
   }
 
   async _drawSessionInfo() {
-    await this._drawCommands(
-      this._print,
-      ["ubuntuBBlack32"],
-      [25, 450, `Session Duration: ${this.sessionDuration}`],
-      [502, 450, `Date of Session: ${this.date}`]
-    );
-  }
-
-  async _drawSessionFields() {
+    const y = 460;
     await this._drawCommands(
       this._printOffset,
       ["ubuntuBBlue32"],
-      [326, 100, "Global Rank:"],
-      [300, 140, "Country Rank:"],
-      [371, 180, "Accuracy:"],
-      [466, 220, "PP:"],
-      [341, 260, "Play Count:"]
+      [-30, y, "Session Duration:"],
+      [450, y, "Date of Session:"]
     );
 
     await this._drawCommands(
       this._printOffset,
       // with black font at x-offset 522
-      ["ubuntuBBlack32", 522],
-      [100, this.globalRank],
-      [140, this.countryRank],
-      [180, this.accuracy],
-      [220, this.pp],
-      [260, this.plays]
+      ["ubuntuBBlack32"],
+      [247, y, this.sessionDuration],
+      [708, y, this.date]
+    );
+  }
+
+  async _drawSessionFields() {
+    const start = 100;
+    const every = 30;
+    await this._drawCommands(
+      this._printOffset,
+      ["ubuntuBBlue24"],
+      [326, start + 0 * every, "Global Rank:"],
+      [305, start + 1 * every, "Country Rank:"],
+      [361, start + 2 * every, "Accuracy:"],
+      [435, start + 3 * every, "PP:"],
+      [338, start + 4 * every, "Play Count:"],
+      [309, start + 5 * every, "Ranked Score:"],
+      [323, start + 6 * every, "Time Played:"]
+    );
+
+    await this._drawCommands(
+      this._printOffset,
+      // with black font at x-offset 522
+      ["ubuntuBBlack24", 480],
+      [start + 0 * every, this.globalRank],
+      [start + 1 * every, this.countryRank],
+      [start + 2 * every, this.accuracy],
+      [start + 3 * every, this.pp],
+      [start + 4 * every, this.plays],
+      [start + 5 * every, this.rankedScore],
+      [start + 6 * every, this.timePlayed]
     );
     let osuUsername = await UserCache.getOsuUser(this.player.osuUsername);
     await this._printCenteredX(
@@ -162,22 +186,26 @@ class Report extends DrawTools {
   }
 
   async _drawDifferences() {
+    const start = 100;
+    const every = 30;
     const {
       difGlobalRank,
       difCountryRank,
       difAcc,
       difPP,
-      difPlayCount
+      difPlayCount,
+      difRankedScore
     } = this.delta;
 
     await this._drawCommands(
       this._printDifferenceColor,
-      [527],
-      [100, this.globalRank, difGlobalRank],
-      [140, this.countryRank, difCountryRank],
-      [180, this.accuracy, difAcc],
-      [220, this.pp, difPP],
-      [260, this.plays, difPlayCount]
+      [486],
+      [start + 0 * every, this.globalRank, difGlobalRank],
+      [start + 1 * every, this.countryRank, difCountryRank],
+      [start + 2 * every, this.accuracy, difAcc],
+      [start + 3 * every, this.pp, difPP],
+      [start + 4 * every, this.plays, difPlayCount],
+      [start + 5 * every, this.rankedScore, difRankedScore || ""]
     );
   }
 
@@ -185,9 +213,7 @@ class Report extends DrawTools {
     //level bar
     const levelBar = await resourceGetter.getImage("levelBar");
 
-    const {
-      difLevel
-    } = this.delta;
+    const { difLevel } = this.delta;
     const fLevel = parseFloat(this.user.level);
     const fProgress = fLevel % 1;
     const percentage = Math.trunc(fProgress * 100).toString() + "%";
@@ -210,19 +236,15 @@ class Report extends DrawTools {
     const spacing = 5;
     const center = 312;
     return this._printCenteredY(
-        "ubuntuBBlack24",
-        734 + LEVEL_BAR_X_OFFSET,
-        center,
-        percentage
-      )
-      .then(({
-          x
-        }) =>
+      "ubuntuBBlack24",
+      734 + LEVEL_BAR_X_OFFSET,
+      center,
+      percentage
+    )
+      .then(({ x }) =>
         this._printCenteredY("ubuntuBGreen24", x + spacing, center, difLevel)
       )
-      .then(({
-          x
-        }) =>
+      .then(({ x }) =>
         this.image.blit(hex, x + spacing, center - hex.getHeight() / 2)
       );
   }

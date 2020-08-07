@@ -60,6 +60,7 @@ const INITIAL_FONTS = {
   ubuntuBGreen32: "./static/fonts/ubuntuB_green_32.fnt",
   ubuntuBBlack24: "./static/fonts/ubuntuB_black_24.fnt",
   ubuntuBGreen24: "./static/fonts/ubuntuB_green_24.fnt",
+  ubuntuBRed24: "./static/fonts/ubuntuB_red_24.fnt",
   ubuntuBBlue24: "./static/fonts/ubuntuB_blue_24.fnt",
   ubuntuBLightBlue32: "./static/fonts/ubuntuB_lightblue_32.fnt",
   ubuntuBWhite24: "./static/fonts/ubuntuB_white_24.fnt",

@@ -7,6 +7,6 @@ function run2() {
 }
 
 async function run() {
-  const finalReportCard = await ReportCardGenerator.generateReportCard(3823);
+  const finalReportCard = await ReportCardGenerator.generateReportCard(43723);
   await finalReportCard.writeAsync(`./out/testingCard.png`);
 }

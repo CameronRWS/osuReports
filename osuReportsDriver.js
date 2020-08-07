@@ -7,13 +7,10 @@ const db = require("./src/db");
 const UserCache = require("./src/userCache");
 const beatmapCache = require("./src/beatmapCache");
 
-require("./src/twitterStream");
+//uncomment when deploying to prod
+// require("./src/twitterStream");
 
-const {
-  activeSessions,
-  totalUsers,
-  activePlays
-} = require("./src/metrics");
+const { activeSessions, totalUsers, activePlays } = require("./src/metrics");
 
 const msPerIteration = 45000;
 

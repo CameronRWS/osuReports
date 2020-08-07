@@ -99,8 +99,8 @@ class DrawTools {
   }
 
   async _printDifferenceColor(x, y, offsetText, diff) {
-    const blackFont = await resourceGetter.getFont("ubuntuBBlack32");
-    const fontName = diff.includes("+") ? "ubuntuBGreen32" : "ubuntuBRed32";
+    const blackFont = await resourceGetter.getFont("ubuntuBBlack24");
+    const fontName = diff.includes("+") ? "ubuntuBGreen24" : "ubuntuBRed24";
     return this._printOffset(
       fontName,
       x + jimp.measureText(blackFont, offsetText),
@@ -110,7 +110,7 @@ class DrawTools {
   }
 
   async _printRankCounts(x, y, offsetText, diff) {
-    console.log(`${x} ${y} ${offsetText} ${diff}`)
+    console.log(`${x} ${y} ${offsetText} ${diff}`);
     const blackFont = await resourceGetter.getFont("ubuntuBBlack24");
     const fontName = "ubuntuBBlue24";
     return this._printOffset(
@@ -122,21 +122,28 @@ class DrawTools {
   }
 
   async _printRanks(x, y, rank, dif) {
-    rank = parseInt(rank).toLocaleString("US-en").toString()
+    rank = parseInt(rank)
+      .toLocaleString("US-en")
+      .toString();
     const blackFont = await resourceGetter.getFont("ubuntuBBlack24");
-    const blueFont = await resourceGetter.getFont("ubuntuBBlue24");
+    const blueFont = await resourceGetter.getFont(
+      dif.includes("+") ? "ubuntuBGreen24" : "ubuntuBRed24"
+    );
     await this.image.print(
       blackFont,
-      RANK_X_OFFSET + x - (jimp.measureText(blackFont, rank + dif) * 0.6),
+      RANK_X_OFFSET + x - jimp.measureText(blackFont, rank + dif) * 0.6,
       y,
       rank
-    )
+    );
     return this.image.print(
       blueFont,
-      RANK_X_OFFSET + x - (jimp.measureText(blackFont, rank + dif) * 0.6) + jimp.measureText(blackFont, rank),
+      RANK_X_OFFSET +
+        x -
+        jimp.measureText(blackFont, rank + dif) * 0.6 +
+        jimp.measureText(blackFont, rank),
       y,
       dif
-    )
+    );
   }
 
   async _drawCommands(thisCmd, commonArgs, ...cmds) {

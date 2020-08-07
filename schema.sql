@@ -27,7 +27,10 @@ CREATE TABLE IF NOT EXISTS "sessionsTable" (
   "difSS" TEXT,
   "difSPlus" TEXT,
   "difS" TEXT,
-  "difA" TEXT
+  "difA" TEXT,
+  "rankedScore" INT,
+  "difRankedScore" TEXT,
+  "secondsPlayed" INT,
 );
 
 CREATE TABLE IF NOT EXISTS "playsTable" (
