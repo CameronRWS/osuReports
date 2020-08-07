@@ -11,9 +11,8 @@
           osu! Reports records your osu! standard plays and groups them into
           sessions by playtime. When you sign up, our bot will watch your plays
           and DM you on Twitter with a summary of your stats once you finish.
-          Use the intent link in the DM to tweet and the bot will automatically
-          retweet you! Follow us at
-          <twitter-link handle="osuReports" class="underline hover:underline md:no-underline" />.
+          Tweet the session link that we DM you and tag
+          <twitter-link handle="osuReports" class="underline hover:underline md:no-underline" />&nbsp;and the bot will automatically retweet you!
         </p>
       </div>
       <div
@@ -24,12 +23,14 @@
             Recording {{ stats.plays.toLocaleString("US-en") }} plays across
             {{ stats.sessions.toLocaleString("US-en") }} sessions!
           </p>
-          <p class="mt-2">Join {{ stats.players }} others already recording their plays!</p>
+          <p
+            class="mt-2"
+          >Join the {{ stats.players }} others already recording their plays by clicking the button below!</p>
         </div>
 
         <div v-if="!player" class="mt-2">
           <a href="/twitter/login" class="w-full my-2 btn btn-primary">
-            <strong>Login with twitter</strong>
+            <strong>Login with Twitter</strong>
           </a>
         </div>
         <div v-else class="mt-2">
