@@ -4,7 +4,9 @@
 const resourceGetter = require("./resourceGetter");
 let UserCache = require("./userCache");
 
-const { secondsToDHMS } = require("./utils");
+const {
+  secondsToDHMS
+} = require("./utils");
 
 const {
   DrawTools,
@@ -58,14 +60,14 @@ class Report extends DrawTools {
 
   get rankedScore() {
     if (this.user.scores.ranked === null) {
-      return "null";
+      return "info unavailable";
     }
     return parseFloat(this.user.scores.ranked).toLocaleString("en");
   }
 
   get timePlayed() {
     if (this.user.secondsPlayed === null) {
-      return "null";
+      return "info unavailable";
     }
     const arrDHMS = secondsToDHMS(this.user.secondsPlayed);
     let s = "";
@@ -103,8 +105,20 @@ class Report extends DrawTools {
       ["rankA", 740, 305]
     );
 
-    const { SSH, SS, SH, S, A } = this.user.counts;
-    const { difSSPlus, difSS, difSPlus, difS, difA } = this.delta;
+    const {
+      SSH,
+      SS,
+      SH,
+      S,
+      A
+    } = this.user.counts;
+    const {
+      difSSPlus,
+      difSS,
+      difSPlus,
+      difS,
+      difA
+    } = this.delta;
 
     await this._drawCommands(
       this._printRanks,
@@ -219,7 +233,9 @@ class Report extends DrawTools {
     //level bar
     const levelBar = await resourceGetter.getImage("levelBar");
 
-    const { difLevel } = this.delta;
+    const {
+      difLevel
+    } = this.delta;
     const fLevel = parseFloat(this.user.level);
     const fProgress = fLevel % 1;
     const percentage = Math.trunc(fProgress * 100).toString() + "%";
@@ -242,15 +258,19 @@ class Report extends DrawTools {
     const spacing = 5;
     const center = 312;
     return this._printCenteredY(
-      "ubuntuBBlack24",
-      734 + LEVEL_BAR_X_OFFSET,
-      center,
-      percentage
-    )
-      .then(({ x }) =>
+        "ubuntuBBlack24",
+        734 + LEVEL_BAR_X_OFFSET,
+        center,
+        percentage
+      )
+      .then(({
+          x
+        }) =>
         this._printCenteredY("ubuntuBGreen24", x + spacing, center, difLevel)
       )
-      .then(({ x }) =>
+      .then(({
+          x
+        }) =>
         this.image.blit(hex, x + spacing, center - hex.getHeight() / 2)
       );
   }
