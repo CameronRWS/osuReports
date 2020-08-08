@@ -99,10 +99,10 @@ class Report extends DrawTools {
       this._drawRank,
       [],
       ["rankSSPlus", 220, 305],
-      ["rankSS", 350, 305],
-      ["rankSPlus", 480, 305],
-      ["rankS", 610, 305],
-      ["rankA", 740, 305]
+      ["rankSS", 340, 305],
+      ["rankSPlus", 460, 305],
+      ["rankS", 580, 305],
+      ["rankA", 710, 305]
     );
 
     const {
@@ -124,10 +124,10 @@ class Report extends DrawTools {
       this._printRanks,
       [],
       [280, 363 + RANK_Y_OFFSET, SSH, difSSPlus || ""],
-      [410, 363 + RANK_Y_OFFSET, SS, difSS || ""],
-      [540, 363 + RANK_Y_OFFSET, SH, difSPlus || ""],
-      [670, 363 + RANK_Y_OFFSET, S, difS || ""],
-      [800, 363 + RANK_Y_OFFSET, A, difA || ""]
+      [400, 363 + RANK_Y_OFFSET, SS, difSS || ""],
+      [520, 363 + RANK_Y_OFFSET, SH, difSPlus || ""],
+      [640, 363 + RANK_Y_OFFSET, S, difS || ""],
+      [760, 363 + RANK_Y_OFFSET, A, difA || ""]
     );
   }
 
@@ -172,22 +172,23 @@ class Report extends DrawTools {
   async _drawSessionFields() {
     const start = 100;
     const every = 30;
+    const x = 40;
     await this._drawCommands(
       this._printOffset,
       ["ubuntuBBlue24"],
-      [326, start + 0 * every, "Global Rank:"],
-      [305, start + 1 * every, "Country Rank:"],
-      [361, start + 2 * every, "Accuracy:"],
-      [435, start + 3 * every, "PP:"],
-      [338, start + 4 * every, "Play Count:"],
-      [309, start + 5 * every, "Ranked Score:"],
-      [323, start + 6 * every, "Time Played:"]
+      [326 + x, start + 0 * every, "Global Rank:"],
+      [305 + x, start + 1 * every, "Country Rank:"],
+      [361 + x, start + 2 * every, "Accuracy:"],
+      [435 + x, start + 3 * every, "PP:"],
+      [338 + x, start + 4 * every, "Play Count:"],
+      [309 + x, start + 5 * every, "Ranked Score:"],
+      [323 + x, start + 6 * every, "Time Played:"]
     );
 
     await this._drawCommands(
       this._printOffset,
       // with black font at x-offset 522
-      ["ubuntuBBlack24", 480],
+      ["ubuntuBBlack24", 480 + x],
       [start + 0 * every, this.globalRank],
       [start + 1 * every, this.countryRank],
       [start + 2 * every, this.accuracy],
@@ -219,7 +220,7 @@ class Report extends DrawTools {
 
     await this._drawCommands(
       this._printDifferenceColor,
-      [486],
+      [486 + 40],
       [start + 0 * every, this.globalRank, difGlobalRank],
       [start + 1 * every, this.countryRank, difCountryRank],
       [start + 2 * every, this.accuracy, difAcc],
