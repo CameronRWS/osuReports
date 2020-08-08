@@ -57,10 +57,16 @@ class Report extends DrawTools {
   }
 
   get rankedScore() {
+    if (this.user.scores.ranked === null) {
+      return "null";
+    }
     return parseFloat(this.user.scores.ranked).toLocaleString("en");
   }
 
   get timePlayed() {
+    if (this.user.secondsPlayed === null) {
+      return "null";
+    }
     const arrDHMS = secondsToDHMS(this.user.secondsPlayed);
     let s = "";
     if (arrDHMS[0] != 0) {
