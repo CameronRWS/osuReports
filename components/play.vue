@@ -1,131 +1,36 @@
 <template>
-  <div class="play">
-    <a :href="`https://osu.ppy.sh/beatmapsets/${beatmapId}#osu/`" target="_blank">
-      <div class="play-container">
-        <div class="layer">
-          <div class="image-container" :style="style">
-            <img alt="bg" style="display: none" :src="bg" @error="missingBg" />
-          </div>
-        </div>
-        <div class="flex-wrap row text-content flex-xl-nowrap">
-          <div
-            class="col-md-8 col-12 col-xl-12 col-xxl-8 d-flex flex-column justify-content-between align-items-center align-items-xl-center align-items-md-start align-items-xxl-start"
-          >
-            <div class="title-artist-group">
-              <div class="play-title blue-text">{{ title }} [{{ version }}]</div>
-              <div class="artist white-text">by {{ artist }}</div>
-            </div>
-            <div
-              class="flex-wrap my-2 d-md-none d-flex small-play-stats justify-content-center align-items-center d-xl-flex d-xxl-none"
-            >
-              <div class="mx-2 play-accuracy gold-text">{{ (+playAccuracy).toFixed(2) }}%</div>
-              <div class="mx-2 rank">
-                <rank :rank="rank" class="align-middle" />
-              </div>
-              <div class="mx-2 my-auto counts white-text">
-                <span class="blue-text">{{ counts300 }}</span> /
-                <span class="green-text">{{ counts100 }}</span> /
-                <span class="gold-text">{{ counts50 }}</span> /
-                <span class="red-text">{{ countsMiss }}</span>
-              </div>
-              <div class="mx-2 performance gold-text">{{ Math.ceil(parseFloat(playPP)) }}pp</div>
-              <div>
-                <mod v-for="mod in modList" :key="mod" :mod="mod" class="align-middle" />
-              </div>
-            </div>
-            <div
-              class="flex-wrap song-stats flex-sm-nowrap align-items-baseline justify-content-around justify-content-md-start"
-            >
-              <table>
-                <tbody>
-                  <tr>
-                    <td>Circle Size:</td>
-                    <td>{{ (+circleSize).toFixed(1) }}</td>
-                  </tr>
-                  <tr>
-                    <td>HP Drain:</td>
-                    <td>{{ (+healthPoints).toFixed(1) }}</td>
-                  </tr>
-                  <tr>
-                    <td>Approach Rate:</td>
-                    <td>{{ (+approachRate).toFixed(1) }}</td>
-                  </tr>
-                  <tr>
-                    <td>Overall Difficulty:</td>
-                    <td>{{ (+overallDifficulty).toFixed(1) }}</td>
-                  </tr>
-                  <!-- <tr class="pt-2 d-table-row d-sm-none">
-                  <td class="p-2">{{ ' ' }}</td>
-                  <td class="p-2">{{ ' ' }}</td>
-                </tr>
-                <tr class="mt-2 d-table-row d-sm-none">
-                  <td>Combo:</td>
-                  <td>{{ combo }} / {{ maxCombo }}</td>
-                </tr>
-                <tr class="d-table-row d-sm-none">
-                  <td>BPM:</td>
-                  <td>{{ bpm }}</td>
-                </tr>
-                <tr class="d-table-row d-sm-none">
-                  <td>Duration:</td>
-                  <td>{{ playDuration }}</td>
-                </tr>
-                <tr class="d-table-row d-sm-none">
-                  <td>Difficulty:</td>
-                  <td>
-                    <stars class="align-middle" :nStars="difficulty" />
-                    ({{ difficulty }})
-                  </td>
-                  </tr>-->
-                </tbody>
-              </table>
-              <table class="mt-2 ml-sm-2 d-sm-table">
-                <tbody>
-                  <tr>
-                    <td>Combo:</td>
-                    <td>{{ combo }} / {{ maxCombo }}</td>
-                  </tr>
-                  <tr>
-                    <td>BPM:</td>
-                    <td>{{ bpm }}</td>
-                  </tr>
-                  <tr>
-                    <td>Duration:</td>
-                    <td>{{ playDuration }}</td>
-                  </tr>
-                  <tr>
-                    <td>Difficulty:</td>
-                    <td>
-                      <stars class="align-middle" :nStars="difficulty" />
-                      ({{ difficulty }})
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div
-            class="ml-auto col-md-4 d-none d-md-flex d-xl-none d-xxl-flex flex-column justify-content-between"
-          >
-            <div class="play-accuracy gold-text right">{{ (+playAccuracy).toFixed(2) }}%</div>
-            <div class="rank">
-              <rank :rank="rank" class="right" />
-            </div>
-            <div class="mods right">
-              <mod v-for="mod in modList" :key="mod" :mod="mod" />
-            </div>
-            <div class="counts right white-text">
-              <span class="blue-text">{{ counts300 }}</span> /
-              <span class="green-text">{{ counts100 }}</span> /
-              <span class="gold-text">{{ counts50 }}</span> /
-              <span class="red-text">{{ countsMiss }}</span>
-            </div>
-            <div class="performance right gold-text">{{ Math.ceil(parseFloat(playPP)) }}pp</div>
-          </div>
-        </div>
+  <a
+    :href="`https://osu.ppy.sh/beatmapsets/${beatmapId}#osu/`"
+    target="_blank"
+    class="block p-px rounded play"
+  >
+    <div
+      class="h-full p-4 font-bold bg-cover rounded bg-brightness-50"
+      :style="style"
+    >
+      <img
+        class="hidden"
+        alt="background loader helper"
+        :src="bg"
+        @error="missingBg"
+      />
+      <div class="text-xl">
+        <span class="ellipsis blue-text">{{ title }}</span>
+        <span class="blue-text">[{{ version }}]</span>
       </div>
-    </a>
-  </div>
+      <div class="ml-2 -my-1 white-text">by {{ artist }}</div>
+      <div class="flex flex-wrap my-1">
+        <play-details
+          :circleSize="circleSize"
+          :hpDrain="healthPoints"
+          :overallDifficulty="overallDifficulty"
+          :approachRate="approachRate"
+          :stars="difficulty"
+        />
+        <span class="text-xl gold-text">{{ (+playAccuracy).toFixed(2) }}%</span>
+      </div>
+    </div>
+  </a>
 </template>
 
 <script lang="ts">
@@ -143,7 +48,7 @@ export default Vue.extend({
   components: {
     Stars,
     Rank,
-    Mod,
+    Mod
   },
   props: {
     sessionId: Number,
@@ -173,32 +78,33 @@ export default Vue.extend({
     approachRate: Number,
     healthPoints: Number,
     overallDifficulty: Number,
-    circleSize: Number,
+    circleSize: Number
   },
   data() {
     return {
-      overrideBg: null as string | null,
+      overrideBg: null as string | null
     };
   },
   computed: {
     style(): { backgroundImage: string } {
       return {
-        backgroundImage: `url("${this.overrideBg || this.bg}")`,
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("${this
+          .overrideBg || this.bg}")`
       };
     },
     modList(): string[] {
-      return this.mods.split(/,\s+/).filter((mod) => mod.trim() !== "");
+      return this.mods.split(/,\s+/).filter(mod => mod.trim() !== "");
     },
     beatmapId(): string {
       const match = [...(BG_REGEX.exec(this.bg) || [])];
       return match[1];
-    },
+    }
   },
   methods: {
     missingBg(): void {
       this.overrideBg = DEFAULT_BACKGROUND;
-    },
-  },
+    }
+  }
 });
 </script>
 
@@ -208,71 +114,15 @@ a {
   text-decoration: none;
 }
 
-@mixin blue-text {
-  background: -webkit-linear-gradient(rgb(112, 212, 255), rgb(0, 191, 255));
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.blue-text {
-  @include blue-text();
-}
-
-@mixin white-text {
-  background: -webkit-linear-gradient(rgb(255, 255, 255), rgb(149, 149, 149));
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.white-text {
-  @include white-text();
-}
-
-@mixin gold-text {
-  background: -webkit-linear-gradient(rgb(255, 217, 0), rgb(175, 134, 0));
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.gold-text {
-  @include gold-text();
-}
-
-@mixin green-text {
-  background: -webkit-linear-gradient(rgb(0, 255, 0), rgb(3, 136, 3));
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.green-text {
-  @include green-text();
-}
-
-@mixin red-text {
-  background: -webkit-linear-gradient(rgb(255, 0, 0), #990000);
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.red-text {
-  @include red-text();
-}
-
-* {
-  margin: 0;
-  padding: 0;
-}
-
 .play {
   font-family: "Ubuntu", sans-serif;
   font-weight: 700;
   /* width and color */
   -webkit-text-stroke: 0.5px black;
-  height: auto;
-  /* min-width: 30rem; */
-  line-height: 1.25;
+}
 
-  padding: 0.5em;
+.play {
+  background-image: linear-gradient(#bbb, #000);
 }
 
 .play-container {
@@ -344,12 +194,10 @@ table {
   font-size: 1.25em;
 
   & td:nth-last-of-type(odd) {
-    @include white-text();
     vertical-align: bottom;
   }
 
   & td:nth-last-of-type(even) {
-    @include blue-text();
     padding-right: 0.25em;
     text-align: right;
     vertical-align: top;

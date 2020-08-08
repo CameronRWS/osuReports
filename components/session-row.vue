@@ -73,7 +73,7 @@
       <span v-if="difLevel.includes('-')" class="red-text">{{ difLevel }}</span>
     </td>
     <td>
-      <nuxt-link :to="`/report/${sessionID}`" class="my-2 btn btn-primary">View</nuxt-link>
+      <nuxt-link :to="`/report/${sessionID}`" class="w-full mt-4 lg:my-2 btn btn-primary">View</nuxt-link>
     </td>
   </tr>
 </template>
@@ -87,23 +87,23 @@ export default {
     date: String,
     osuUsername: String,
     sessionDuration: String,
-    globalRank: String,
+    globalRank: [String, Number],
     difGlobalRank: String,
-    countryRank: String,
+    countryRank: [String, Number],
     difCountryRank: String,
-    level: String,
+    level: [String, Number],
     difLevel: String,
-    accuracy: String,
+    accuracy: [String, Number],
     difAcc: String,
-    totalPP: String,
+    totalPP: [String, Number],
     difPP: String,
-    playCount: String,
+    playCount: [String, Number],
     difPlayCount: String,
-    countSSPlus: String,
-    countSS: String,
-    countSPlus: String,
-    countS: String,
-    countA: String,
+    countSSPlus: [String, Number],
+    countSS: [String, Number],
+    countSPlus: [String, Number],
+    countS: [String, Number],
+    countA: [String, Number],
   },
   computed: {
     dateFormat() {
@@ -121,56 +121,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@mixin blue-text {
-  background: -webkit-linear-gradient(rgb(112, 212, 255), rgb(0, 191, 255));
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.blue-text {
-  @include blue-text();
-}
-
-@mixin white-text {
-  background: -webkit-linear-gradient(rgb(255, 255, 255), rgb(149, 149, 149));
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.white-text {
-  @include white-text();
-}
-
-@mixin gold-text {
-  background: -webkit-linear-gradient(rgb(255, 217, 0), rgb(175, 134, 0));
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.gold-text {
-  @include gold-text();
-}
-
-@mixin green-text {
-  background: -webkit-linear-gradient(rgb(0, 255, 0), rgb(3, 136, 3));
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.green-text {
-  @include green-text();
-}
-
-@mixin red-text {
-  background: -webkit-linear-gradient(rgb(255, 0, 0), #990000);
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.red-text {
-  @include red-text();
-}
-
 .session {
   font-family: "Ubuntu", sans-serif;
   font-weight: 700;

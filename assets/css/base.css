@@ -3,3 +3,46 @@
 .ubuntu {
   font-family: "Ubuntu", sans-serif;
 }
+
+.blue-text {
+  background: linear-gradient(rgb(112, 212, 255), rgb(0, 191, 255));
+  background-clip: text;
+  color: transparent;
+  /* -webkit-text-stroke: transparent; */
+}
+
+.white-text {
+  background: linear-gradient(rgb(255, 255, 255), rgb(149, 149, 149));
+  background-clip: text;
+  color: transparent;
+  /* -webkit-text-stroke: transparent; */
+}
+
+.gold-text {
+  background: linear-gradient(rgb(255, 217, 0), rgb(175, 134, 0));
+  background-clip: text;
+  color: transparent;
+  /* -webkit-text-stroke: transparent; */
+}
+
+.green-text {
+  background: linear-gradient(rgb(0, 255, 0), rgb(3, 136, 3));
+  background-clip: text;
+  color: transparent;
+  /* -webkit-text-stroke: transparent; */
+}
+
+.red-text {
+  background: linear-gradient(rgb(255, 0, 0), #990000);
+  background-clip: text;
+  color: transparent;
+  /* -webkit-text-stroke: transparent; */
+}
+
+.brightness-50 {
+  filter: brightness(50%);
+}
+
+.bg-brightness-50 {
+  backdrop-filter: brightness(50%);
+}

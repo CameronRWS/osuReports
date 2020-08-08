@@ -1,35 +1,39 @@
 <template>
-  <main role="main">
-    <section class="jumbotron text-center">
-      <div>
-        <h1 class="jumbotron-heading">Your osu! Reports</h1>
-      </div>
-      <br />
-      <br />
-      <div class="container">
-        <table align="center" style="text-align:left;">
-          <tr>
-            <th>Date</th>
-            <th>Duration</th>
-            <th>Global Rank</th>
-            <th>Country Rank</th>
-            <th>Accuracy</th>
-            <th>PP</th>
-            <th>Play Count</th>
-            <th>Level</th>
-            <th></th>
-          </tr>
-          <session-row v-for="session in sessions" :key="session.sessionID" v-bind="session" />
+  <article class="container mx-auto" role="main">
+    <section>
+      <h1 class="my-6 text-xl leading-relaxed">{{ player.osu.username }}'s osu! Sessions</h1>
+      <div class="relative lg:p-6 lg:bg-white lg:rounded lg:shadow">
+        <table class="w-full text-left">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Duration</th>
+              <th>Global Rank</th>
+              <th>Country Rank</th>
+              <th>Accuracy</th>
+              <th>PP</th>
+              <th>Play Count</th>
+              <th>Level</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <session-row
+              v-for="session in sessions"
+              :key="session.sessionID"
+              v-bind="session"
+              class="p-6 my-6 bg-white rounded shadow lg:rounded-none lg:shadow-none lg:bg-transparent"
+            />
+          </tbody>
         </table>
-        <br />
-        <br />
-        <nuxt-link to="/player" class="btn btn-primary my-2">Back to dashboard</nuxt-link>
+        <nuxt-link to="/player" class="my-2 btn btn-primary">Back to dashboard</nuxt-link>
       </div>
     </section>
-  </main>
+  </article>
 </template>
 
 <script>
+import { mapState } from "vuex";
 import twitterLink from "~/components/twitter-link.vue";
 import sessionRow from "~/components/session-row.vue";
 export default {
@@ -45,6 +49,9 @@ export default {
     //@ts-ignore
     return { sessions: (await $api.getPlayerSessions()).reverse() };
   },
+  computed: {
+    ...mapState(["player"]),
+  },
 };
 </script>
 
@@ -54,7 +61,7 @@ th {
   padding: 0 15px;
 }
 
-@media only screen and (max-width: 900px),
+@media only screen and (max-width: 1024px),
   (min-device-width: 768px) and (max-device-width: 1024px) {
   /* Force table to not be like tables anymore */
   table,
@@ -73,10 +80,6 @@ th {
     left: -9999px;
   }
 
-  /* tr {
-    border: 1px solid #ccc;
-  } */
-
   td {
     /* Behave  like a "row" */
     border: none;
@@ -88,11 +91,12 @@ th {
     /* Now like a table header */
     position: absolute;
     /* Top/left values mimic padding */
-    top: 6px;
-    left: 6px;
+    left: 0;
     width: 45%;
-    padding-right: 10px;
+    padding-right: 1rem;
     white-space: nowrap;
+
+    font-weight: 700;
   }
 
   /*
@@ -124,6 +128,11 @@ th {
   }
   td:nth-of-type(9):before {
     content: "";
+  }
+
+  td:nth-of-type(9) {
+    padding: 0;
+    width: 100%;
   }
 }
 </style>
