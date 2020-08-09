@@ -5,29 +5,37 @@
     class="block p-px rounded play"
   >
     <div
-      class="h-full p-4 font-bold bg-cover rounded bg-brightness-50"
+      class="flex items-stretch content-start h-full p-4 font-bold bg-cover rounded"
       :style="style"
     >
-      <img
-        class="hidden"
-        alt="background loader helper"
-        :src="bg"
-        @error="missingBg"
-      />
-      <div class="text-xl">
-        <span class="ellipsis blue-text">{{ title }}</span>
-        <span class="blue-text">[{{ version }}]</span>
+      <img class="hidden" alt="background loader helper" :src="bg" @error="missingBg" />
+      <div
+        class="flex flex-row items-center justify-center flex-grow-0 flex-shrink-0 mr-2 sm:flex-col"
+      >
+        <h1 class="text-2xl gold-text">{{ Math.ceil(+playPP) }}pp</h1>
+        <span class="text-xl whitespace-no-wrap gold-text">
+          <rank :rank="rank" class="inline w-8" />
+          {{ (+playAccuracy).toFixed(2) }}%
+        </span>
       </div>
-      <div class="ml-2 -my-1 white-text">by {{ artist }}</div>
-      <div class="flex flex-wrap my-1">
-        <play-details
-          :circleSize="circleSize"
-          :hpDrain="healthPoints"
-          :overallDifficulty="overallDifficulty"
-          :approachRate="approachRate"
-          :stars="difficulty"
-        />
-        <span class="text-xl gold-text">{{ (+playAccuracy).toFixed(2) }}%</span>
+      <div class="flex flex-col">
+        <div class="text-xl leading-tight">
+          <span class="ellipsis blue-text">{{ title }}</span>
+          <span class="blue-text">[{{ version }}]</span>
+          <span class="ml-2 text-base whitespace-no-wrap white-text">by {{ artist }}</span>
+        </div>
+        <div class="flex flex-wrap flex-shrink order-3 my-1">
+          <play-details
+            :combo="maxCombo"
+            :bpm="bpm"
+            :duration="playDuration"
+            :circleSize="circleSize"
+            :hpDrain="healthPoints"
+            :overallDifficulty="overallDifficulty"
+            :approachRate="approachRate"
+            :stars="difficulty"
+          />
+        </div>
       </div>
     </div>
   </a>
@@ -48,7 +56,7 @@ export default Vue.extend({
   components: {
     Stars,
     Rank,
-    Mod
+    Mod,
   },
   props: {
     sessionId: Number,
@@ -78,33 +86,34 @@ export default Vue.extend({
     approachRate: Number,
     healthPoints: Number,
     overallDifficulty: Number,
-    circleSize: Number
+    circleSize: Number,
   },
   data() {
     return {
-      overrideBg: null as string | null
+      overrideBg: null as string | null,
     };
   },
   computed: {
     style(): { backgroundImage: string } {
       return {
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("${this
-          .overrideBg || this.bg}")`
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("${
+          this.overrideBg || this.bg
+        }")`,
       };
     },
     modList(): string[] {
-      return this.mods.split(/,\s+/).filter(mod => mod.trim() !== "");
+      return this.mods.split(/,\s+/).filter((mod) => mod.trim() !== "");
     },
     beatmapId(): string {
       const match = [...(BG_REGEX.exec(this.bg) || [])];
       return match[1];
-    }
+    },
   },
   methods: {
     missingBg(): void {
       this.overrideBg = DEFAULT_BACKGROUND;
-    }
-  }
+    },
+  },
 });
 </script>
 

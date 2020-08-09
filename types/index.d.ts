@@ -14,10 +14,3 @@ declare module "@nuxt/types" {
     $api: ReturnType<typeof import("~/src/api.service").default>;
   }
 }
-
-declare module "*.png" {
-  const value: string;
-  export default value;
-}
-
-export {};

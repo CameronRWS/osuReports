@@ -14,26 +14,20 @@ const ranks = {
   B: require("~/assets/images/ranks/B.png"),
   C: require("~/assets/images/ranks/C.png"),
   D: require("~/assets/images/ranks/D.png"),
-  F: require("~/assets/images/ranks/F.png")
+  F: require("~/assets/images/ranks/F.png"),
 };
 
 export default Vue.extend({
   props: {
     rank: {
       type: String,
-      validator: rank => Object.keys(ranks).includes(rank)
-    }
+      validator: (rank) => Object.keys(ranks).includes(rank),
+    },
   },
   computed: {
     src(): string {
       return ranks[this.rank];
-    }
-  }
+    },
+  },
 });
 </script>
-
-<style lang="scss" scoped>
-img {
-  height: 2.5em;
-}
-</style>
