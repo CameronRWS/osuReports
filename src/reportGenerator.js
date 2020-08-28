@@ -12,7 +12,7 @@ const {
   LEVEL_BAR_X_OFFSET,
   LEVEL_BAR_Y_OFFSET,
   RANK_X_OFFSET,
-  RANK_Y_OFFSET,
+  RANK_Y_OFFSET
 } = require("./drawTools");
 const PlayImage = require("./playImage");
 
@@ -155,7 +155,7 @@ class Report extends DrawTools {
       difCountryRank,
       difAcc,
       difPP,
-      difPlayCount,
+      difPlayCount
     } = this.delta;
 
     await this._drawCommands(
@@ -171,7 +171,7 @@ class Report extends DrawTools {
 
   async _drawLevels() {
     //level bar
-    const levelBar = await resourceGetter.getImage("levelBar");
+    const levelBar = (await resourceGetter.getImage("levelBar")).clone();
 
     const { difLevel } = this.delta;
     const fLevel = parseFloat(this.user.level);
@@ -236,7 +236,7 @@ class ReportGenerator {
     const plays = await Promise.all(
       playObjects
         .slice(0, maxImages * playsPerImage)
-        .map((play) => PlayImage.create(play))
+        .map(play => PlayImage.create(play))
     );
     const playSets = new Array(Math.ceil(plays.length / playsPerImage))
       .fill(null)
