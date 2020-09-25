@@ -399,8 +399,8 @@ class sessionObject {
 
   async tweetReport(twitterUsername, osuUsername, id, sessionID) {
     const tweet = {
-      status: "." + twitterUsername + " just finished an osu! session: ",
-      media_ids: [id],
+      status: twitterUsername.substr(1) + " just finished an osu! session: ",
+      media_ids: [id]
     };
     if (
       await twitterUtils.isTwitterUserActive(
