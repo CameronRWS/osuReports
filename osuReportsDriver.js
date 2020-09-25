@@ -7,11 +7,8 @@ const db = require("./src/db");
 const UserCache = require("./src/userCache");
 const beatmapCache = require("./src/beatmapCache");
 
-const {
-  activeSessions,
-  totalUsers,
-  activePlays
-} = require("./src/metrics");
+const { activeSessions, totalUsers, activePlays } = require("./src/metrics");
+const { inspect } = require("util");
 
 const msPerIteration = 45000;
 
@@ -104,43 +101,50 @@ async function mainLoop() {
       // );
       await sleep(delay);
     }
-    updatePlayersList();
-    getSessionInfoForConsole();
+
+    await updatePlayersList();
+    await getSessionInfoForConsole();
   }
 }
 
 async function updatePlayersList() {
   let players = await db.getPlayers();
   //console.log("beginning: DB: " + players.length + ", Mem: " + globalInstances.playerObjects.length)
-  for (let playerInDB of players) {
-    let found = false;
-    for (let playerInMemory of globalInstances.playerObjects) {
-      if (playerInDB.twitterUsername == playerInMemory.twitterUsername) {
-        found = true;
-        break;
-      }
-    }
-    if (!found) {
-      console.log("Pushed: " + playerInDB.twitterUsername)
-      globalInstances.playerObjects.push(new playerObject(playerInDB.osuUsername, playerInDB.twitterUsername))
-    }
+
+  const playersMap = Object.fromEntries(
+    players.map(p => [p.twitterUsername, p])
+  );
+  const memorySet = new Set(
+    globalInstances.playerObjects.map(p => p.twitterUsername)
+  );
+
+  const playersToAdd = Object.keys(playersMap).filter(p => !memorySet.has(p));
+  const playersToRemove = new Set(
+    [...memorySet].filter(p => !(p in playersMap))
+  );
+
+  if (playersToAdd.length) {
+    globalInstances.logMessage(`Adding players ${inspect(playersToAdd)}`);
   }
 
-  for (let playerInMemory of globalInstances.playerObjects) {
-    let found = false;
-    for (let playerInDB of players) {
-      if (playerInDB.twitterUsername == playerInMemory.twitterUsername) {
-        found = true;
-        break;
-      }
-    }
-    if (!found) {
-      console.log("Removed: " + playerInMemory.twitterUsername)
-      globalInstances.playerObjects.splice(globalInstances.playerObjects.indexOf(playerInMemory), 1)
-      updatePlayersList() //so it can make sure it doesnt skip anyone. stupid but this is temp method so...
-    }
+  if (playersToRemove.size) {
+    globalInstances.logMessage(
+      `Removing players ${inspect([...playersToRemove])}`
+    );
   }
-  //console.log("end: DB: " + players.length + ", Mem: " + globalInstances.playerObjects.length)
+
+  globalInstances.playerObjects = [
+    ...globalInstances.playerObjects.filter(
+      p => !playersToRemove.has(p.twitterUsername)
+    ),
+    ...playersToAdd.map(
+      p =>
+        new playerObject(
+          playersMap[p].osuUsername,
+          playersMap[p].twitterUsername
+        )
+    )
+  ];
 }
 
 var numOfOutputs = 0;
