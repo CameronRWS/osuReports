@@ -52,7 +52,7 @@ declare global {
   }
 
   namespace osuReports {
-    interface Play {
+    export interface Play {
       sessionId: number;
       osuUsername: string;
       date: string;
@@ -81,6 +81,11 @@ declare global {
       healthPoints: number;
       overallDifficulty: number;
       circleSize: number;
+    }
+
+    export interface Player {
+      osuUsername: string;
+      twitterUsername: string;
     }
   }
 }

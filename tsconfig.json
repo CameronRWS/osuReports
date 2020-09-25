@@ -68,6 +68,6 @@
     },
     "types": ["@types/node", "@nuxt/types"]
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "./*.js"],
   "typeAcquisition": { "enable": true }
 }
