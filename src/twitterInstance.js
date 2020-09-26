@@ -8,6 +8,8 @@ const {
 
 const hasKeys =
   consumer_key && consumer_secret && access_token && access_token_secret;
+
+/** @type {Twit} */
 let T;
 
 if (hasKeys) {
@@ -19,7 +21,7 @@ if (hasKeys) {
   });
 } else {
   console.warn('WARNING: NO TWITTER KEYS, RUNNING WITHOUT TWEET CAPABILITY');
-  T = new Proxy(
+  T = /** @type {any} */ (new Proxy(
     {},
     {
       get() {
@@ -33,7 +35,7 @@ if (hasKeys) {
           });
       },
     }
-  );
+  ));
 }
 
 module.exports = T;
