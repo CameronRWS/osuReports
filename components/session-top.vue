@@ -1,9 +1,9 @@
 <template>
-  <div class="flex p-px rounded image-container">
+  <div class="flex items-center p-px rounded image-container">
     <img
       :src="`/api/player/sessions/${sessionID}/reportCard.png`"
       alt="session-top"
-      class="block w-full rounded"
+      class="block w-full h-auto rounded"
     />
   </div>
 </template>

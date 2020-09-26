@@ -1,22 +1,22 @@
 <template>
-  <article class="container mx-auto">
+  <article class="container max-w-screen-sm mx-auto">
     <div class="flex justify-center">
       <a
         :href="`https://osu.ppy.sh/users/${this.session.osu.username}`"
         target="_blank"
-        class="block w-full max-w-screen-sm h-100"
+        class="block"
       >
         <session-top v-bind="session" class="my-2" />
       </a>
     </div>
-      <div class="flex flex-col items-center">
-        <play
-          v-for="play in plays"
-          :key="play.date"
-          v-bind="play"
-          class="w-full max-w-screen-sm mt-6"
-        />
-      </div>
+    <div class="flex flex-col items-center">
+      <play
+        v-for="play in plays"
+        :key="play.date"
+        v-bind="play"
+        class="w-full max-w-screen-sm mt-6"
+      />
+    </div>
   </article>
 </template>
 
@@ -39,7 +39,7 @@ export default Vue.extend({
       plays: [] as osuReports.Play[],
       session: null as osuReports.Session | null,
       sessionId: null as string | null,
-      baseUrl: "",
+      baseUrl: ""
     };
   },
   async asyncData({ params, app: { $api }, req }) {
@@ -47,7 +47,7 @@ export default Vue.extend({
       plays: await $api.getSessionPlays(params.sessionId),
       session: await $api.getSession(params.sessionId),
       sessionId: params.sessionId,
-      baseUrl: getBaseUrl(req),
+      baseUrl: getBaseUrl(req)
     };
   },
   validate(ctx): boolean {
@@ -63,12 +63,12 @@ export default Vue.extend({
           property: "og:title",
           content: `${this.session?.osu?.username}'s osu! Report - ${
             this.plays.length
-          } play${this.plays.length === 1 ? "" : "s"}`,
+          } play${this.plays.length === 1 ? "" : "s"}`
         },
         {
           hid: "otherContent",
           name: "og:image",
-          content: `${this.baseUrl}/api/player/sessions/${this.sessionId}/reportCard.png`,
+          content: `${this.baseUrl}/api/player/sessions/${this.sessionId}/reportCard.png`
         },
         // hid is used as unique identifier. Do not use `vmid` for it as it will not work
         {
@@ -76,28 +76,28 @@ export default Vue.extend({
           name: "twitter:title",
           content: `${this.session?.osu?.username}'s osu! Report - ${
             this.plays.length
-          } play${this.plays.length === 1 ? "" : "s"}`,
+          } play${this.plays.length === 1 ? "" : "s"}`
         },
         {
           hid: "twitterDesc",
           name: "twitter:description",
-          content: `Click this link to see the full report on the official osu! Reports website.`,
+          content: `Click this link to see the full report on the official osu! Reports website.`
         },
         {
           hid: "twitterImage",
           name: "twitter:image",
-          content: `${this.baseUrl}/api/player/sessions/${this.sessionId}/reportCard.png`,
+          content: `${this.baseUrl}/api/player/sessions/${this.sessionId}/reportCard.png`
         },
         {
           hid: "twitterCard",
           name: "twitter:card",
-          content: "summary_large_image",
-        },
-      ],
+          content: "summary_large_image"
+        }
+      ]
     };
   },
   computed: {
-    ...mapState(["player"]),
-  },
+    ...mapState(["player"])
+  }
 });
 </script>

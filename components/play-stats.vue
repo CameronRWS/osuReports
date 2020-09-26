@@ -10,11 +10,11 @@
       <span v-if="small" class="whitespace-no-wrap gold-text">
         {{ (+playAccuracy).toFixed(2) }}%
       </span>
-      <rank :rank="rank" :class="['inline', small ? 'w-8 ml-2' : 'w-16']" />
+      <rank :rank="rank" :class="['inline', small ? 'w-8 ml-2' : 'w-12']" />
     </div>
     <div class="ml-2 whitespace-no-wrap md:mb-1 md:ml-0">
       <mod
-        v-for="mod in mods.split(/\s*,\s*/)"
+        v-for="mod in mods.split(/\s*,\s*/).filter(m => m)"
         :mod="mod"
         :key="mod"
         :class="['inline', small ? 'w-6' : 'w-10']"
