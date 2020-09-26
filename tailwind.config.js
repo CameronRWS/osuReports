@@ -22,5 +22,9 @@ module.exports = {
   plugins: [
     require("tailwindcss-typography")(),
     require("tailwindcss-gradients")
-  ]
+  ],
+  future: {
+    removeDeprecatedGapUtilities: true,
+    purgeLayersByDefault: true
+  }
 };

@@ -32,11 +32,19 @@
   /* -webkit-text-stroke: transparent; */
 }
 
+.green-text-nograd {
+  color: rgb(3, 136, 3);
+}
+
 .red-text {
   background: linear-gradient(rgb(255, 0, 0), #990000);
   background-clip: text;
   color: transparent;
   /* -webkit-text-stroke: transparent; */
+}
+
+.red-text-nograd {
+  color: #990000;
 }
 
 .brightness-50 {

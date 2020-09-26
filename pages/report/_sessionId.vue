@@ -4,19 +4,19 @@
       <a
         :href="`https://osu.ppy.sh/users/${this.session.osu.username}`"
         target="_blank"
-        class="block w-full lg:w-1/2 h-100"
+        class="block w-full max-w-screen-sm h-100"
       >
         <session-top v-bind="session" class="my-2" />
       </a>
     </div>
-    <div class="flex flex-wrap justify-center xl:-ml-6">
-      <play
-        v-for="play in plays"
-        :key="play.date"
-        v-bind="play"
-        class="w-full mt-6 xl:w-5/12 xl:ml-6"
-      />
-    </div>
+      <div class="flex flex-col items-center">
+        <play
+          v-for="play in plays"
+          :key="play.date"
+          v-bind="play"
+          class="w-full max-w-screen-sm mt-6"
+        />
+      </div>
   </article>
 </template>
 

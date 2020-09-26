@@ -10,7 +10,9 @@ passport.use(
       consumerKey: keys.consumer_key || "_this_key_is_undefined",
       consumerSecret: keys.consumer_secret || "_this_key_is_undefined",
       callbackURL:
-        process.env.CALLBACK_URL || "http://localhost:3000/twitter/return"
+        process.env.CALLBACK_URL || "http://localhost:3000/twitter/return",
+      requestTokenURL:
+        "https://api.twitter.com/oauth/request_token?x_auth_access_type=read"
     },
     function(token, tokenSecret, profile, callback) {
       return callback(null, profile);

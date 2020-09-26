@@ -126,9 +126,6 @@ th {
   td:nth-of-type(8):before {
     content: "Level:";
   }
-  td:nth-of-type(9):before {
-    content: "";
-  }
 
   td:nth-of-type(9) {
     padding: 0;

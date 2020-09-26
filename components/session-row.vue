@@ -6,13 +6,13 @@
       #{{ parseFloat(globalRank).toLocaleString("en") }}
       <span
         v-if="difGlobalRank.includes('+')"
-        class="green-text"
+        class="text-green-600"
       >
         {{
         difGlobalRank
         }}
       </span>
-      <span v-if="difGlobalRank.includes('-')" class="red-text">
+      <span v-if="difGlobalRank.includes('-')" class="text-red-600">
         {{
         difGlobalRank
         }}
@@ -22,13 +22,13 @@
       #{{ parseFloat(countryRank).toLocaleString("en") }}
       <span
         v-if="difCountryRank.includes('+')"
-        class="green-text"
+        class="text-green-600"
       >
         {{
         difCountryRank
         }}
       </span>
-      <span v-if="difCountryRank.includes('-')" class="red-text">
+      <span v-if="difCountryRank.includes('-')" class="text-red-600">
         {{
         difCountryRank
         }}
@@ -36,28 +36,28 @@
     </td>
     <td>
       {{ (+accuracy).toFixed(2) }}%
-      <span v-if="difAcc.includes('+')" class="green-text">{{ difAcc }}</span>
-      <span v-if="difAcc.includes('-')" class="red-text">{{ difAcc }}</span>
+      <span v-if="difAcc.includes('+')" class="text-green-600">{{ difAcc }}</span>
+      <span v-if="difAcc.includes('-')" class="text-red-600">{{ difAcc }}</span>
     </td>
     <td>
       {{ parseFloat(totalPP).toLocaleString("en") }}
       <span
         v-if="difPP.includes('+')"
-        class="green-text"
+        class="text-green-600"
       >{{ difPP }}</span>
-      <span v-if="difPP.includes('-')" class="red-text">{{ difPP }}</span>
+      <span v-if="difPP.includes('-')" class="text-red-600">{{ difPP }}</span>
     </td>
     <td>
       {{ parseFloat(playCount).toLocaleString("en") }}
       <span
         v-if="difPlayCount.includes('+')"
-        class="green-text"
+        class="text-green-600"
       >
         {{
         difPlayCount
         }}
       </span>
-      <span v-if="difPlayCount.includes('-')" class="red-text">
+      <span v-if="difPlayCount.includes('-')" class="text-red-600">
         {{
         difPlayCount
         }}
@@ -65,12 +65,12 @@
     </td>
     <td>
       {{ (+level).toFixed(2) }}
-      <span v-if="difLevel.includes('+')" class="green-text">
+      <span v-if="difLevel.includes('+')" class="text-green-600">
         {{
         difLevel
         }}
       </span>
-      <span v-if="difLevel.includes('-')" class="red-text">{{ difLevel }}</span>
+      <span v-if="difLevel.includes('-')" class="text-red-600">{{ difLevel }}</span>
     </td>
     <td>
       <nuxt-link :to="`/report/${sessionID}`" class="w-full mt-4 lg:my-2 btn btn-primary">View</nuxt-link>

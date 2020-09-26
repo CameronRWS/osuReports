@@ -8,32 +8,73 @@
       class="flex items-stretch content-start h-full p-4 font-bold bg-cover rounded"
       :style="style"
     >
-      <img class="hidden" alt="background loader helper" :src="bg" @error="missingBg" />
-      <div class="flex flex-col items-center justify-center flex-grow-0 flex-shrink-0 mr-2">
-        <h1 class="text-2xl gold-text">{{ Math.ceil(+playPP) }}pp</h1>
-        <span class="text-xl whitespace-no-wrap gold-text">
-          <rank :rank="rank" class="inline w-8" />
-          {{ (+playAccuracy).toFixed(2) }}%
-        </span>
-      </div>
-      <div class="flex flex-col">
-        <div class="text-xl leading-tight">
-          <span class="ellipsis blue-text">{{ title }}</span>
-          <span class="blue-text">[{{ version }}]</span>
-          <span class="ml-2 text-base whitespace-no-wrap white-text">by {{ artist }}</span>
-        </div>
-        <div class="flex flex-wrap flex-shrink order-3 my-1">
-          <play-details
-            :combo="maxCombo"
-            :bpm="bpm"
-            :duration="playDuration"
-            :circleSize="circleSize"
-            :hpDrain="healthPoints"
-            :overallDifficulty="overallDifficulty"
-            :approachRate="approachRate"
-            :stars="difficulty"
+      <img
+        class="hidden"
+        alt="background loader helper"
+        :src="bg"
+        @error="missingBg"
+      />
+      <div class="flex flex-row flex-grow">
+        <div
+          class="flex flex-col items-center justify-between flex-grow md:items-start"
+        >
+          <div
+            class="mb-2 text-xl leading-tight text-center md:text-left md:mb-0"
+          >
+            <span class="ellipsis blue-text">{{ title }}</span>
+            <span class="blue-text">[{{ version }}]</span>
+            <span
+              class="block text-base md:ml-2 md:inline-block md:whitespace-no-wrap white-text"
+              >by {{ artist }}</span
+            >
+          </div>
+          <play-stats
+            class="flex flex-row flex-wrap items-center justify-center mb-2 text-sm leading-tight text-right md:hidden"
+            :small="true"
+            :counts100="counts100"
+            :counts300="counts300"
+            :counts50="counts50"
+            :countsMiss="countsMiss"
+            :mods="mods"
+            :playAccuracy="playAccuracy"
+            :playPP="playPP"
+            :rank="rank"
           />
+          <div class="md:flex md:flex-row">
+            <div class="hidden mr-2 md:block">
+              <div class="blue-text">Combo:</div>
+              <div class="blue-text">BPM:</div>
+              <div class="blue-text">Duration:</div>
+              <div class="blue-text">Difficulty:</div>
+            </div>
+            <div class="text-center md:text-right">
+              <span class="whitespace-no-wrap md:block white-text"
+                >{{ combo }} / {{ maxCombo }}</span
+              >
+              <span class="ml-2 whitespace-no-wrap md:ml-0 md:block white-text"
+                >{{ bpm }} bpm</span
+              >
+              <span
+                class="ml-2 whitespace-no-wrap md:ml-0 md:block white-text"
+                >{{ playDuration }}</span
+              >
+              <span class="ml-2 whitespace-no-wrap md:ml-0 md:block white-text">
+                {{ difficulty }} <star class="inline-block" />
+              </span>
+            </div>
+          </div>
         </div>
+        <play-stats
+          class="flex-col justify-between flex-shrink-0 hidden ml-auto leading-tight text-right md:flex"
+          :counts100="counts100"
+          :counts300="counts300"
+          :counts50="counts50"
+          :countsMiss="countsMiss"
+          :mods="mods"
+          :playAccuracy="playAccuracy"
+          :playPP="playPP"
+          :rank="rank"
+        />
       </div>
     </div>
   </a>
@@ -44,6 +85,7 @@ import Vue from "vue";
 import Stars from "~/components/stars.vue";
 import Rank from "~/components/rank.vue";
 import Mod from "~/components/mod.vue";
+import PlayStats from "~/components/play-stats.vue";
 
 const DEFAULT_BACKGROUND =
   "https://assets.ppy.sh/beatmaps/1084284/covers/cover.jpg";
@@ -55,6 +97,7 @@ export default Vue.extend({
     Stars,
     Rank,
     Mod,
+    PlayStats
   },
   props: {
     sessionId: Number,
@@ -84,34 +127,32 @@ export default Vue.extend({
     approachRate: Number,
     healthPoints: Number,
     overallDifficulty: Number,
-    circleSize: Number,
+    circleSize: Number
   },
   data() {
     return {
-      overrideBg: null as string | null,
+      overrideBg: null as string | null
     };
   },
   computed: {
     style(): { backgroundImage: string } {
       return {
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("${
-          this.overrideBg || this.bg
-        }")`,
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("${this
+          .overrideBg || this.bg}")`
       };
     },
     modList(): string[] {
-      return this.mods.split(/,\s+/).filter((mod) => mod.trim() !== "");
+      return this.mods.split(/,\s+/).filter(mod => mod.trim() !== "");
     },
     beatmapId(): string {
       const match = [...(BG_REGEX.exec(this.bg) || [])];
       return match[1];
-    },
+    }
   },
   methods: {
     missingBg(): void {
       this.overrideBg = DEFAULT_BACKGROUND;
-    },
-  },
+    }
+  }
 });
 </script>
-
