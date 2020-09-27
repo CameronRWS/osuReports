@@ -1,21 +1,18 @@
 <template>
-  <article class="container max-w-screen-sm mx-auto">
+  <article class="container mx-auto">
     <div class="flex justify-center">
       <a
         :href="`https://osu.ppy.sh/users/${this.session.osu.username}`"
         target="_blank"
-        class="block"
+        class="block max-w-lg"
       >
-        <session-top v-bind="session" class="my-2" />
+        <session-top v-bind="session" class="mt-2 border border-gray-900" />
       </a>
     </div>
-    <div class="flex flex-col items-center">
-      <play
-        v-for="play in plays"
-        :key="play.date"
-        v-bind="play"
-        class="w-full max-w-screen-sm mt-6"
-      />
+    <div class="flex flex-row flex-wrap items-center justify-center max-w-screen-lg mt-1 -mx-1 lg:mx-auto">
+      <div v-for="play in plays" :key="play.date" class="p-1 play">
+        <play v-bind="play" class="h-full max-w-lg p-px mx-auto bg-gray-900" />
+      </div>
     </div>
   </article>
 </template>
@@ -101,3 +98,17 @@ export default Vue.extend({
   }
 });
 </script>
+
+<style lang="postcss" scoped>
+@media (min-width: 1024px) {
+  .play {
+    flex: 0 1 50%;
+  }
+}
+
+@media (max-width: 1024px) {
+  .play {
+    flex: 0 0 100%;
+  }
+}
+</style>

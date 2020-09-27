@@ -1,8 +1,8 @@
 <template>
-  <span class="inline-block px-1">
-    <img class="inline h-6" :src="src" :alt="alt" />
+  <abbr class="inline-block px-1 detail-icon" :title="alt">
+    <img class="inline w-5 align-text-top" :src="src" :alt="alt" />
     {{ value }}
-  </span>
+  </abbr>
 </template>
 
 <script lang="ts">
@@ -15,3 +15,12 @@ export default Vue.extend({
   },
 });
 </script>
+
+<style lang="postcss" scoped>
+.detail-icon {
+  min-width: 4.5em;
+}
+abbr {
+  text-decoration: none;
+}
+</style>

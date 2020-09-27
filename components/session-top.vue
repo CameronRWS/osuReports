@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center p-px rounded image-container">
+  <div class="flex items-center rounded">
     <img
       :src="`/api/player/sessions/${sessionID}/reportCard.png`"
       alt="session-top"
@@ -38,9 +38,3 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-.image-container {
-  /* do whatever you want to the background here */
-  background: linear-gradient(#bbb, #000);
-}
-</style>

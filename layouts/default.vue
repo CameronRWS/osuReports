@@ -15,7 +15,7 @@
       </div>
     </aside>
 
-    <main class="px-6 my-6">
+    <main class="px-2 my-6 lg:px-6">
       <nuxt />
     </main>
 
