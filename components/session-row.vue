@@ -73,7 +73,7 @@
       <span v-if="difLevel.includes('-')" class="text-red-600">{{ difLevel }}</span>
     </td>
     <td>
-      <nuxt-link :to="`/report/${sessionID}`" class="w-full mt-4 lg:my-2 btn btn-primary">View</nuxt-link>
+      <nuxt-link :to="`/sessions/${sessionID}`" class="w-full mt-4 lg:my-2 btn btn-primary">View</nuxt-link>
     </td>
   </tr>
 </template>
