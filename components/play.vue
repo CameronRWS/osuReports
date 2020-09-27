@@ -21,8 +21,10 @@
           <div
             class="mb-2 text-xl leading-tight text-center md:text-left md:mb-0"
           >
-            <span class="ellipsis blue-text">{{ title }}</span>
-            <span class="blue-text">[{{ version }}]</span>
+            <span class="ellipsis blue-text">
+              {{ title }}
+              <span class="no-ellipsis">[{{ version }}]</span>
+            </span>
             <span
               class="block text-base md:ml-2 md:inline-block md:whitespace-no-wrap white-text"
               >by {{ artist }}</span
@@ -42,24 +44,36 @@
           />
           <div class="md:flex md:flex-row">
             <div class="hidden mr-2 md:block">
-              <div class="blue-text">Combo:</div>
-              <div class="blue-text">BPM:</div>
-              <div class="blue-text">Duration:</div>
-              <div class="blue-text">Difficulty:</div>
+              <div>
+                <span class="blue-text">Combo:</span>
+              </div>
+              <div>
+                <span class="blue-text">BPM:</span>
+              </div>
+              <div>
+                <span class="blue-text">Duration:</span>
+              </div>
+              <div>
+                <span class="blue-text">Difficulty:</span>
+              </div>
             </div>
             <div class="text-center md:text-right">
-              <span class="whitespace-no-wrap md:block white-text"
-                >{{ combo }} / {{ maxCombo }}</span
-              >
-              <span class="ml-2 whitespace-no-wrap md:ml-0 md:block white-text"
-                >{{ bpm }} bpm</span
-              >
-              <span
-                class="ml-2 whitespace-no-wrap md:ml-0 md:block white-text"
-                >{{ playDuration }}</span
-              >
-              <span class="ml-2 whitespace-no-wrap md:ml-0 md:block white-text">
-                {{ difficulty }} <star class="inline-block" />
+              <span class="whitespace-no-wrap md:block">
+                <span class="white-text"> {{ combo }} / {{ maxCombo }} </span>
+              </span>
+              <span class="ml-2 whitespace-no-wrap md:ml-0 md:block">
+                <span class="white-text"> {{ bpm }} bpm </span>
+              </span>
+              <span class="ml-2 whitespace-no-wrap md:ml-0 md:block">
+                <span class="white-text">
+                  {{ playDuration }}
+                </span>
+              </span>
+              <span class="ml-2 whitespace-no-wrap md:ml-0 md:block">
+                <span class="white-text">
+                  {{ difficulty }}
+                  <star class="inline-block" />
+                </span>
               </span>
             </div>
           </div>
