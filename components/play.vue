@@ -71,7 +71,7 @@
           </div>
         </div>
         <div
-          class="flex flex-col items-end justify-between flex-shrink-0 text-right performance-container"
+          class="flex flex-col items-end justify-between text-right performance-container"
         >
           <div class="big-contents">
             <div class="text-lg text-yellow-500 text-shadow-sm-hard">
@@ -81,7 +81,7 @@
               class="flex flex-row-reverse items-center justify-end -mr-1 rank-mods"
             >
               <rank :rank="rank" class="w-12 mr-1" />
-              <mods :mods="mods" />
+              <mods :mods="mods" class="mods" />
             </div>
           </div>
           <div
@@ -244,15 +244,29 @@ export default Vue.extend({
   .small-contents {
     display: contents;
   }
+
+  .mods {
+    justify-content: flex-start;
+    margin-right: -0.25rem;
+  }
 }
 
 @media (min-width: 520px) {
+  .title-details-container {
+    flex-basis: 100%;
+  }
+
   .big-contents {
     display: contents;
   }
 
   .small-contents {
     display: block;
+  }
+
+  .mods {
+    justify-content: flex-end;
+    margin-left: -0.25rem;
   }
 }
 </style>
