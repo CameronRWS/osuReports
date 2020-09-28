@@ -3,26 +3,17 @@
 </template>
 
 <script>
-// @ts-ignore
 import DT from "~/assets/images/mods/mod_double-time.png";
-// @ts-ignore
 import EZ from "~/assets/images/mods/mod_easy.png";
-// @ts-ignore
 import FL from "~/assets/images/mods/mod_flashlight.png";
-// @ts-ignore
 import HT from "~/assets/images/mods/mod_half-time.png";
-// @ts-ignore
 import HR from "~/assets/images/mods/mod_hard-rock.png";
-// @ts-ignore
 import HD from "~/assets/images/mods/mod_hidden.png";
-// @ts-ignore
 import NC from "~/assets/images/mods/mod_nightcore.png";
-// @ts-ignore
 import NF from "~/assets/images/mods/mod_no-fail.png";
-// @ts-ignore
 import PF from "~/assets/images/mods/mod_perfect.png";
-// @ts-ignore
 import SD from "~/assets/images/mods/mod_sudden-death.png";
+import SO from "~/assets/images/mods/mod_spun-out.png";
 
 const mods = {
   DT,
@@ -34,7 +25,8 @@ const mods = {
   NC,
   NF,
   PF,
-  SD
+  SD,
+  SO
 };
 
 export default {

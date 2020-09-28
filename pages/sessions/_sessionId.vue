@@ -6,12 +6,12 @@
         target="_blank"
         class="block max-w-lg"
       >
-        <session-top v-bind="session" class="mt-2 border border-gray-900" />
+        <session-top v-bind="session" class="mt-2 border border-gray-900 shadow" />
       </a>
     </div>
-    <div class="flex flex-row flex-wrap items-center justify-center max-w-screen-lg mt-1 -mx-1 lg:mx-auto">
-      <div v-for="play in plays" :key="play.date" class="p-1 play">
-        <play v-bind="play" class="h-full max-w-lg p-px mx-auto bg-gray-900" />
+    <div class="flex flex-row flex-wrap items-stretch justify-center max-w-screen-lg mt-1 -mx-1 lg:mx-auto">
+      <div v-for="play in plays" :key="play.date" class="p-1 play-container">
+        <play v-bind="play" class="h-full max-w-lg mx-auto bg-gray-900 shadow play" />
       </div>
     </div>
   </article>
@@ -101,14 +101,18 @@ export default Vue.extend({
 
 <style lang="postcss" scoped>
 @media (min-width: 1024px) {
-  .play {
+  .play-container {
     flex: 0 1 50%;
   }
 }
 
 @media (max-width: 1024px) {
-  .play {
+  .play-container {
     flex: 0 0 100%;
   }
+}
+
+.play {
+  padding: 1px;
 }
 </style>

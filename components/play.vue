@@ -1,9 +1,5 @@
 <template>
-  <a
-    :href="`https://osu.ppy.sh/beatmapsets/${beatmapId}#osu/`"
-    target="_blank"
-    class="block rounded"
-  >
+  <div class="rounded">
     <div class="h-full p-2 font-bold bg-cover rounded" :style="style">
       <img
         class="hidden"
@@ -11,13 +7,18 @@
         :src="bg"
         @error="missingBg"
       />
-      <div class="flex flex-row flex-grow info-container">
+      <div class="flex flex-row items-stretch flex-grow h-full info-container">
         <div
           class="flex flex-col items-start justify-between flex-grow title-details-container"
         >
           <div class="mb-2 leading-tight md:mb-0 title-container">
             <div class="italic text-blue-400 text-shadow-sm-hard ellipsis">
-              {{ title }}
+              <a
+                :href="`https://osu.ppy.sh/beatmapsets/${beatmapId}#osu/`"
+                target="_blank"
+              >
+                {{ title }}
+              </a>
               <span class="not-italic no-ellipsis">[{{ version }}]</span>
             </div>
             <div class="block text-sm text-gray-300 text-shadow-sm-hard">
@@ -70,7 +71,7 @@
           </div>
         </div>
         <div
-          class="flex flex-col items-end justify-between text-right performance-container"
+          class="flex flex-col items-end justify-between flex-shrink-0 text-right performance-container"
         >
           <div class="big-contents">
             <div class="text-lg text-yellow-500 text-shadow-sm-hard">
@@ -80,12 +81,7 @@
               class="flex flex-row-reverse items-center justify-end -mr-1 rank-mods"
             >
               <rank :rank="rank" class="w-12 mr-1" />
-              <mod
-                v-for="mod in modList"
-                :key="mod"
-                :mod="mod"
-                class="w-6 mr-1"
-              />
+              <mods :mods="mods" />
             </div>
           </div>
           <div
@@ -102,14 +98,14 @@
         </div>
       </div>
     </div>
-  </a>
+  </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import Stars from "~/components/stars.vue";
 import Rank from "~/components/rank.vue";
-import Mod from "~/components/mod.vue";
+import Mods from "~/components/mods.vue";
 import PlayStats from "~/components/play-stats.vue";
 import DetailIcon from "~/components/detail-icon.vue";
 
@@ -131,7 +127,7 @@ export default Vue.extend({
   components: {
     Stars,
     Rank,
-    Mod,
+    Mods,
     PlayStats,
     DetailIcon
   },
@@ -184,9 +180,6 @@ export default Vue.extend({
         backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("${this
           .overrideBg || this.bg}")`
       };
-    },
-    modList(): string[] {
-      return this.mods.split(/\s*,\s*/).filter(mod => mod.trim() !== "");
     },
     beatmapId(): string {
       const match = [...(BG_REGEX.exec(this.bg) || [])];
@@ -241,6 +234,7 @@ export default Vue.extend({
 
   .rank-mods {
     flex-direction: row;
+    justify-content: flex-start;
   }
 
   .big-contents {
