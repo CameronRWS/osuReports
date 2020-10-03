@@ -7,14 +7,17 @@ const db = require("./src/db");
 const UserCache = require("./src/userCache");
 const beatmapCache = require("./src/beatmapCache");
 
-//uncomment when deploying to prod
-// require("./src/twitterStream");
+require("./src/twitterStream");
 
-const { activeSessions, totalUsers, activePlays } = require("./src/metrics");
+const {
+  activeSessions,
+  totalUsers,
+  activePlays
+} = require("./src/metrics");
 
 const msPerIteration = 45000;
 
-if (!process.env.DEBUG && false == true) {
+if (!process.env.DEBUG) {
   initialize();
   http.createServer(require("./src/metrics").app).listen(9010);
 } else {

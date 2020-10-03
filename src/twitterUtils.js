@@ -191,20 +191,16 @@ class twitterUtils {
       });
   }
 
-  async checkIfShouldRetweet(eventMsg) {
-    if (eventMsg.entities.urls.length === 1 && eventMsg.entities.urls[0].display_url.includes("osu.report")) {
-      this.retweet(eventMsg.id_str)
+  async checkIfShouldRetweetThenRetweet(eventMsg) {
+    if (eventMsg.entities.urls.length === 1 && eventMsg.entities.urls[0].display_url.includes("osu.report/sessions")) {
+      T.post('statuses/retweet/:id', {
+        id: eventMsg.id_str
+      }, function (err, data, response) {
+        globalInstances.logMessage("retweeted tweet: " + eventMsg.id_str)
+      })
     } else {
       globalInstances.logMessage("not retweeted")
     }
-  }
-
-  async retweet(tweetId) {
-    T.post('statuses/retweet/:id', {
-      id: tweetId
-    }, function (err, data, response) {
-      globalInstances.logMessage("retweeted tweet: " + tweetId)
-    })
   }
 }
 

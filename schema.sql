@@ -1,4 +1,4 @@
-CREATE TABLE playersTable (osuUsername TEXT, twitterUsername TEXT);
+CREATE TABLE playersTable (osuUsername TEXT, twitterUsername TEXT, isSubscribed INT);
 
 CREATE TABLE IF NOT EXISTS "sessionsTable" (
   "sessionID" INT,
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS "sessionsTable" (
   "difSPlus" TEXT,
   "difS" TEXT,
   "difA" TEXT,
-  "rankedScore" INT,
+  "rankedScore" INT,d
   "difRankedScore" TEXT,
   "secondsPlayed" INT,
 );
