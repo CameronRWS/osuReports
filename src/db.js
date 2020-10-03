@@ -211,7 +211,7 @@ class DB extends sqlite3.Database {
     }
 
     return (
-      /** @type {Promise<{twitterUsername: string, osuUsername: string} | null>} */
+      /** @type {Promise<number | null>} */
       (this.getAsync(
         `
       SELECT isSubscribed 
@@ -219,6 +219,27 @@ class DB extends sqlite3.Database {
       WHERE twitterUsername LIKE $twitterUsername
     `, {
           $twitterUsername: twitterUsername
+        }
+      ) || null)
+    );
+  }
+
+  async setPlayerSubscriptionStatus(twitterUsername, status) {
+    await this._initialized;
+
+    if (twitterUsername.charAt(0) !== "@") {
+      twitterUsername = "@" + twitterUsername;
+    }
+
+    return (
+      (this.getAsync(
+        `
+      UPDATE playersTable 
+      SET isSubscribed = $status 
+      WHERE twitterUsername LIKE $twitterUsername 
+    `, {
+          $twitterUsername: twitterUsername,
+          $isSubscribed: status
         }
       ) || null)
     );

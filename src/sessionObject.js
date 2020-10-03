@@ -141,8 +141,8 @@ class sessionObject {
   async endSession() {
     globalInstances.logMessage(
       "Attempting to end session for: " +
-        (await UserCache.getOsuUser(this.player.osuUsername)) +
-        "\n"
+      (await UserCache.getOsuUser(this.player.osuUsername)) +
+      "\n"
     );
 
     // filter Fs
@@ -315,10 +315,10 @@ class sessionObject {
 
     globalInstances.logMessage(
       "Calling DB session query for: " +
-        this.player.osuUsername +
-        " - " +
-        util.inspect(sqlSessionValues) +
-        "\n"
+      this.player.osuUsername +
+      " - " +
+      util.inspect(sqlSessionValues) +
+      "\n"
     );
 
     await db.insertSession(sqlSessionValues);
@@ -383,10 +383,10 @@ class sessionObject {
 
       globalInstances.logMessage(
         "Calling DB play query for: " +
-          this.player.osuUsername +
-          " - " +
-          util.inspect(sqlPlayValues) +
-          "\n"
+        this.player.osuUsername +
+        " - " +
+        util.inspect(sqlPlayValues) +
+        "\n"
       );
 
       await db.insertPlay(sqlPlayValues);
@@ -402,22 +402,24 @@ class sessionObject {
         this.player.twitterUsername.replace("@", "")
       )
     ) {
-      console.log("well prob available");
-      let reportLink = `dev.osu.report/report/${this.sessionID}`;
-      let intentTweet =
-        "https://twitter.com/intent/tweet?url=" +
-        reportLink +
-        "&via=osuReports&text=Check%20out%20my%20osu%21%20Report:%20&hashtags=osuReports";
-      let dm = "A new osu! Report was created!" + reportLink;
-      console.log("trying to dm: " + dm);
-      let sent = await twitterUtils.sendDirectMessage(
-        twitterUsername.substring(1),
-        dm
-      );
-      if (sent) {
-        numberOfTweets.inc();
-      } else {
-        console.log("error, likely not dmable");
+      if (await db.getPlayerSubscriptionStatus(twitterUsername) == 1) {
+        console.log("well prob available");
+        let reportLink = `dev.osu.report/report/${this.sessionID}`;
+        let intentTweet =
+          "https://twitter.com/intent/tweet?url=" +
+          reportLink +
+          "&via=osuReports&text=Check%20out%20my%20osu%21%20Report:%20&hashtags=osuReports";
+        let dm = "A new osu! Report was created!" + reportLink;
+        console.log("trying to dm: " + dm);
+        let sent = await twitterUtils.sendDirectMessage(
+          twitterUsername.substring(1),
+          dm
+        );
+        if (sent) {
+          numberOfTweets.inc();
+        } else {
+          console.log("error, likely not dmable");
+        }
       }
     } else {
       let strId = "<inactive twitter user>";
