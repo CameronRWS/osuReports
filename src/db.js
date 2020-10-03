@@ -50,6 +50,7 @@ class DB extends sqlite3.Database {
     this._update_session_stmt = null;
     this._delete_player_stmt = null;
     this._insert_player_stmt = null;
+    this._set_player_status_stmt = null;
     this._initialized = this.initialize();
 
     /**
@@ -102,6 +103,11 @@ class DB extends sqlite3.Database {
         this,
         "_insert_player_stmt",
         "INSERT INTO playersTable VALUES ($osuUsername, $twitterUsername, 0)"
+      ),
+      prepare(
+        this,
+        "_set_player_status_stmt",
+        "UPDATE playersTable SET isSubscribed = $status WHERE twitterUsername LIKE $twitterUsername"
       )
     ]);
   }
@@ -170,6 +176,21 @@ class DB extends sqlite3.Database {
     });
   }
 
+  async setPlayerSubscriptionStatus(twitterUsername, status) {
+    return new Promise(async (resolve, reject) => {
+      await this._initialized;
+
+      this.serialize(() => {
+        this._set_player_status_stmt.run({
+            $twitterUsername: twitterUsername,
+            $status: status
+          },
+          runCallback(resolve, reject)
+        );
+      });
+    });
+  }
+
   async getStats() {
     await this._initialized;
 
@@ -219,27 +240,6 @@ class DB extends sqlite3.Database {
       WHERE twitterUsername LIKE $twitterUsername
     `, {
           $twitterUsername: twitterUsername
-        }
-      ) || null)
-    );
-  }
-
-  async setPlayerSubscriptionStatus(twitterUsername, status) {
-    await this._initialized;
-
-    if (twitterUsername.charAt(0) !== "@") {
-      twitterUsername = "@" + twitterUsername;
-    }
-
-    return (
-      (this.getAsync(
-        `
-      UPDATE playersTable 
-      SET isSubscribed = $status 
-      WHERE twitterUsername LIKE $twitterUsername 
-    `, {
-          $twitterUsername: twitterUsername,
-          $isSubscribed: status
         }
       ) || null)
     );
