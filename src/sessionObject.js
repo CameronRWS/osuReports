@@ -402,7 +402,7 @@ class sessionObject {
         this.player.twitterUsername.replace("@", "")
       )
     ) {
-      if (await db.getPlayerSubscriptionStatus(twitterUsername) == 1) {
+      if ((await db.getPlayerSubscriptionStatus(twitterUsername)) === 1) {
         console.log("well prob available");
         let reportLink = `dev.osu.report/report/${this.sessionID}`;
         let intentTweet =

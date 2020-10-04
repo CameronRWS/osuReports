@@ -66,6 +66,11 @@ declare global {
         id: string;
       };
     }
+
+    interface Player {
+      osuUsername: string;
+      twitterUsername: string;
+    }
   }
 }
 

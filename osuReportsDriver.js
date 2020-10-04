@@ -14,6 +14,7 @@ const {
   totalUsers,
   activePlays
 } = require("./src/metrics");
+const { inspect } = require("util");
 
 const msPerIteration = 45000;
 
@@ -109,12 +110,53 @@ async function mainLoop() {
       // );
       await sleep(delay);
     }
-    getSessionInfoForConsole();
+
+    await updatePlayersList();
+    await getSessionInfoForConsole();
   }
 }
 
-var numOfOutputs = 0;
+async function updatePlayersList() {
+  let players = await db.getPlayers();
+  //console.log("beginning: DB: " + players.length + ", Mem: " + globalInstances.playerObjects.length)
 
+  const playersMap = Object.fromEntries(
+    players.map(p => [p.twitterUsername, p])
+  );
+  const memorySet = new Set(
+    globalInstances.playerObjects.map(p => p.twitterUsername)
+  );
+
+  const playersToAdd = Object.keys(playersMap).filter(p => !memorySet.has(p));
+  const playersToRemove = new Set(
+    [...memorySet].filter(p => !(p in playersMap))
+  );
+
+  if (playersToAdd.length) {
+    globalInstances.logMessage(`Adding players ${inspect(playersToAdd)}`);
+  }
+
+  if (playersToRemove.size) {
+    globalInstances.logMessage(
+      `Removing players ${inspect([...playersToRemove])}`
+    );
+  }
+
+  globalInstances.playerObjects = [
+    ...globalInstances.playerObjects.filter(
+      p => !playersToRemove.has(p.twitterUsername)
+    ),
+    ...playersToAdd.map(
+      p =>
+        new playerObject(
+          playersMap[p].osuUsername,
+          playersMap[p].twitterUsername
+        )
+    )
+  ];
+}
+
+var numOfOutputs = 0;
 async function getSessionInfoForConsole() {
   numOfOutputs++;
   if (numOfOutputs > 2000) {
