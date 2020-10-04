@@ -16,6 +16,7 @@
               <a
                 :href="`https://osu.ppy.sh/beatmapsets/${beatmapId}#osu/`"
                 target="_blank"
+                rel="noopener"
               >
                 {{ title }}
               </a>
