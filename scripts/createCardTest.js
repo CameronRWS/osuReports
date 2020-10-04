@@ -1,4 +1,4 @@
-const ReportCardGenerator = require("./src/reportCardGenerator");
+const ReportCardGenerator = require("../src/reportCardGenerator");
 
 run2();
 
