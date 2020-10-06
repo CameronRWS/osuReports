@@ -1,5 +1,5 @@
 const T = require("./twitterInstance");
-const db = require("@osureport/common/lib/db");
+const { DB: db } = require("@osureport/common");
 var globalInstances = require("./globalInstances");
 
 class twitterUtils {

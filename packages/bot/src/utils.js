@@ -1,7 +1,7 @@
 const axios = require("axios").default;
 const cheerio = require("cheerio");
 const ojsama = require("ojsama");
-const beatmapCache = require("@osureport/common/lib/beatmapCache");
+const { BeatmapCache: beatmapCache } = require("@osureport/common");
 
 function fetchBeatmapJson(beatmap_set) {
   let bpmurl = "htts://osu.ppy.sh/beatmapsets/" + beatmap_set;

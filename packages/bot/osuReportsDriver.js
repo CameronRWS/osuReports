@@ -3,17 +3,15 @@ const playerObject = require("./src/playerObject");
 const fs = require("fs");
 const http = require("http");
 const sessionStore = require("./src/sessionStore");
-const db = require("@osureport/common/lib/db");
-const UserCache = require("@osureport/common/lib/userCache");
-const beatmapCache = require("@osureport/common/lib/beatmapCache");
-
-// require("./src/twitterStream");
-
 const {
-  activeSessions,
-  totalUsers,
-  activePlays
-} = require("@osureport/common/lib/metrics");
+  DB: db,
+  UserCache,
+  BeatmapCache: beatmapCache,
+  Metrics: { activeSessions, totalUsers, activePlays }
+} = require("@osureport/common");
+
+require("./src/twitterStream");
+
 const { inspect } = require("util");
 
 const msPerIteration = 45000;

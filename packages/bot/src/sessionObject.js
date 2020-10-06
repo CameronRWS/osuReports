@@ -3,32 +3,29 @@
  * @typedef {import('node-osu/lib/base/Beatmap')} Beatmap
  */
 
-const osuApi = require("@osureport/common/lib/osuApi");
+const {
+  osuApi,
+  UserCache,
+  DB: db,
+  timeUtils: { hmsToString, secondsToDHMS },
+  Metrics: {
+    sessionDuration: metricSessionDuration,
+    playsPerSession,
+    numberOfTweets,
+    totalUsers
+  }
+} = require("@osureport/common");
 const ojsama = require("ojsama");
 const playObjectv2 = require("./playObjectv2");
 const globalInstances = require("./globalInstances");
 const util = require("util");
-const UserCache = require("@osureport/common/lib/userCache");
 const twitterUtils = require("./twitterUtils");
-
-const {
-  hmsToString,
-  secondsToDHMS
-} = require("@osureport/common/lib/timeUtils");
-const db = require("@osureport/common/lib/db");
 
 const {
   fetchAndParseBeatmap,
   formatDifference,
   sanitizeAndParse
 } = require("./utils");
-
-const {
-  sessionDuration: metricSessionDuration,
-  playsPerSession,
-  numberOfTweets,
-  totalUsers
-} = require("@osureport/common/lib/metrics");
 
 class sessionObject {
   constructor(player) {
