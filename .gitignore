@@ -6,3 +6,6 @@ src/consumerKeys.js
 /out/**
 .nuxt/
 dist/
+yarn-error.log
+tsconfig.tsbuildinfo
+.DS_Store

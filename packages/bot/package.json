@@ -1,0 +1,32 @@
+{
+  "name": "@osureport/bot",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "osuReportsDriver.js",
+  "scripts": {
+    "dev": "node ./osuReportsDriver.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@osureport/common": "^1.0.0",
+    "axios": "^0.19.2",
+    "cheerio": "^1.0.0-rc.3",
+    "ioredis": "^4.17.3",
+    "jimp": "^0.10.3",
+    "lodash": "^4.17.20",
+    "node-osu": "^2.2.0",
+    "ojsama": "^1.2.5",
+    "prom-client": "^12.0.0",
+    "sqlite3": "^4.2.0",
+    "twit": "^2.2.11"
+  },
+  "devDependencies": {
+    "@types/ioredis": "^4.17.4",
+    "@types/lodash": "^4.14.161",
+    "@types/redis": "^2.8.27",
+    "@types/sqlite3": "^3.1.6",
+    "typescript": "^3.9.7"
+  }
+}
