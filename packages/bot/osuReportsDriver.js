@@ -4,9 +4,9 @@ const fs = require("fs");
 const http = require("http");
 const sessionStore = require("./src/sessionStore");
 const {
-  DB: db,
+  DB,
   UserCache,
-  BeatmapCache: beatmapCache,
+  BeatmapCache,
   Metrics: { activeSessions, totalUsers, activePlays }
 } = require("@osureport/common");
 
@@ -36,7 +36,7 @@ async function test() {
 
 async function initialize() {
   await setSessionsRecorded();
-  return db.all(
+  return DB.all(
     "SELECT osuUsername, twitterUsername FROM playersTable",
     async (err, rows) => {
       if (err !== null) {
@@ -115,7 +115,7 @@ async function mainLoop() {
 }
 
 async function updatePlayersList() {
-  let players = await db.getPlayers();
+  let players = await DB.getPlayers();
   //console.log("beginning: DB: " + players.length + ", Mem: " + globalInstances.playerObjects.length)
 
   const playersMap = Object.fromEntries(
@@ -202,7 +202,7 @@ async function getSessionInfoForConsole() {
   output += `   Count of session objects: ${countSessionObjects}\n`;
   output += `   Count of play objects: ${countPlayObjects}\n`;
   output += `   Beatmap cache hit ratio is: ${(
-    beatmapCache.getHitRatio() * 100
+    BeatmapCache.getHitRatio() * 100
   ).toFixed(2)}%`;
   output += "\nx-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x\n";
   globalInstances.logMessage(output);
@@ -214,7 +214,7 @@ async function getSessionInfoForConsole() {
 
 async function setSessionsRecorded() {
   return new Promise((resolve, reject) => {
-    db.get(
+    DB.get(
       "SELECT sessionID FROM sessionsTable ORDER BY sessionID DESC LIMIT 1",
       (err, row) => {
         if (err !== null) reject(err);

@@ -5,8 +5,7 @@ const cookieParser = require("cookie-parser");
 const Redis = require("ioredis");
 const RedisStore = require("connect-redis")(session);
 
-const db = require("@osureport/common/lib/db");
-const userCache = require("@osureport/common/lib/userCache");
+const { DB, UserCache } = require("@osureport/common");
 const { requireAuth, flash } = require("./utils");
 const { getPlayerInfo } = require("./api");
 
@@ -52,7 +51,7 @@ app.post("/logout", (req, res) => {
 app.post("/action_disable", requireAuth, async (req, res) => {
   const { user } = req;
 
-  await db.deletePlayer(`@${user.username}`);
+  await DB.deletePlayer(`@${user.username}`);
 
   if (!req.xhr) {
     return res.status(302).redirect("/player");
@@ -76,7 +75,7 @@ app.post("/action_enable", requireAuth, async (req, res) => {
       .redirect("/player");
   }
 
-  const osuId = await userCache.convertOsuUser(osuUsername, "id");
+  const osuId = await UserCache.convertOsuUser(osuUsername, "id");
   if (!osuId) {
     const err = `osu! username not found: ${osuUsername}`;
     if (!req.xhr) {
@@ -88,7 +87,7 @@ app.post("/action_enable", requireAuth, async (req, res) => {
     return res.status(400).json({ flash: [err] });
   }
 
-  await db.insertPlayer(osuId, `@${user.username}`);
+  await DB.insertPlayer(osuId, `@${user.username}`);
 
   if (req.xhr) {
     return res.status(201).json(await getPlayerInfo(req.user.username));

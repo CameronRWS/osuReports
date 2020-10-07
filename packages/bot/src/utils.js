@@ -1,7 +1,7 @@
 const axios = require("axios").default;
 const cheerio = require("cheerio");
 const ojsama = require("ojsama");
-const { BeatmapCache: beatmapCache } = require("@osureport/common");
+const { BeatmapCache } = require("@osureport/common");
 
 function fetchBeatmapJson(beatmap_set) {
   let bpmurl = "htts://osu.ppy.sh/beatmapsets/" + beatmap_set;
@@ -14,9 +14,9 @@ function fetchBeatmapJson(beatmap_set) {
 }
 
 async function fetchAndParseBeatmap(beatmap_id) {
-  return beatmapCache
-    .getBeatmapData(beatmap_id)
-    .then(map => new ojsama.parser().feed(map.toString("utf-8")).map);
+  return BeatmapCache.getBeatmapData(beatmap_id).then(
+    map => new ojsama.parser().feed(map.toString("utf-8")).map
+  );
 }
 
 function formatDifference(number, nDec, suffix) {

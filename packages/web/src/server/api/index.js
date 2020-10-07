@@ -1,16 +1,13 @@
 const express = require("express");
 const axios = require("axios").default;
 
-const userCache = require("@osureport/common/lib/userCache");
-
-const db = require("@osureport/common/lib/db");
+const { DB, UserCache, ReportCardCache } = require("@osureport/common");
 const { requireAuth } = require("../utils");
-const reportCardCache = require("@osureport/common/lib/reportCardCache");
 
 const router = express.Router();
 
 async function getStats() {
-  return db.getStats();
+  return DB.getStats();
 }
 
 router.get("/stats", (req, res) => {
@@ -38,7 +35,7 @@ router.get("/player/sessions/:sessionId/reportCard(.png)?", (req, res) => {
 });
 
 async function getReportCard(sessionId) {
-  let reportCard = await reportCardCache.getReportCard(sessionId);
+  let reportCard = await ReportCardCache.getReportCard(sessionId);
   return reportCard;
 }
 
@@ -46,13 +43,13 @@ async function getPlayerInfo(user) {
   if (!user) throw new Error("no user");
 
   const { username, profileImage } = user;
-  const player = await db.getPlayer(username);
+  const player = await DB.getPlayer(username);
 
   let stats = null;
   let osu = null;
   if (player && player.osuUsername) {
-    stats = await db.getPlayerStats(player.osuUsername);
-    const username = await userCache.getOsuUser(player.osuUsername);
+    stats = await DB.getPlayerStats(player.osuUsername);
+    const username = await UserCache.getOsuUser(player.osuUsername);
     osu = {
       id: player.osuUsername,
       username
@@ -79,7 +76,7 @@ router.get("/player", requireAuth, (req, res) => {
 });
 
 async function getPlayerSessions(twitterUsername) {
-  return db.getPlayerSessions(`@${twitterUsername}`);
+  return DB.getPlayerSessions(`@${twitterUsername}`);
 }
 
 router.get("/player/sessions", requireAuth, (req, res) => {
@@ -89,15 +86,15 @@ router.get("/player/sessions", requireAuth, (req, res) => {
 });
 
 router.get("/player/sessions/:sessionId/plays", (req, res) => {
-  db.getSessionPlays(req.params.sessionId)
+  DB.getSessionPlays(req.params.sessionId)
     .then(plays => res.json(plays || []))
     .catch(() => res.status(404).json("session not found"));
 });
 
 router.get("/player/sessions/:sessionId", (req, res) => {
-  db.getSession(req.params.sessionId)
+  DB.getSession(req.params.sessionId)
     .then(async session => {
-      const username = await userCache.getOsuUser(session.osuUsername);
+      const username = await UserCache.getOsuUser(session.osuUsername);
       return res.json({
         ...session,
         osu: {

@@ -6,7 +6,7 @@
 const {
   osuApi,
   UserCache,
-  DB: db,
+  DB,
   timeUtils: { hmsToString, secondsToDHMS },
   Metrics: {
     sessionDuration: metricSessionDuration,
@@ -315,7 +315,7 @@ class sessionObject {
         "\n"
     );
 
-    await db.insertSession(sqlSessionValues);
+    await DB.insertSession(sqlSessionValues);
 
     for (const play of filteredPlays) {
       const sqlTitle = play.title;
@@ -383,7 +383,7 @@ class sessionObject {
           "\n"
       );
 
-      await db.insertPlay(sqlPlayValues);
+      await DB.insertPlay(sqlPlayValues);
     }
     //db stuff end
 
@@ -396,7 +396,7 @@ class sessionObject {
         this.player.twitterUsername.replace("@", "")
       )
     ) {
-      if ((await db.getPlayerSubscriptionStatus(twitterUsername)) === 1) {
+      if ((await DB.getPlayerSubscriptionStatus(twitterUsername)) === 1) {
         console.log("well prob available");
         let reportLink = `dev.osu.report/report/${this.sessionID}`;
         let intentTweet =
@@ -420,7 +420,7 @@ class sessionObject {
       globalInstances.logMessage(
         `Updating session with tweet ID for ${twitterUsername} (${strId})`
       );
-      await db.updateSession(strId, sessionID);
+      await DB.updateSession(strId, sessionID);
       globalInstances.logMessage(
         `Removing ${twitterUsername} from whitelist due to the username not existing`
       );
@@ -432,7 +432,7 @@ class sessionObject {
           break;
         }
       }
-      await db.deletePlayer(twitterUsername);
+      await DB.deletePlayer(twitterUsername);
     }
   }
 }

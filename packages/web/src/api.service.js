@@ -1,4 +1,4 @@
-/** @typedef {import('@osureport/common/lib/osuReports')} osuReports */
+/** @typedef {import('@osureport/common')} osuReports */
 
 /**
  * @param {import('@nuxt/http').NuxtHTTPInstance} $http

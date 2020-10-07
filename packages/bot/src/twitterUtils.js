@@ -1,5 +1,5 @@
 const T = require("./twitterInstance");
-const { DB: db } = require("@osureport/common");
+const { DB } = require("@osureport/common");
 var globalInstances = require("./globalInstances");
 
 class twitterUtils {
@@ -90,7 +90,7 @@ class twitterUtils {
           "---- failed to follow: @" + person + " because err: " + err.message
         );
         if (err.message.includes("Cannot find specified user.")) {
-          await db.deletePlayer("@" + person);
+          await DB.deletePlayer("@" + person);
           globalInstances.logMessage("deleted user from whitelist");
         } else if (
           err.message.includes(
@@ -106,7 +106,7 @@ class twitterUtils {
   async getWhitelistedUsers() {
     return new Promise(async (resolve, reject) => {
       var players = [];
-      await db.all(
+      await DB.all(
         "SELECT osuUsername, twitterUsername FROM playersTable",
         async (err, rows) => {
           if (err !== null) reject(err);

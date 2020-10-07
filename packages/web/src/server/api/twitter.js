@@ -2,13 +2,13 @@ const express = require("express");
 const passport = require("passport");
 const { Strategy } = require("passport-twitter");
 
-const keys = require("@osureport/common/lib/consumerKeys");
+const { Keys } = require("@osureport/common");
 
 passport.use(
   new Strategy(
     {
-      consumerKey: keys.consumer_key || "_this_key_is_undefined",
-      consumerSecret: keys.consumer_secret || "_this_key_is_undefined",
+      consumerKey: Keys.consumer_key || "_this_key_is_undefined",
+      consumerSecret: Keys.consumer_secret || "_this_key_is_undefined",
       callbackURL:
         process.env.CALLBACK_URL || "http://localhost:3000/twitter/return",
       requestTokenURL:
