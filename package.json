@@ -5,5 +5,8 @@
   "description": "",
   "author": "",
   "license": "ISC",
-  "workspaces": ["packages/*"]
+  "workspaces": ["packages/*", "services/*"],
+  "scripts": {
+    "docker:base": "node ./docker/mk-base-image.js ./docker/Dockerfile"
+  }
 }
