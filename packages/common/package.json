@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc -b",
     "dev": "tsc -w",
-    "clean": "rimraf lib"
+    "clean": "rimraf lib tsconfig.tsbuildinfo"
   },
   "devDependencies": {
     "@jimp/plugin-print": "^0.16.1",
