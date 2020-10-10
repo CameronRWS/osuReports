@@ -8,6 +8,8 @@ const {
 
 const hasKeys =
   consumer_key && consumer_secret && access_token && access_token_secret;
+
+/** @type {Twit} */
 let T;
 
 if (hasKeys) {
