@@ -27,6 +27,7 @@ jobs:
           password: "${{ secrets.DOCKER_TOKEN }}"
           image_name: "${{ env.BASE_IMAGE }}"
           image_tag: "${{ github.sha }}"
+          dockerfile: "docker/Dockerfile"
           push_image_and_stages: "${{ github.base_ref == '' }}"
 
   build-worker:
@@ -46,6 +47,7 @@ jobs:
           password: "${{ secrets.DOCKER_TOKEN }}"
           image_name: "${{ env.IMAGE }}"
           image_tag: "${{ env.IMAGE_TAG }}"
+          dockerfile: "services/bot/Dockerfile"
           push_image_and_stages: "${{ github.base_ref == '' }}"
 
   build-web:
@@ -65,5 +67,5 @@ jobs:
           password: "${{ secrets.DOCKER_TOKEN }}"
           image_name: "${{ env.WEB_IMAGE }}"
           image_tag: "${{ env.WEB_IMAGE_TAG }}"
-          dockerfile: "Dockerfile.web"
+          dockerfile: "services/web/Dockerfile"
           push_image_and_stages: "${{ github.base_ref == '' }}"

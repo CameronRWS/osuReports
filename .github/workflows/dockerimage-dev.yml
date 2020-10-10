@@ -27,6 +27,7 @@ jobs:
           password: "${{ secrets.DOCKER_TOKEN }}"
           image_name: "${{ env.BASE_IMAGE }}"
           image_tag: "${{ github.sha }}"
+          dockerfile: "docker/Dockerfile"
           push_image_and_stages: "${{ github.base_ref == '' }}"
 
   # build-worker:
