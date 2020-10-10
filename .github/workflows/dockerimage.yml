@@ -26,7 +26,7 @@ jobs:
           username: ajmadsen
           password: "${{ secrets.DOCKER_TOKEN }}"
           image_name: "${{ env.BASE_IMAGE }}"
-          image_tag: "${{ env.GITHUB_SHA }}"
+          image_tag: "${{ github.sha }}"
           push_image_and_stages: "${{ github.base_ref == '' }}"
 
   build-worker:
