@@ -1,16 +1,12 @@
-FROM node:lts-slim
+FROM ajmadsen/osureports:base
 
-WORKDIR /app
-RUN chown node:node /app
-USER node
+COPY --chown=node services/web/package.json services/web/
+RUN yarn install --frozen-lockfile
 
-COPY package*.json ./
-RUN npm ci
-
-COPY --chown=node:node ./ ./
-RUN mv ./src/consumerKeys.docker.js ./src/consumerKeys.js
-RUN npm run build
-CMD ["npm", "run", "start"]
+COPY --chown=node:node services/web services/web
+WORKDIR /usr/src/app/services/web
+RUN yarn build
+CMD ["yarn", "start"]
 
 EXPOSE 3000
 VOLUME ["/data"]

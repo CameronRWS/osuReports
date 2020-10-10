@@ -11,14 +11,35 @@ env:
   IMAGE_TAG: latest
   WEB_IMAGE: ajmadsen/osureports-web
   WEB_IMAGE_TAG: latest
+  BASE_IMAGE: ajmadsen/osureports
+  BASE_IMAGE_TAG: base
 
 jobs:
-  build-worker:
+  base:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && contains(toJson(github.event.commits), '***NO_CI***') == false && contains(toJson(github.event.commits), '[ci skip]') == false && contains(toJson(github.event.commits), '[skip ci]') == false
 
     steps:
       - uses: actions/checkout@v2
+      - uses: whoan/docker-build-with-cache-action@v5
+        with:
+          username: ajmadsen
+          password: "${{ secrets.DOCKER_TOKEN }}"
+          image_name: "${{ env.BASE_IMAGE }}"
+          image_tag: "${{ env.GITHUB_SHA }}"
+          push_image_and_stages: "${{ github.base_ref == '' }}"
+
+  build-worker:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && contains(toJson(github.event.commits), '***NO_CI***') == false && contains(toJson(github.event.commits), '[ci skip]') == false && contains(toJson(github.event.commits), '[skip ci]') == false
+    needs: [base]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: pull base
+        run: |
+          git pull ${BASE_IMAGE}:${GITHUB_SHA}
+          git tag ${BASE_IMAGE}:${GITHUB_SHA} ${BASE_IMAGE}:${BASE_IMAGE_TAG}
       - uses: whoan/docker-build-with-cache-action@v5
         with:
           username: ajmadsen
@@ -30,9 +51,14 @@ jobs:
   build-web:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && contains(toJson(github.event.commits), '***NO_CI***') == false && contains(toJson(github.event.commits), '[ci skip]') == false && contains(toJson(github.event.commits), '[skip ci]') == false
+    needs: [base]
 
     steps:
       - uses: actions/checkout@v2
+      - name: pull base
+        run: |
+          git pull ${BASE_IMAGE}:${GITHUB_SHA}
+          git tag ${BASE_IMAGE}:${GITHUB_SHA} ${BASE_IMAGE}:${BASE_IMAGE_TAG}
       - uses: whoan/docker-build-with-cache-action@v5
         with:
           username: ajmadsen

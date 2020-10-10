@@ -5,8 +5,18 @@
   "description": "",
   "author": "",
   "license": "ISC",
-  "workspaces": ["packages/*", "services/*"],
+  "workspaces": [
+    "packages/*",
+    "services/*"
+  ],
   "scripts": {
-    "docker:base": "node ./docker/mk-base-image.js ./docker/Dockerfile"
-  }
+    "docker:base": "node ./docker/mk-base-image.js ./docker/Dockerfile",
+    "docker:buildbase": "docker build -f ./docker/Dockerfile -t ajmadsen/osureports:base ."
+  },
+  "devDependencies": {
+    "pre-commit": "^1.2.2"
+  },
+  "pre-commit": [
+    "docker:base"
+  ]
 }
