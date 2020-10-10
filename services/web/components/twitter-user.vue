@@ -2,7 +2,7 @@
   <span class="inline-block">
     <img
       :alt="`${user}'s twitter profile image`"
-      class="inline-block h-10 rounded shadow-xs md:mr-2"
+      class="inline-block h-10 rounded-full shadow-xs md:mr-2"
       :src="image"
     />
     <span class="hidden md:inline-block">@{{ user }}</span>
