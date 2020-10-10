@@ -44,9 +44,11 @@ https
 async function doWebhook() {
   console.log("listing webhooks");
   const hooks = await T.get("account_activity/all/dev/webhooks");
+  const data = hooks.data || [];
+  console.dir(data);
 
-  if (!hooks.data.length || !hooks.data[0].valid) {
-    for (const hook in hooks.data) {
+  if (!data.length || !data[0].valid) {
+    for (const hook of data) {
       console.log(`Deleting hook ${hook.id}`);
       await T.delete(`account_activity/all/dev/webhooks/${hook.id}`);
     }
@@ -78,6 +80,8 @@ async function registerWebhook() {
     url: "https://test.osu.report/webhook"
   });
   console.dir(response.data);
+
+  return subscribe();
 }
 
 doWebhook();
