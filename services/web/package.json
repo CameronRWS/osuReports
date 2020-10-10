@@ -7,7 +7,8 @@
     "dev": "nuxt-ts",
     "build": "nuxt-ts build",
     "start": "nuxt-ts start",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "exit 0"
   },
   "author": "",
   "license": "ISC",

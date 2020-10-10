@@ -8,7 +8,8 @@
   "private": true,
   "scripts": {
     "build": "tsc -b",
-    "dev": "tsc -w"
+    "dev": "tsc -w",
+    "clean": "rimraf lib"
   },
   "devDependencies": {
     "@jimp/plugin-print": "^0.16.1",
@@ -16,6 +17,7 @@
     "@types/ioredis": "^4.17.4",
     "@types/lodash": "^4.14.161",
     "@types/sqlite3": "^3.1.6",
+    "rimraf": "^3.0.2",
     "typescript": "^4.1.0-beta"
   },
   "dependencies": {

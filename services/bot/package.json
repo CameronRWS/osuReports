@@ -5,7 +5,8 @@
   "description": "",
   "main": "osuReportsDriver.js",
   "scripts": {
-    "dev": "node ./osuReportsDriver.js"
+    "dev": "node ./osuReportsDriver.js",
+    "clean": "exit 0"
   },
   "author": "",
   "license": "ISC",

@@ -6,7 +6,8 @@
   "private": true,
   "scripts": {
     "build": "tsc -b",
-    "dev": "tsc -w"
+    "dev": "tsc -w",
+    "clean": "rimraf lib"
   },
   "dependencies": {
     "@jimp/plugin-print": "^0.16.1",
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.161",
+    "rimraf": "^3.0.2",
     "typescript": "^4.1.0-beta"
   }
 }
