@@ -5,12 +5,21 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "postinstall": "ts-node -T ./bin/compile.ts"
+    "build": "build-types node-osu -o . -n",
+    "clean": "rimraf lib",
+    "git-add": "git add lib/"
   },
   "devDependencies": {
+    "@ajmadsen/build-types": "^1.0.0",
     "glob": "^7.1.6",
     "node-osu": "^2.2.0",
+    "pre-commit": "^1.2.2",
+    "rimraf": "^3.0.2",
     "ts-node": "^9.0.0",
     "typescript": "^4.1.0-beta"
-  }
+  },
+  "pre-commit": [
+    "build",
+    "git-add"
+  ]
 }
