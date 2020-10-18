@@ -28,7 +28,7 @@ USER node
 `;
 
 
-glob("packages/**/package.json", { ignore: ["**/node_modules/**"] }).then(
+glob("packages/**/@(bin|package.json)", { ignore: ["**/node_modules/**"] }).then(
   async paths => {
     const copyLines = paths.map(p => `COPY ${p} ${p}`).join("\n");
     const contents = DOCKERFILE_TEMPLATE.replace(

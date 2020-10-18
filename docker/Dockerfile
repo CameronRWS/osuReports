@@ -4,6 +4,7 @@ WORKDIR /usr/src/app
 # copy package.json
 COPY packages/common/package.json packages/common/package.json
 COPY packages/resources/package.json packages/resources/package.json
+COPY packages/types_node_osu/bin packages/types_node_osu/bin
 COPY packages/types_node_osu/package.json packages/types_node_osu/package.json
 COPY yarn.lock package.json ./
 RUN yarn install --frozen-lockfile
