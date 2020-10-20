@@ -10,25 +10,24 @@
     "services/*"
   ],
   "scripts": {
-    "docker:base": "node ./docker/mk-base-image.js ./docker/Dockerfile",
-    "docker:buildbase": "docker build -f ./docker/Dockerfile -t ajmadsen/osureports:base .",
     "all-packages": "node ./bin/all-packages.js",
-    "clean:pacakges": "yarn all-packages clean",
+    "docker:base": "node ./bin/mk-base-image.js ./docker/Dockerfile",
+    "docker:buildbase": "docker build -f ./docker/Dockerfile -t ajmadsen/osureports:base .",
+    "clean:pacakges": "all-packages clean",
     "clean": "run-p clean:*",
-    "build:packages": "yarn all-packages build",
+    "build:packages": "all-packages build",
     "build": "run-p build:*",
     "prebuild": "yarn clean",
-    "watch:packages": "yarn all-packages dev",
+    "watch:packages": "all-packages dev",
     "watch:web": "yarn workspace @osureport/web dev",
     "watch": "run-p watch:*",
     "start": "run-s build watch"
   },
   "devDependencies": {
+    "@types/argparse": "^2.0.2",
+    "argparse": "^2.0.1",
     "glob": "^7.1.6",
     "npm-run-all": "^4.1.5",
     "pre-commit": "^1.2.2"
-  },
-  "pre-commit": [
-    "docker:base"
-  ]
+  }
 }

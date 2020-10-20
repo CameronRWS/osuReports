@@ -1,37 +1,28 @@
+#!/usr/bin/env node
+
 const { promisify } = require("util");
 const glob = promisify(require("glob").glob);
 const { spawn } = require("child_process");
 const path = require("path");
+const { ArgumentParser, ZERO_OR_MORE } = require("argparse");
+const { yarnScript } = require("./_common");
 
-let [script] = [...process.argv.slice(2), "build"];
 let execProcess = "yarn";
-let execArgs = ["run", script];
+let execArgs = [];
 
 if (process.env.npm_execpath && process.env.npm_node_execpath) {
   execProcess = process.env.npm_node_execpath;
-  execArgs.splice(0, 0, process.env.npm_execpath);
+  execArgs.push(process.env.npm_execpath);
 }
 
-glob("./packages/**/package.json", { ignore: ["./**/node_modules/**"] }).then(
-  async projects =>
+async function runScript(script, { prefix, ignore }) {
+  glob(`${prefix}/**/package.json`, { ignore }).then(async projects =>
     Promise.all(
       projects.map(async project => {
         const packageJson = require(path.resolve(project));
         if ("scripts" in packageJson && script in packageJson["scripts"]) {
           console.log(`Running "${script}" in ${path.dirname(project)}`);
-          const proc = spawn(execProcess, execArgs, {
-            cwd: path.dirname(project),
-            stdio: "inherit"
-          });
-          return new Promise((resolve, reject) => {
-            proc
-              .once("error", err => reject(`spawn error: ${err}`))
-              .on("exit", (code, signal) => {
-                if (signal !== null) reject(`signal ${signal}`);
-                if (code !== 0) reject(`non-zero exit code ${code}`);
-                resolve(void 0);
-              });
-          });
+          return yarnScript(script, path.dirname(project));
         }
         return Promise.resolve(void 0);
       })
@@ -39,4 +30,19 @@ glob("./packages/**/package.json", { ignore: ["./**/node_modules/**"] }).then(
       console.error("Error building all", err);
       process.exit(1);
     })
-);
+  );
+}
+
+const parser = new ArgumentParser({
+  description: "Run an npm script in all sub-projects that have it"
+});
+
+parser.add_argument("-p", "--prefix", { default: "./packages" });
+parser.add_argument("-x", "--exclude", {
+  default: ["./**/node_modules/**"],
+  action: "append"
+});
+parser.add_argument("script", { default: ["build"], nargs: ZERO_OR_MORE });
+
+const args = parser.parse_args();
+runScript(args.script, { prefix: args.prefix, ignore: args.exclude });

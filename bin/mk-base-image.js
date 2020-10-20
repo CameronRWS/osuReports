@@ -1,9 +1,10 @@
+#!/usr/bin/env node
+
 const { promises: fsPromises } = require("fs");
 const path = require("path").posix;
 const { promisify } = require("util");
 const { spawn } = require("child_process");
 const glob = promisify(require("glob").glob);
-
 
 const REPLACE_PATTERN = new RegExp(`(# copy package.json)`);
 const DOCKERFILE_TEMPLATE = `\
@@ -26,7 +27,6 @@ RUN chown node .
 COPY --from=builder --chown=node /usr/src/app/ ./
 USER node
 `;
-
 
 glob("packages/**/package.json", { ignore: ["**/node_modules/**"] }).then(
   async paths => {
@@ -62,4 +62,4 @@ glob("packages/**/package.json", { ignore: ["**/node_modules/**"] }).then(
         });
     }
   }
-);;
+);
