@@ -2,10 +2,12 @@ const { spawn } = require("child_process");
 
 let execProcess = "yarn";
 let execArgs = [];
+let shell = true;
 
 if (process.env.npm_execpath && process.env.npm_node_execpath) {
   execProcess = process.env.npm_node_execpath;
   execArgs.push(process.env.npm_execpath);
+  shell = false;
 }
 
 /**
@@ -17,7 +19,7 @@ async function yarnScript(script, cwd) {
   const proc = spawn(execProcess, [...execArgs, "run", ...script], {
     cwd,
     stdio: "inherit",
-    shell: true
+    shell
   });
   return new Promise((resolve, reject) => {
     proc
