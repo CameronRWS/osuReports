@@ -1,5 +1,7 @@
 const T = require("./twitterInstance");
-const { DB } = require("@osureport/common");
+const {
+  db
+} = require("@osureport/common");
 var globalInstances = require("./globalInstances");
 
 class twitterUtils {
@@ -10,8 +12,8 @@ class twitterUtils {
   async isTwitterUserActive(user) {
     return new Promise(async (resolve, reject) => {
       await T.get("users/lookup", {
-        screen_name: user
-      })
+          screen_name: user
+        })
         .then(data => {
           // globalInstances.logMessage("data");
           // globalInstances.logMessage(data);
@@ -68,9 +70,9 @@ class twitterUtils {
         } catch (err) {
           globalInstances.logMessage(
             "---- failed to unfollow: @" +
-              person +
-              " because err: " +
-              err.message
+            person +
+            " because err: " +
+            err.message
           );
         }
       }
@@ -125,7 +127,9 @@ class twitterUtils {
     let friends = [];
     return new Promise(async (resolve, reject) => {
       do {
-        const { data } = await T.get("friends/list", {
+        const {
+          data
+        } = await T.get("friends/list", {
           screen_name: username,
           cursor: nextCursor,
           count: 200
@@ -142,8 +146,8 @@ class twitterUtils {
 
   async getUserId(user) {
     return T.get("users/show", {
-      screen_name: user
-    })
+        screen_name: user
+      })
       .then(async data => {
         let id = data.data.id_str;
         return id;
@@ -155,7 +159,7 @@ class twitterUtils {
   }
 
   async sendDirectMessage(to, message) {
-    let userId = await this.getUserId(to);
+    let userId = to;
     const msgObj = {
       event: {
         type: "message_create",
@@ -200,17 +204,132 @@ class twitterUtils {
       eventMsg.entities.urls[0].display_url.includes("osu.report/sessions")
     ) {
       T.post(
-        "statuses/retweet/:id",
-        {
+        "statuses/retweet/:id", {
           id: eventMsg.id_str
         },
-        function(err, data, response) {
+        function (err, data, response) {
           globalInstances.logMessage("retweeted tweet: " + eventMsg.id_str);
         }
       );
     } else {
       globalInstances.logMessage("not retweeted");
     }
+  }
+
+  async getWelcomeMessages() {
+    return new Promise(async (resolve, reject) => {
+      let thing = await T.get("direct_messages/welcome_messages/list");
+      resolve(thing.data.welcome_messages);
+    });
+  }
+
+  async deleteWelcomeMessage(id) {
+    return new Promise(async (resolve, reject) => {
+      let thing = await T.delete("direct_messages/welcome_messages/destroy", {
+        id: id
+      });
+      resolve(thing.data);
+    });
+  }
+
+  async createWelcomeMessage(message, name) {
+    return new Promise(async (resolve, reject) => {
+      let thing = await T.post("direct_messages/welcome_messages/new", {
+        "welcome_message": {
+          "name": name,
+          "message_data": {
+            "text": message,
+          }
+        }
+      });
+      resolve(thing.data);
+    });
+  }
+
+  async createWelcomeMessageRule(id) {
+    return new Promise(async (resolve, reject) => {
+      let thing = await T.post("direct_messages/welcome_messages/rules/new", {
+        "welcome_message_rule": {
+          "welcome_message_id": id
+        }
+      });
+      resolve(thing.data);
+    });
+  }
+
+  async sendDirectMessageWithQuickReply(to, message, quick_reply) {
+    let userId = to;
+    const msgObj = {
+      event: {
+        type: "message_create",
+        message_create: {
+          target: {
+            recipient_id: userId
+          },
+          "message_data": {
+            "text": message,
+            "quick_reply": quick_reply
+          }
+        }
+      }
+    };
+    let sent = null;
+    await T.post("direct_messages/events/new", msgObj)
+      .then(async data => {
+        console.log(data);
+        sent = true;
+      })
+      .catch(err => {
+        console.log(err);
+        sent = false;
+      });
+    return sent;
+  }
+
+
+  async sendSessionReport(to, url) {
+    let userId = to;
+    const msgObj = {
+      event: {
+        type: "message_create",
+        message_create: {
+          target: {
+            recipient_id: userId
+          },
+          "message_data": {
+            "text": "Your osu! session has ended. Here is your report! " + url,
+            "quick_reply": {
+              "type": "options",
+              "options": [{
+                  "label": "Unsubscribe",
+                  "description": "Click to no longer receive DM's when your sessions finish.",
+                },
+                {
+                  "label": "Unregister",
+                  "description": "Click to no longer have your osu! sessions tracked and DM'd.",
+                },
+              ]
+            },
+            "ctas": [{
+              "type": "web_url",
+              "label": "Click to tweet!",
+              "url": "https://twitter.com/intent/tweet?text=check%20out%20my%20osu%21%20session%20report%21%20" + url + "%20@osuReports"
+            }]
+          }
+        }
+      }
+    };
+    let sent = null;
+    await T.post("direct_messages/events/new", msgObj)
+      .then(async data => {
+        console.log(data);
+        sent = true;
+      })
+      .catch(err => {
+        console.log(err);
+        sent = false;
+      });
+    return sent;
   }
 }
 
