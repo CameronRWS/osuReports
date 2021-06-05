@@ -4,7 +4,7 @@ import { ProvidePlugin } from "webpack";
 export default function(moduleOptions) {
   this.extendBuild((config, ctx) => {
     if (ctx.isClient) {
-      config.plugins.push(
+      config.plugins?.push(
         new ProvidePlugin({
           $: "jquery"
         })

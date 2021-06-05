@@ -1,13 +1,12 @@
-const express = require("express");
-const session = require("express-session");
-const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
-const Redis = require("ioredis");
+import express from "express";
+import session from "express-session";
+import cookieParser from "cookie-parser";
+import Redis from "ioredis";
 const RedisStore = require("connect-redis")(session);
 
-const { DB, UserCache } = require("@osureport/common");
-const { requireAuth, flash } = require("./utils");
-const { getPlayerInfo } = require("./api");
+import { DB, UserCache } from "@osureport/common";
+import { requireAuth, flash } from "./utils";
+import { getPlayerInfo } from "./api";
 
 const COOKIE_NAME = "connect.sid";
 
@@ -19,7 +18,7 @@ const redisClient = new Redis({
 });
 
 app.use(cookieParser());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false }));
 app.use(
   session({
     name: COOKIE_NAME,
@@ -37,18 +36,20 @@ app.use(
 app.use(flash);
 
 app.post("/logout", (req, res) => {
-  if (!req.session?.passport) return res.status(400).json("not logged in");
+  if (req.isUnauthenticated()) return res.status(400).json("not logged in");
 
-  delete req.session;
-  res.clearCookie(COOKIE_NAME);
+  req.logout();
+  // res.clearCookie(COOKIE_NAME);
 
   if (!req.xhr) {
     return res.redirect("/");
   }
-  return res.status(204).send();
+  return res.status(204).end();
 });
 
 app.post("/action_disable", requireAuth, async (req, res) => {
+  if (!req.isAuthenticated()) return; // can't happen
+
   const { user } = req;
 
   await DB.deletePlayer(`@${user.username}`);
@@ -60,6 +61,8 @@ app.post("/action_disable", requireAuth, async (req, res) => {
 });
 
 app.post("/action_enable", requireAuth, async (req, res) => {
+  if (!req.isAuthenticated()) return; // can't happen
+
   const { user } = req;
 
   const osuUsername = req.body.username || "";

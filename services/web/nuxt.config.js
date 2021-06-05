@@ -5,7 +5,7 @@ export default {
   },
   css: ["~/assets/css/base.css"],
   serverMiddleware: [
-    "~/src/server/middleware.js",
+    "~/src/server/middleware.ts",
     "~/src/server/api/middleware.js",
     "~/src/server/api/twitter.js"
   ],

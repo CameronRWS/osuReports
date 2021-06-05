@@ -31,6 +31,8 @@ export const Constants: {
         Key1: number;
         Key3: number;
         Key2: number;
+        ScoreV2: number;
+        Mirror: number;
         KeyMod: number;
         FreeModAllowed: number;
         ScoreIncreaseMods: number;

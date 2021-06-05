@@ -10,10 +10,10 @@ declare class Api {
      * @param {Boolean} [options.parseNumeric=false] Parse numeric properties into numbers. May have overflow
      */
     constructor(apiKey: string, options?: {
-        baseUrl: string;
-        notFoundAsError: boolean;
-        completeScores: boolean;
-        parseNumeric: boolean;
+        baseUrl?: string;
+        notFoundAsError?: boolean;
+        completeScores?: boolean;
+        parseNumeric?: boolean;
     });
     apiKey: string;
     baseUrl: string;
@@ -44,18 +44,18 @@ declare class Api {
      * @returns {Promise<Object>} The response body
      */
     apiCall(endpoint: string, options: {
-        since: Date;
-        s: string;
-        b: string;
-        u: string;
-        type: "string" | "id";
-        m: 0 | 1 | 2 | 3;
-        a: 0 | 1;
-        h: string;
-        limit: number;
-        mods: number;
-        event_days: number;
-        mp: string;
+        since?: Date;
+        s?: string;
+        b?: string;
+        u?: string;
+        type?: "string" | "id";
+        m?: 0 | 1 | 2 | 3;
+        a?: 0 | 1;
+        h?: string;
+        limit?: number;
+        mods?: number;
+        event_days?: number;
+        mp?: string;
     }): Promise<any>;
     /**
      * Returns a not found error or the response, depending on the config
@@ -80,15 +80,15 @@ declare class Api {
      */
     getBeatmaps(options: {
         b: string;
-        since: Date;
-        s: string;
-        u: string;
-        type: "string" | "id";
-        m: 0 | 1 | 2 | 3;
-        a: 0 | 1;
-        h: string;
-        limit: number;
-        mods: number;
+        since?: Date;
+        s?: string;
+        u?: string;
+        type?: "string" | "id";
+        m?: 0 | 1 | 2 | 3;
+        a?: 0 | 1;
+        h?: string;
+        limit?: number;
+        mods?: number;
     }): Promise<Beatmap[]>;
     /**
      * Returns a User object
@@ -101,9 +101,9 @@ declare class Api {
      */
     getUser(options: {
         u: string;
-        m: 0 | 1 | 2 | 3;
-        type: "string" | "id";
-        event_days: number;
+        m?: 0 | 1 | 2 | 3;
+        type?: "string" | "id";
+        event_days?: number;
     }): Promise<User>;
     /**
      * Returns an array of Score objects
@@ -117,10 +117,10 @@ declare class Api {
      */
     getScores(options: {
         b: string;
-        u: string;
-        m: 0 | 1 | 2 | 3;
-        type: "string" | "id";
-        limit: number;
+        u?: string;
+        m?: 0 | 1 | 2 | 3;
+        type?: "string" | "id";
+        limit?: number;
     }): Promise<Score[]>;
     /**
      * Returns an array of Score objects
@@ -133,9 +133,9 @@ declare class Api {
      */
     getUserBest(options: {
         u: string;
-        m: 0 | 1 | 2 | 3;
-        type: "string" | "id";
-        limit: number;
+        m?: 0 | 1 | 2 | 3;
+        type?: "string" | "id";
+        limit?: number;
     }): Promise<Score[]>;
     /**
      * Returns an array of Score objects.
@@ -149,9 +149,9 @@ declare class Api {
      */
     getUserRecent(options: {
         u: string;
-        m: 0 | 1 | 2 | 3;
-        type: "string" | "id";
-        limit: number;
+        m?: 0 | 1 | 2 | 3;
+        type?: "string" | "id";
+        limit?: number;
     }): Promise<Score[]>;
     /**
      * Returns a Match object.
@@ -176,11 +176,11 @@ declare class Api {
         m: 0 | 1 | 2 | 3;
         b: string;
         u: string;
-        type: "string" | "id";
-        mods: number;
+        type?: "string" | "id";
+        mods?: number;
     }): Promise<any>;
 }
-import Beatmap = require("./base/Beatmap");
-import User = require("./base/User");
-import Score = require("./base/Score");
-import Match = require("./base/Match");
+import Beatmap = require("./base/Beatmap.js");
+import User = require("./base/User.js");
+import Score = require("./base/Score.js");
+import Match = require("./base/Match.js");

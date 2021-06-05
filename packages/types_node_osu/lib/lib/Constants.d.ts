@@ -29,6 +29,8 @@ export namespace Mods {
     const Key1: number;
     const Key3: number;
     const Key2: number;
+    const ScoreV2: number;
+    const Mirror: number;
     const KeyMod: number;
     const FreeModAllowed: number;
     const ScoreIncreaseMods: number;

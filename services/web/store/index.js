@@ -18,7 +18,8 @@ export const mutations = {
 
 export const actions = {
   async nuxtServerInit({ commit }, { req, res, app: { $api } }) {
-    if (req.session?.passport?.user) {
+    console.dir(req);
+    if (req?.user) {
       const player = await $api.getPlayerInfo();
       commit("setPlayer", player);
     }

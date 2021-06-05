@@ -79,5 +79,10 @@
   ],
   "typeAcquisition": {
     "enable": true
-  }
+  },
+  "references": [
+    {
+      "path": "../../packages/common"
+    }
+  ]
 }

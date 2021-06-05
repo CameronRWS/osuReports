@@ -7,7 +7,8 @@
   "scripts": {
     "make-types": "build-types node-osu -o . -n",
     "clean": "rimraf lib",
-    "git-add": "git add lib/"
+    "git-add": "git add lib/",
+    "prepare": "yarn make-types"
   },
   "devDependencies": {
     "@ajmadsen/build-types": "^1.0.0",

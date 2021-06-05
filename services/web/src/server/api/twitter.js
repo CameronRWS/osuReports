@@ -46,7 +46,9 @@ app.get("/login", passport.authenticate("twitter"));
 app.get(
   "/return",
   passport.authenticate("twitter", {
-    failureRedirect: "/"
+    failureFlash: "Login failed",
+    failureRedirect: "/",
+    assignProperty: "user"
   }),
   (req, res) => {
     res.redirect("/player");
