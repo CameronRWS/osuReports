@@ -1,10 +1,17 @@
 <template>
   <nav ref="nav" class="flex items-center px-6 py-4">
-    <div class="container flex items-baseline justify-between mx-auto text-gray-100">
-      <nuxt-link to="/" class="flex-shrink-0 text-xl font-semibold">osu! Reports</nuxt-link>
+    <div
+      class="container flex items-center justify-between mx-auto text-gray-100"
+    >
+      <nuxt-link to="/" class="flex-shrink-0 text-xl font-semibold"
+        >osu! Reports
+      </nuxt-link>
 
       <nuxt-link v-if="player" to="/player" class="font-semibold">
-        <twitter-user :user="player.twitterUsername" :image="player.profileImage" />
+        <twitter-user
+          :user="player.twitterUsername"
+          :image="player.profileImage"
+        />
       </nuxt-link>
       <a v-else href="/twitter/login">Login</a>
       <!-- <div v-if="player && false" class="hidden md:block" id="player-collapse">
@@ -26,7 +33,7 @@
 import Vue from "vue";
 export default Vue.extend({
   props: {
-    player: Object,
-  },
+    player: Object
+  }
 });
 </script>

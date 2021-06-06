@@ -11,7 +11,6 @@ async function getStats() {
 }
 
 router.get("/stats", (req, res) => {
-  console.log("stats");
   getStats()
     .then(stats => res.json(stats))
     .catch(err => {
