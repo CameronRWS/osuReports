@@ -1,9 +1,9 @@
-import { Profile } from "passport-twitter";
 import { Response as OrigResponse } from "express";
+import { MinimalUser } from "~/src/server/api/twitter";
 
 declare global {
   namespace Express {
-    interface User extends Profile {}
+    interface User extends MinimalUser {}
     interface Response {
       flashes: string[];
       flash: (msg: string) => Response & OrigResponse;
@@ -14,4 +14,12 @@ declare global {
       flashes: string[];
     }
   }
+}
+
+declare module "connect" {
+  interface IncomingMessage extends Express.Request {}
+}
+
+declare module "http" {
+  interface ServerResponse extends Express.Response {}
 }

@@ -1,8 +1,8 @@
-const express = require("express");
-const axios = require("axios").default;
+import express from "express";
+import axios from "axios";
 
-const { DB, UserCache, ReportCardCache } = require("@osureport/common");
-const { requireAuth } = require("../utils");
+import { DB, UserCache, ReportCardCache } from "@osureport/common";
+import { requireAuth } from "../utils";
 
 const router = express.Router();
 
@@ -11,6 +11,7 @@ async function getStats() {
 }
 
 router.get("/stats", (req, res) => {
+  console.log("stats");
   getStats()
     .then(stats => res.json(stats))
     .catch(err => {
@@ -18,10 +19,6 @@ router.get("/stats", (req, res) => {
       res.status(500).json("could not fetch stats");
     });
 });
-
-/**
- * @param {string} twitterUsername
- */
 
 router.get("/player/sessions/:sessionId/reportCard(.png)?", (req, res) => {
   getReportCard(req.params.sessionId)
@@ -45,8 +42,8 @@ async function getPlayerInfo(user) {
   const { username, profileImage } = user;
   const player = await DB.getPlayer(username);
 
-  let stats = null;
-  let osu = null;
+  let stats: any = null;
+  let osu: any = null;
   if (player && player.osuUsername) {
     stats = await DB.getPlayerStats(player.osuUsername);
     const username = await UserCache.getOsuUser(player.osuUsername);
@@ -138,8 +135,4 @@ router.get("/cover/:beatmapId", requireAuth, (req, res) => {
   // return res.status(302).redirect(coverUrl);
 });
 
-module.exports = {
-  router,
-  getStats,
-  getPlayerInfo
-};
+export { router, getStats, getPlayerInfo };

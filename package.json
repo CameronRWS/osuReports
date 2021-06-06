@@ -12,11 +12,13 @@
   "scripts": {
     "docker:base": "node ./bin/mk-base-image.js ./docker/Dockerfile",
     "docker:buildbase": "docker build -f ./docker/Dockerfile -t ajmadsen/osureports:base .",
-    "clean:pacakges": "lerna run clean",
-    "clean": "run-p clean:*",
+    "clean": "lerna run clean --stream",
     "build": "lerna run build --stream",
+    "build:packages": "lerna run build --stream --ignore @osureport/service-*",
     "watch": "lerna run dev --parallel --stream",
-    "start": "run-s build watch"
+    "start": "run-s build:packages watch",
+    "lerna:prepare": "lerna run prepare --stream",
+    "prepare": "run-s lerna:prepare build:packages"
   },
   "devDependencies": {
     "@monorepo-utils/workspaces-to-typescript-project-references": "^2.5.1",

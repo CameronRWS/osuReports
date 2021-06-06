@@ -2,13 +2,15 @@ import express from "express";
 import session from "express-session";
 import cookieParser from "cookie-parser";
 import Redis from "ioredis";
-const RedisStore = require("connect-redis")(session);
+import redisStoreFactory from "connect-redis";
+import passport from "passport";
 
 import { DB, UserCache } from "@osureport/common";
 import { requireAuth, flash } from "./utils";
-import { getPlayerInfo } from "./api";
+import { router as apiRouter, getPlayerInfo } from "./api";
+import { router as twitterRouter } from "./api/twitter";
 
-const COOKIE_NAME = "connect.sid";
+const RedisStore = redisStoreFactory(session);
 
 const app = express();
 
@@ -21,7 +23,6 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(
   session({
-    name: COOKIE_NAME,
     store: new RedisStore({ client: redisClient }),
     secret: process.env.SESSION_SECRET || "tHi$_i$_s3cR3t",
     resave: true,
@@ -33,13 +34,17 @@ app.use(
     }
   })
 );
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(flash);
+
+app.use("/twitter", twitterRouter);
+app.use("/api", apiRouter);
 
 app.post("/logout", (req, res) => {
   if (req.isUnauthenticated()) return res.status(400).json("not logged in");
 
   req.logout();
-  // res.clearCookie(COOKIE_NAME);
 
   if (!req.xhr) {
     return res.redirect("/");

@@ -1,9 +1,8 @@
-const { isArray, isString, all } = require("lodash/fp");
+import { isArray, isString, all } from "lodash/fp";
+import { RequestHandler } from "express";
 
-/** @type {import("express").RequestHandler} */
-async function requireAuth(req, res, next) {
+export const requireAuth: RequestHandler = async (req, res, next) => {
   if (!req.isAuthenticated()) {
-    console.log(req.headers, req.user);
     if (req.xhr)
       return res
         .status(401)
@@ -11,12 +10,10 @@ async function requireAuth(req, res, next) {
         .end();
     return res.status(302).redirect("/");
   }
-  // req.user = req.session.passport.user;
   next();
-}
+};
 
-/** @type {import("express").RequestHandler} */
-async function flash(req, res, next) {
+export const flash: RequestHandler = async (req, res, next) => {
   let flashes = JSON.parse((req.cookies || {})["flash"] || "[]");
   const valid = isArray(flashes) && all(el => isString(el), flashes);
   if (!valid) flashes = [];
@@ -37,9 +34,4 @@ async function flash(req, res, next) {
   };
 
   next();
-}
-
-module.exports = {
-  requireAuth,
-  flash
 };

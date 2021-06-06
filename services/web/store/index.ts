@@ -1,3 +1,5 @@
+import { Context } from "@nuxt/types";
+
 export const state = () => ({
   player: null,
   stats: null,
@@ -17,15 +19,14 @@ export const mutations = {
 };
 
 export const actions = {
-  async nuxtServerInit({ commit }, { req, res, app: { $api } }) {
-    console.dir(req);
-    if (req?.user) {
+  async nuxtServerInit({ commit }, { req, res, app: { $api } }: Context) {
+    if (req?.isAuthenticated()) {
       const player = await $api.getPlayerInfo();
       commit("setPlayer", player);
     }
     const stats = await $api.getStats();
     commit("setStats", stats);
-    commit("setFlash", [...res.flashes]);
+    commit("setFlash", [...(res.flashes || [])]);
 
     res.clearFlashes();
   },

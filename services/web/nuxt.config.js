@@ -4,11 +4,7 @@ export default {
     host: "0.0.0.0"
   },
   css: ["~/assets/css/base.css"],
-  serverMiddleware: [
-    "~/src/server/middleware.ts",
-    "~/src/server/api/middleware.js",
-    "~/src/server/api/twitter.js"
-  ],
+  serverMiddleware: ["~/src/server/middleware.ts"],
   buildModules: ["@nuxt/typescript-build", "@nuxtjs/tailwindcss"],
   modules: ["@nuxt/http", "~/modules/extractCSS"],
   plugins: ["~/plugins/api", "~/plugins/polyfills"],
